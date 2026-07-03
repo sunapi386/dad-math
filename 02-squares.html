@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 · Odd Numbers Make Squares — Math in Half an Hour</title>
+<meta name="description" content="Add the odd numbers 1, 3, 5, 7 and you always land on a perfect square. Build it dot by dot, with an interactive gnomon builder and a puzzle.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="01-gauss.html">Lesson 1</a>
+  <a class="nav" href="02-squares.html">Lesson 2</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Lesson 02</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Odd Numbers Make Squares</h1>
+    <p class="lede">Add up the odd numbers — 1, then 1+3, then 1+3+5 — and something magic happens:
+      you always land <em>exactly</em> on a perfect square. Today we'll see why, with dots.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">follows Lesson 1</span></p>
+  </header>
+
+  <!-- WARMUP -->
+  <h2>0 · Warm-up: what's a square number?</h2>
+  <p>Remember the orange diagonal of the multiplication table? <span class="katex-inline">1, 4, 9, 16, 25, \dots</span>
+    Those are <strong>square numbers</strong> — <span class="katex-inline">1{\times}1,\ 2{\times}2,\ 3{\times}3,\dots</span>
+    We call them “squares” because you can arrange that many dots into an actual square:</p>
+  $$2\times 2 = 4 \qquad 3\times 3 = 9 \qquad 4 \times 4 = 16$$
+
+  <!-- PROBLEM -->
+  <h2>1 · Only add the odd numbers</h2>
+  <p>Last time we added <em>every</em> number. Today, only the <strong>odd</strong> ones: 1, 3, 5, 7, 9, …
+    Add them one at a time and keep a running total:</p>
+  $$1 = 1 \qquad 1+3 = 4 \qquad 1+3+5 = 9 \qquad 1+3+5+7 = 16$$
+  <div class="note try">
+    <span class="t">Notice anything?</span> 1, 4, 9, 16 … those are exactly the square numbers from the warm-up!
+    Let's make it a hypothesis and watch <em>why</em> it happens.
+  </div>
+
+  <!-- BUILDER -->
+  <h2>2 · Build it, one L-shape at a time</h2>
+  <p>Here's the secret. To turn an <span class="katex-inline">n\times n</span> square into the next
+    <span class="katex-inline">(n{+}1)\times(n{+}1)</span> square, you add an <strong>L-shaped border</strong> along one
+    side and the bottom. Count the dots in that L — it's always the next <strong>odd number</strong>.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🟧</span> Gnomon builder <span class="muted small" style="font-weight:600">(a gnomon is that L-shape)</span></div>
+    <p class="phint">Press <b>Add next odd</b>. The new orange L is the odd number you're adding; the whole thing stays a perfect square.</p>
+    <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:center">
+      <div class="dotgrid" id="sq-grid" style="grid-template-columns:repeat(1,1fr)"></div>
+      <div style="min-width:220px; flex:1">
+        <div class="result" id="sq-readout" style="margin-top:0"></div>
+        <div class="controls" style="margin:14px 0 0">
+          <button class="btn" id="sq-add">Add next odd +</button>
+          <button class="btn ghost" id="sq-reset">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLORER -->
+  <h2>3 · The pattern in symbols</h2>
+  <p>After <span class="katex-inline">n</span> odd numbers, the total is exactly <span class="katex-inline">n^2</span>:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎛️</span> Odd-sum explorer</div>
+    <p class="phint">Slide to choose how many odd numbers to add. The sum is always a perfect square.</p>
+    <div class="controls">
+      <label class="ctl">how many odds, n = <span class="nbox" id="oe-n">4</span></label>
+      <input type="range" id="oe-range" min="1" max="15" value="4">
+    </div>
+    <div id="oe-expand" style="font-family:var(--mono); color:var(--ink-soft); overflow-x:auto; margin-bottom:6px"></div>
+    <div class="result" id="oe-result"></div>
+  </div>
+
+  <p>The <span class="katex-inline">n</span>-th odd number is <span class="katex-inline">2n-1</span>
+    (put <span class="katex-inline">n=1</span> → 1, <span class="katex-inline">n=2</span> → 3, <span class="katex-inline">n=3</span> → 5 …), so what we found is:</p>
+  <div style="padding:8px 0">
+  $$\boxed{\;1 + 3 + 5 + \cdots + (2n-1) \;=\; n^2\;}$$
+  </div>
+
+  <!-- TIE BACK -->
+  <h2>4 · Bonus: it also falls out of Lesson 1</h2>
+  <p>Pair the odd numbers Gauss-style — first + last <span class="katex-inline">= 1 + (2n-1) = 2n</span>, and there are
+    <span class="katex-inline">n/2</span> pairs:</p>
+  $$\frac{n}{2}\times 2n = n^2$$
+  <p>Same answer, straight from last week's trick. Two roads, one destination. <span style="font-family:var(--serif)">□</span></p>
+
+  <!-- PUZZLE -->
+  <h2>5 · 🧩 Puzzle: name that square</h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> How many odds?</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="number" inputmode="numeric" placeholder="?" aria-label="your answer">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New square →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Keep going:</strong> what is <span class="katex-inline">1+3+5+7+9+11+13</span>?
+      Predict the square first, <em>then</em> add to check.</li>
+    <li><strong>Backwards:</strong> 81 is a square. Which one? How many odd numbers add up to it?</li>
+    <li><strong>Draw</strong> the <span class="katex-inline">5\times5</span> dot square and circle the L-border that turned the
+      <span class="katex-inline">4\times4</span> into it. How many dots in that border?</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">square number · odd &amp; even · gnomon (the L-shape) · perfect square · border</p>
+
+  <div class="lessonnav">
+    <a href="01-gauss.html">← Lesson 1: The Gauss Formula</a>
+    <a class="disabled" href="#">Next (soon) →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var K = window.katex;
+  function tex(el, s) { if (K) K.render(s, el, { throwOnError: false }); else el.textContent = s; }
+  document.querySelectorAll(".katex-inline").forEach(function (el) { tex(el, el.textContent); });
+
+  // ---------- Gnomon builder ----------
+  (function () {
+    var MAXN = 10, n = 1;
+    var grid = document.getElementById("sq-grid"), read = document.getElementById("sq-readout");
+    function draw() {
+      grid.style.gridTemplateColumns = "repeat(" + n + ", 1fr)";
+      grid.innerHTML = "";
+      for (var row = 0; row < n; row++) {
+        for (var col = 0; col < n; col++) {
+          var d = document.createElement("div");
+          var isNewL = (row === n - 1 || col === n - 1); // last row or col = the L just added
+          d.className = "dot " + (isNewL ? "new" : "on");
+          grid.appendChild(d);
+        }
+      }
+      var odd = 2 * n - 1, sum = n * n;
+      var terms = [];
+      for (var k = 1; k <= n; k++) terms.push(2 * k - 1);
+      read.innerHTML =
+        "<div style='font-family:var(--mono); margin-bottom:6px'>" + terms.join(" + ") + " = <b style='color:var(--good)'>" + sum + "</b></div>" +
+        "<div>The orange L added <b>" + odd + "</b> dots (the " + ordinal(n) + " odd number). " +
+        "Total is a " + n + "×" + n + " square = <b>" + sum + "</b>.</div>" +
+        (n >= MAXN ? "<div class='muted small' style='margin-top:6px'>Max reached — press Reset.</div>" : "");
+    }
+    function ordinal(k){ var s=["th","st","nd","rd"], v=k%100; return k+(s[(v-20)%10]||s[v]||s[0]); }
+    document.getElementById("sq-add").addEventListener("click", function () { if (n < MAXN) { n++; draw(); } });
+    document.getElementById("sq-reset").addEventListener("click", function () { n = 1; draw(); });
+    draw();
+  })();
+
+  // ---------- Odd-sum explorer ----------
+  (function () {
+    var r = document.getElementById("oe-range");
+    function upd() {
+      var n = +r.value;
+      document.getElementById("oe-n").textContent = n;
+      var terms = [];
+      for (var k = 1; k <= n; k++) terms.push(2 * k - 1);
+      var shown = (n <= 8) ? terms.join(" + ") : (terms.slice(0, 3).join(" + ") + " + \\cdots + " + (2 * n - 1));
+      tex(document.getElementById("oe-expand"), shown);
+      tex(document.getElementById("oe-result"),
+        "= n^2 = " + n + "^2 = " + (n * n));
+    }
+    r.addEventListener("input", upd); upd();
+  })();
+
+  // ---------- Puzzle: how many odds ----------
+  (function () {
+    var k = 0, streak = 0, best = 0;
+    var promptEl = document.getElementById("pz-prompt"),
+        input = document.getElementById("pz-input"),
+        resEl = document.getElementById("pz-result");
+    function newSq() {
+      k = 2 + Math.floor(Math.random() * 11); // 2..12
+      promptEl.innerHTML = "The number <b>" + (k * k) + "</b> is a perfect square. " +
+        "How many odd numbers (1, 3, 5, …) add up to it?";
+      input.value = ""; input.focus();
+      resEl.className = "result";
+      resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      if (input.value === "") return;
+      if (+input.value === k) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Yes! <b>" + k + "</b> odd numbers, because " + k + "×" + k + " = " + (k * k) +
+          ". &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ Not quite. Ask: <b>which square is " + (k * k) + "?</b> That's your answer. (streak reset)";
+      }
+    }
+    function reveal() {
+      var terms = []; for (var i = 1; i <= k; i++) terms.push(2 * i - 1);
+      resEl.className = "result";
+      resEl.innerHTML = "<span style='font-family:var(--mono)'>" + terms.join(" + ") + " = " + (k * k) +
+        "</span> &nbsp;→ that's <b>" + k + "</b> odd numbers (" + k + "² = " + (k * k) + ").";
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", reveal);
+    document.getElementById("pz-new").addEventListener("click", newSq);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newSq();
+  })();
+});
+</script>
+</body>
+</html>

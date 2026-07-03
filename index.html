@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Advanced Math Explained in Half an Hour</title>
+<meta name="description" content="Short, hands-on math workshops for curious kids — derive big ideas from scratch in about thirty minutes, with interactive examples and puzzles.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="01-gauss.html">Lesson 1</a>
+  <a class="nav" href="02-squares.html">Lesson 2</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">Math with Dad · a workshop series</div>
+    <h1>Advanced Math,<br>Explained in <span class="half">Half an Hour</span></h1>
+    <p class="lede">Big ideas, built from scratch at the kitchen table. Every lesson takes
+      about thirty minutes, starts from a simple question, and ends with a formula you
+      <em>derived</em> — not memorized. Play along in the browser.</p>
+    <p style="margin-top:18px"><span class="badge">⏱ ~30 min each</span> &nbsp; <span class="badge amber">✏️ derive, don't memorize</span> &nbsp; <span class="badge green">🧩 interactive puzzles</span></p>
+  </header>
+
+  <div class="grid">
+    <a class="card" href="01-gauss.html">
+      <div class="num">01</div>
+      <h3>The Gauss Formula</h3>
+      <p>Add up 1, 2, 3, all the way to a hundred — in one line. Meet the summation sign, the pairing trick, and the multiplication table.</p>
+      <div class="go">Start lesson →</div>
+    </a>
+
+    <a class="card" href="02-squares.html">
+      <div class="num">02</div>
+      <h3>Odd Numbers Make Squares</h3>
+      <p>Add the odd numbers 1, 3, 5, 7… and you always land on a perfect square. Watch it happen dot by dot.</p>
+      <div class="go">Start lesson →</div>
+    </a>
+
+    <div class="card soon">
+      <div class="num">03</div>
+      <h3>Triangular Numbers <span class="badge amber" style="vertical-align:middle">soon</span></h3>
+      <p>Bowling pins, handshakes, and why <span class="katex-inline">n(n+1)/2</span> keeps showing up everywhere.</p>
+      <div class="go muted">Coming soon</div>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>How a lesson works</h2>
+  <p>Each session follows the same rhythm — the same one a mathematician uses:</p>
+  <div class="grid">
+    <div class="panel" style="margin:0">
+      <div class="ptitle"><span class="ic">①</span> Start with a real question</div>
+      <p class="phint" style="margin:0">“How would you add every number from 1 to 100?” Small enough to try, annoying enough to want a shortcut.</p>
+    </div>
+    <div class="panel" style="margin:0">
+      <div class="ptitle"><span class="ic">②</span> Play with examples</div>
+      <p class="phint" style="margin:0">Try n = 6, then n = 8. Notice a pattern. Say it out loud.</p>
+    </div>
+    <div class="panel" style="margin:0">
+      <div class="ptitle"><span class="ic">③</span> Make a hypothesis <span class="katex-inline">\therefore</span></div>
+      <p class="phint" style="margin:0">Write your guess down with three dots. Then test it on a fresh example.</p>
+    </div>
+    <div class="panel" style="margin:0">
+      <div class="ptitle"><span class="ic">④</span> Generalize &amp; box it <span style="font-family:var(--serif)">□</span></div>
+      <p class="phint" style="margin:0">Turn the pattern into a formula that works for <em>any</em> number. Draw a little square to mark “done.”</p>
+    </div>
+  </div>
+
+  <div class="note try">
+    <span class="t">For grown-ups:</span> read a section aloud, then hand the device to your kid and
+    let <em>them</em> move the slider and make the guess. The goal isn't speed — it's the moment
+    they say “wait, it's always…”.
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script>
+  // render the tiny inline snippets used in cards
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".katex-inline").forEach(function (el) {
+      if (window.katex) katex.render(el.textContent, el, { throwOnError: false });
+    });
+  });
+</script>
+</body>
+</html>
