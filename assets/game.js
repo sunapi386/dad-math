@@ -32,7 +32,11 @@
     "cs-bin":      { icon: "💡", name: "Bit Flipper",      desc: "Get a 5 streak in the binary puzzle." },
     "cs-crypto":   { icon: "🕵️", name: "Code Cracker",     desc: "Get a 5 streak decoding secret messages." },
     "gt-euler":    { icon: "🌉", name: "Bridge Master",    desc: "Get a 5 streak in the Euler path puzzle." },
-    "qm-story":    { icon: "🐱", name: "Cat Whisperer",    desc: "Finish the quantum story to the very end." }
+    "qm-story":    { icon: "🐱", name: "Cat Whisperer",    desc: "Finish the quantum story to the very end." },
+    "gl-loop":     { icon: "🎮", name: "Game Maker",       desc: "Score 25 in Cave Dodge — the game you built." },
+    "gl-path":     { icon: "🧭", name: "Pathfinder",       desc: "Get a 5 streak counting shortest paths." },
+    "gl-factory":  { icon: "⚙️", name: "Gate Keeper",      desc: "Get a 5 streak in the logic-gate quiz." },
+    "gl-world":    { icon: "🗺️", name: "World Builder",    desc: "Get a 5 streak running the seed recipe." }
   };
 
   // [starsNeeded, icon, title]

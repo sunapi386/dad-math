@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Lab 3 · Factory Logic — Math in Half an Hour</title>
+<meta name="description" content="Factorio is secretly a math lab. Balance a factory with ratios, then wire up real logic gates — AND, OR, NOT — into a machine that adds two numbers, the same way a real chip does.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Lab · Topic 03</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Factory Logic</h1>
+    <p class="lede">Factorio looks like a game about conveyor belts. It's actually a game about
+      <b>ratios</b> and <b>logic</b> — the exact two things a real computer chip is made of. People have
+      built working calculators inside Factorio. Today, so will you: first balance a factory, then wire
+      up a machine that adds.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">pairs great with 💻 CS·1 Binary</span></p>
+  </header>
+
+  <!-- 1 RATIOS -->
+  <h2>1 · The secret is ratios</h2>
+  <p>Every Factorio player learns this the hard way: if your makers pump out plates faster than your
+    users can eat them, the belt clogs; too slow, and the users sit idle and <em>starving</em>. A smooth
+    factory is <b>balanced</b> — supply equals demand.</p>
+  <p>Say each 🔥 furnace makes <b>2 plates/second</b> and each 🏭 assembler needs <b>3 plates/second</b>.
+    Drag the counts until the two bars match. The magic balance is the smallest whole-number ratio.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">⚖️</span> The balancer</div>
+    <p class="phint">🔥 furnace = 2/s supply &nbsp;·&nbsp; 🏭 assembler = 3/s demand. Match the bars for a
+      clean factory.</p>
+    <div class="ctrlrow">
+      <label class="slab">🔥 furnaces <input id="bl-mk" type="range" min="1" max="12" step="1" value="2"></label>
+      <label class="slab">🏭 assemblers <input id="bl-us" type="range" min="1" max="12" step="1" value="1"></label>
+    </div>
+    <div class="barpair">
+      <div class="barlab">supply</div><div class="bartrack"><div class="barfill sup" id="bl-sup"></div></div>
+      <div class="barlab">demand</div><div class="bartrack"><div class="barfill dem" id="bl-dem"></div></div>
+    </div>
+    <div class="result" id="bl-read">…</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Notice:</span> the first perfect match is <b>3 furnaces to 2 assemblers</b>
+    (6 plates made, 6 plates eaten). Every bigger match is just that same 3:2 doubled. That “smallest
+    whole ratio” is what Factorio wizards scribble on paper before they build.
+  </div>
+
+  <!-- 2 GATES -->
+  <h2>2 · Switches that think: logic gates</h2>
+  <p>Deeper in Factorio are <b>circuit wires</b> and <b>combinators</b> — parts that take switches
+    (on/off, just like <a href="cs01-binary.html">binary bits</a>) and combine them by a rule. These
+    rules are called <b>logic gates</b>, and there are only a few:</p>
+  <ul>
+    <li><b>AND</b> — on only if <em>both</em> inputs are on. (“Fire the alarm if the door is open AND it's night.”)</li>
+    <li><b>OR</b> — on if <em>either</em> is on.</li>
+    <li><b>NOT</b> — flips it: on becomes off.</li>
+    <li><b>XOR</b> — on if the inputs <em>disagree</em> (exactly one on).</li>
+  </ul>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🔌</span> Gate playground</div>
+    <p class="phint">Flip the two input switches, pick a gate, watch the output bulb.</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="bitbtn big" id="gt-a">0</button>
+      <select id="gt-sel" class="gatesel">
+        <option>AND</option><option>OR</option><option>XOR</option>
+      </select>
+      <button class="bitbtn big" id="gt-b">0</button>
+      <span class="gatearrow">→</span>
+      <span class="bulb" id="gt-out">0</span>
+    </div>
+    <div class="result" id="gt-read">Output is <b>0</b>.</div>
+  </div>
+
+  <!-- 3 ADDER -->
+  <h2>3 · 🧠 Build a machine that adds</h2>
+  <p>Here's the payoff. To add two single bits you need to know two things: the <b>sum digit</b> and
+    whether you <b>carry</b> a 1. Watch: <span class="katex-inline">1+1 = 2</span>, which in binary is
+    <b>10</b> — a 0 with a carried 1. It turns out:</p>
+  $$\text{sum} = a \mathbin{\text{XOR}} b \qquad\qquad \text{carry} = a \mathbin{\text{AND}} b$$
+  <p>That's it. Two gates you already met, wired side by side, and you've built a <b>half adder</b> — the
+    seed of every calculator, phone, and console ever made. Flip the inputs and check all four cases:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧠</span> The half adder</div>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="bitbtn big" id="ad-a">0</button>
+      <span class="gatearrow">+</span>
+      <button class="bitbtn big" id="ad-b">0</button>
+      <span class="gatearrow">=</span>
+      <span class="addout" id="ad-out">00</span>
+    </div>
+    <div class="addwires" id="ad-wires"></div>
+    <div class="result" id="ad-read">Flip the bits — try 1 + 1.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">You did it:</span> <b>1 + 1</b> lights carry = 1, sum = 0 → binary <b>10</b> = two.
+    Chain a few of these together (a “full adder”) and you can add any two numbers at all. That chain,
+    millions of times over, <em>is</em> the chip running the game you're playing.
+  </div>
+
+  <!-- 4 PUZZLE -->
+  <h2>4 · 🧩 Puzzle: be the circuit</h2>
+  <p>Read the gate, give the output (0 or 1). Streak of 3 = ⭐, streak of 5 = ⚙️ badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Gate quiz</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="0 or 1" aria-label="your answer" style="width:8ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show rule</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Spot a ratio in a game.</strong> Next Factorio session (or Lego build), find one place
+      where you need “N of these to feed M of those.” Write the smallest whole-number ratio.</li>
+    <li><strong>Talk in gates.</strong> Turn a house rule into a gate: “I get dessert if I finished
+      dinner AND my room is clean.” Which gate? What about “…dinner OR chores”?</li>
+    <li><strong>Add by hand:</strong> use the sum = XOR, carry = AND rule to add the bits of
+      <span class="katex-inline">1 + 1</span>, then <span class="katex-inline">1 + 0</span>. Does it
+      match binary from CS·1?</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">ratio · balance · bottleneck · logic gate · AND · OR · NOT · XOR · half adder · carry</p>
+
+  <div class="lessonnav">
+    <a href="gl02-pathfinding.html">← Game Lab 2: Pathfinding</a>
+    <a href="gl04-worlds.html">Game Lab 4: Random worlds →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=3"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".katex-inline").forEach(function (el) {
+    if (window.katex) katex.render(el.textContent, el, { throwOnError: false });
+  });
+  var GATE = { AND: function (a, b) { return a && b ? 1 : 0; },
+               OR:  function (a, b) { return a || b ? 1 : 0; },
+               XOR: function (a, b) { return a ^ b; },
+               NOT: function (a) { return a ? 0 : 1; } };
+  function gcd(x, y) { return y ? gcd(y, x % y) : x; }
+
+  // ---------- Balancer ----------
+  (function () {
+    var SUP = 2, DEM = 3, MAXBAR = 12 * 3;
+    var mk = document.getElementById("bl-mk"), us = document.getElementById("bl-us");
+    var sup = document.getElementById("bl-sup"), dem = document.getElementById("bl-dem"), read = document.getElementById("bl-read");
+    function paint() {
+      var M = +mk.value, U = +us.value, s = M * SUP, d = U * DEM;
+      sup.style.width = (100 * s / MAXBAR) + "%"; sup.textContent = s + "/s";
+      dem.style.width = (100 * d / MAXBAR) + "%"; dem.textContent = d + "/s";
+      var g = gcd(SUP, DEM), rM = DEM / g, rU = SUP / g;   // balanced makers:users
+      if (s === d) read.innerHTML = "✅ <b>Balanced!</b> " + M + " furnaces feed " + U + " assemblers perfectly (" + s + " = " + d + "). Smallest such match: <b>" + rM + ":" + rU + "</b>.";
+      else if (s < d) read.innerHTML = "🥵 <b>Starving</b> — makers give " + s + "/s but users want " + d + "/s. Add furnaces (aim for a " + rM + ":" + rU + " ratio).";
+      else read.innerHTML = "🧱 <b>Clogged</b> — makers give " + s + "/s, users only eat " + d + "/s. Belt backs up. (Balance is " + rM + ":" + rU + ".)";
+    }
+    mk.addEventListener("input", paint); us.addEventListener("input", paint); paint();
+  })();
+
+  // ---------- Gate playground ----------
+  (function () {
+    var a = 0, b = 0;
+    var A = document.getElementById("gt-a"), B = document.getElementById("gt-b"),
+        sel = document.getElementById("gt-sel"), out = document.getElementById("gt-out"), read = document.getElementById("gt-read");
+    function paint() {
+      A.textContent = a; A.className = "bitbtn big" + (a ? " on" : "");
+      B.textContent = b; B.className = "bitbtn big" + (b ? " on" : "");
+      var o = GATE[sel.value](a, b);
+      out.textContent = o; out.className = "bulb" + (o ? " lit" : "");
+      read.innerHTML = a + " <b>" + sel.value + "</b> " + b + " = <b>" + o + "</b>.";
+    }
+    A.addEventListener("click", function () { a ^= 1; paint(); });
+    B.addEventListener("click", function () { b ^= 1; paint(); });
+    sel.addEventListener("change", paint); paint();
+  })();
+
+  // ---------- Half adder ----------
+  (function () {
+    var a = 0, b = 0;
+    var A = document.getElementById("ad-a"), B = document.getElementById("ad-b"),
+        out = document.getElementById("ad-out"), wires = document.getElementById("ad-wires"), read = document.getElementById("ad-read");
+    function paint() {
+      A.textContent = a; A.className = "bitbtn big" + (a ? " on" : "");
+      B.textContent = b; B.className = "bitbtn big" + (b ? " on" : "");
+      var sum = GATE.XOR(a, b), carry = GATE.AND(a, b), total = carry * 2 + sum;
+      out.textContent = "" + carry + sum;
+      wires.innerHTML =
+        "<div class='wireline'><span>sum &nbsp;= " + a + " <b>XOR</b> " + b + "</span><span class='wv" + (sum ? " on" : "") + "'>" + sum + "</span></div>" +
+        "<div class='wireline'><span>carry = " + a + " <b>AND</b> " + b + "</span><span class='wv" + (carry ? " on" : "") + "'>" + carry + "</span></div>";
+      read.innerHTML = "<b>" + a + " + " + b + " = " + total + "</b> &nbsp;→ binary <span style='font-family:var(--mono)'>" + carry + sum + "</span>" + (a && b ? " &nbsp;🎉 it carried!" : "");
+    }
+    A.addEventListener("click", function () { a ^= 1; paint(); });
+    B.addEventListener("click", function () { b ^= 1; paint(); });
+    paint();
+  })();
+
+  // ---------- Puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null, gates = ["AND", "OR", "XOR"];
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    var rules = { AND: "AND = 1 only if both are 1.", OR: "OR = 1 if either is 1.", XOR: "XOR = 1 only if they differ." };
+    function newQ() {
+      var g = gates[Math.floor(Math.random() * gates.length)];
+      var a = Math.round(Math.random()), b = Math.round(Math.random());
+      q = { ans: String(GATE[g](a, b)), rule: rules[g], text: "<b>" + a + " " + g + " " + b + "</b> = ?" };
+      promptEl.innerHTML = q.text;
+      input.value = ""; input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Circuit agrees! &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("gl3", 1, "Gate streak " + streak);
+          if (streak >= 5) DadMath.badge("gl-factory");
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.rule + " (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Rule: " + q.rule;
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+</body>
+</html>

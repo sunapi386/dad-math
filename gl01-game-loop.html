@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Lab 1 · Make a Game from Scratch — Math in Half an Hour</title>
+<meta name="description" content="Every video game is the same secret loop: update, draw, repeat — 60 times a second. Build a moving world, then a real playable dodge game, right in the browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Lab · Topic 01</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Make a Game from Scratch</h1>
+    <p class="lede">Factorio, StarCraft, Deep Rock Galactic — under the shiny graphics they're all
+      built on the <b>same</b> tiny secret. A game is a heartbeat: <em>update the world a little,
+      draw it, repeat</em> — about sixty times every second. Do that fast enough and pixels come
+      alive. Let's build one.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">no math lesson needed first</span> &nbsp; <span class="badge green">🎮 you'll build a real game</span></p>
+  </header>
+
+  <!-- 1 THE LOOP -->
+  <h2>1 · The heartbeat every game shares</h2>
+  <p>Sit a person in front of a movie: it's just still pictures, flashed so fast your eye blends them.
+    A game does the same — but instead of playing pre-made frames, it <b>builds a fresh frame every
+    time</b>, using where everything is <em>right now</em>. That builder runs in a loop:</p>
+  <div class="looplist">
+    <span class="loopstep"><b>①</b> read the controls</span>
+    <span class="looparrow">→</span>
+    <span class="loopstep"><b>②</b> update the world</span>
+    <span class="looparrow">→</span>
+    <span class="loopstep"><b>③</b> draw everything</span>
+    <span class="looparrow">↺</span>
+  </div>
+  <p>One trip round is a <b>tick</b> (or a <em>frame</em>). Sixty ticks a second is “60 FPS.”
+    In StarCraft each tick moves every unit a hair and checks who got shot. In Factorio each tick
+    steps every belt and inserter. Same heartbeat, different world. Everything else is decoration.</p>
+
+  <!-- 2 MOTION / VECTORS -->
+  <h2>2 · How things move: position + velocity</h2>
+  <p>Here's the whole trick to movement. Give a thing a <b>position</b> (where it is) and a
+    <b>velocity</b> (how far it jumps each tick). Then every tick, do one line:</p>
+  $$\texttt{position} \;\mathrel{+}=\; \texttt{velocity}$$
+  <p>That's it. Big velocity = fast. Negative velocity = leftward. Change velocity a little each tick
+    and you get gravity, curves, bounces — everything.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🟢</span> The motion sandbox</div>
+    <p class="phint">Press <b>Start the heartbeat</b>, then drag the sliders. You're setting the ball's
+      velocity live. It bounces off the walls by <em>flipping</em> that velocity — the same 3 lines
+      of code a bouncing grenade uses.</p>
+    <div class="canvaswrap"><canvas id="sandbox" width="480" height="240"></canvas></div>
+    <div class="ctrlrow">
+      <button class="btn" id="sb-run">▶ Start the heartbeat</button>
+      <label class="slab">↔ sideways speed <input id="sb-vx" type="range" min="-6" max="6" step="1" value="3"></label>
+      <label class="slab">↕ up/down speed <input id="sb-vy" type="range" min="-6" max="6" step="1" value="2"></label>
+    </div>
+    <div class="result" id="sb-read">Ticks: <b>0</b></div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Try:</span> set both speeds to 0 — the ball freezes (the loop still runs, the world
+    just isn't changing). Set sideways to 6 — it blurs across. That “blur” is your eye seeing the
+    same ball drawn in 60 slightly-different spots each second.
+  </div>
+
+  <!-- 3 COLLISION -->
+  <h2>3 · “Did they touch?” — collision</h2>
+  <p>A game world is dumb: two things can sit in the exact same spot and nothing happens unless the
+    code <b>checks</b>. For boxes the check is four comparisons — do they overlap left-right <em>and</em>
+    up-down? If yes, they're touching. That one check is a bullet hitting a Zergling, a dwarf walking
+    into lava, an item landing in a chest.</p>
+
+  <!-- 4 THE GAME -->
+  <h2>4 · 🎮 Build it: Cave Dodge</h2>
+  <p>Now we glue it together — loop + velocity + collision + a <b>state machine</b> (the game is either
+    <em>ready</em>, <em>playing</em>, or <em>game over</em>; each state behaves differently). You're a
+    dwarf; rocks fall from the ceiling; don't get squished. Survive to score. It gets faster.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎮</span> Cave Dodge</div>
+    <p class="phint">Move with <b>← →</b> arrow keys, or the buttons below. Reach <b>10</b> for a ⭐,
+      <b>25</b> for the 🎮 badge.</p>
+    <div class="canvaswrap"><canvas id="game" width="480" height="300" tabindex="0"></canvas></div>
+    <div class="ctrlrow">
+      <button class="btn ghost padbtn" id="g-left">◀</button>
+      <button class="btn" id="g-start">▶ Start</button>
+      <button class="btn ghost padbtn" id="g-right">▶</button>
+    </div>
+    <div class="result" id="g-read">Best score: <b>0</b></div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Look what you built:</span> the rocks use <code>position += velocity</code> from
+    §2. The squish uses the box-overlap check from §3. The “Start / playing / dead” switch is the
+    state machine. That's a <em>whole game</em> in about forty lines — and it's genuinely how the big
+    ones start.
+  </div>
+
+  <!-- 5 PUZZLE -->
+  <h2>5 · 🧩 Puzzle: think like the loop</h2>
+  <p>You're the computer now. Answer what the world looks like after the ticks. Streak of 3 = ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Tick tracer</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:12ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Name the loop in a game you love.</strong> In Deep Rock, what happens every single
+      tick? (Hint: enemies move, your position updates, the game checks if a bug reached you.)</li>
+    <li><strong>Design a velocity.</strong> If a rock should fall twice as fast, what do you change —
+      its position or its velocity? Why?</li>
+    <li><strong>Invent one rule.</strong> Add a rule to Cave Dodge in words: e.g. “every 20 rocks, they
+      speed up,” or “a gold rock is worth 5.” Real game design is just piling up little rules like that.</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">game loop · tick · frame · FPS · position · velocity · collision · state machine · game design</p>
+
+  <div class="lessonnav">
+    <a href="index.html#games">← All Game Lab topics</a>
+    <a href="gl02-pathfinding.html">Game Lab 2: How units find their way →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=3"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // ---------- Motion sandbox ----------
+  (function () {
+    var cv = document.getElementById("sandbox"), ctx = cv.getContext("2d");
+    var W = cv.width, H = cv.height, R = 12;
+    var x = W / 2, y = H / 2, vx = 3, vy = 2, ticks = 0, running = false, raf = null;
+    var read = document.getElementById("sb-read"), runBtn = document.getElementById("sb-run");
+    var sx = document.getElementById("sb-vx"), sy = document.getElementById("sb-vy");
+    sx.addEventListener("input", function () { vx = +sx.value; });
+    sy.addEventListener("input", function () { vy = +sy.value; });
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      // faint grid so motion is visible
+      ctx.strokeStyle = "rgba(127,127,127,.15)"; ctx.lineWidth = 1;
+      for (var gx = 0; gx <= W; gx += 40) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+      for (var gy = 0; gy <= H; gy += 40) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+      ctx.fillStyle = "#22c55e";
+      ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.fill();
+    }
+    function step() {
+      // ① update: position += velocity
+      x += vx; y += vy;
+      // wall bounce: flip the velocity (and the slider follows)
+      if (x < R) { x = R; vx = Math.abs(vx); sx.value = vx; }
+      if (x > W - R) { x = W - R; vx = -Math.abs(vx); sx.value = vx; }
+      if (y < R) { y = R; vy = Math.abs(vy); sy.value = vy; }
+      if (y > H - R) { y = H - R; vy = -Math.abs(vy); sy.value = vy; }
+      ticks++;
+      // ② draw
+      draw();
+      read.innerHTML = "Ticks: <b>" + ticks + "</b> &nbsp;·&nbsp; position (" + Math.round(x) + ", " + Math.round(y) + ")";
+      if (running) raf = requestAnimationFrame(step);
+    }
+    runBtn.addEventListener("click", function () {
+      running = !running;
+      runBtn.textContent = running ? "⏸ Pause" : "▶ Start the heartbeat";
+      if (running) raf = requestAnimationFrame(step);
+      else if (raf) cancelAnimationFrame(raf);
+    });
+    draw();
+  })();
+
+  // ---------- Cave Dodge ----------
+  (function () {
+    var cv = document.getElementById("game"), ctx = cv.getContext("2d");
+    var W = cv.width, H = cv.height;
+    var state = "ready";          // ready | play | dead
+    var player, rocks, score, spawnT, speed, raf = null, moveL = false, moveR = false;
+    var read = document.getElementById("g-read"), startBtn = document.getElementById("g-start");
+    var best = (window.DadMath && DadMath.getBest("gl-dodge")) || 0;
+    var starred10 = false;
+
+    function reset() {
+      player = { x: W / 2 - 16, y: H - 26, w: 32, h: 18, v: 5 };
+      rocks = []; score = 0; spawnT = 0; speed = 2.2; starred10 = false;
+    }
+    function overlap(a, b) {          // box vs box — the §3 check
+      return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    }
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = "rgba(127,127,127,.12)"; ctx.fillRect(0, H - 6, W, 6); // floor
+      // rocks
+      ctx.fillStyle = "#a3785a";
+      rocks.forEach(function (r) {
+        ctx.beginPath();
+        ctx.moveTo(r.x, r.y + r.h); ctx.lineTo(r.x + r.w / 2, r.y); ctx.lineTo(r.x + r.w, r.y + r.h);
+        ctx.closePath(); ctx.fill();
+      });
+      // player (a little dwarf: box + helmet light)
+      ctx.fillStyle = "#3b82f6"; ctx.fillRect(player.x, player.y, player.w, player.h);
+      ctx.fillStyle = "#fde047"; ctx.fillRect(player.x + player.w / 2 - 3, player.y - 4, 6, 5);
+      // score
+      ctx.fillStyle = "rgba(127,127,127,.9)"; ctx.font = "bold 16px system-ui,sans-serif";
+      ctx.fillText("Score " + score, 10, 20);
+      if (state === "ready") banner("▶ Start — dodge the falling rocks");
+      if (state === "dead") banner("💥 Squished at " + score + " — press Start");
+    }
+    function banner(txt) {
+      ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.fillRect(0, H / 2 - 22, W, 44);
+      ctx.fillStyle = "#fff"; ctx.font = "bold 17px system-ui,sans-serif";
+      ctx.textAlign = "center"; ctx.fillText(txt, W / 2, H / 2 + 6); ctx.textAlign = "left";
+    }
+    function step() {
+      // ① controls
+      if (moveL) player.x -= player.v;
+      if (moveR) player.x += player.v;
+      if (player.x < 0) player.x = 0;
+      if (player.x > W - player.w) player.x = W - player.w;
+      // ② update world
+      spawnT++;
+      if (spawnT > Math.max(14, 34 - score)) {   // spawn faster as score climbs
+        spawnT = 0;
+        var w = 20 + Math.floor(Math.random() * 22);
+        rocks.push({ x: Math.random() * (W - w), y: -24, w: w, h: 20, v: speed + Math.random() * 1.5 });
+      }
+      for (var i = rocks.length - 1; i >= 0; i--) {
+        rocks[i].y += rocks[i].v;                // position += velocity
+        if (overlap(player, rocks[i])) { die(); return; }
+        if (rocks[i].y > H) { rocks.splice(i, 1); score++; award(); }
+      }
+      speed += 0.002;                            // whole cave slowly speeds up
+      draw();
+      if (state === "play") raf = requestAnimationFrame(step);
+    }
+    function award() {
+      if (window.DadMath) {
+        if (score === 10 && !starred10) { starred10 = true; DadMath.star("gl1", 1, "Cave Dodge: reached 10!"); }
+        if (score === 25) DadMath.badge("gl-loop");
+      }
+    }
+    function die() {
+      state = "dead";
+      if (score > best) { best = score; if (window.DadMath) DadMath.best("gl-dodge", score); }
+      read.innerHTML = "Best score: <b>" + best + "</b>";
+      startBtn.textContent = "▶ Again";
+      draw();
+    }
+    function start() {
+      reset(); state = "play"; startBtn.textContent = "▶ Restart";
+      cv.focus();
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(step);
+    }
+    startBtn.addEventListener("click", start);
+    // keyboard
+    function key(e, down) {
+      if (e.key === "ArrowLeft") { moveL = down; e.preventDefault(); }
+      if (e.key === "ArrowRight") { moveR = down; e.preventDefault(); }
+    }
+    cv.addEventListener("keydown", function (e) { key(e, true); });
+    cv.addEventListener("keyup", function (e) { key(e, false); });
+    document.addEventListener("keydown", function (e) { if (state === "play") key(e, true); });
+    document.addEventListener("keyup", function (e) { if (state === "play") key(e, false); });
+    // touch/click pads
+    function hold(btn, set) {
+      var L = document.getElementById(btn);
+      L.addEventListener("mousedown", function () { set(true); });
+      L.addEventListener("mouseup", function () { set(false); });
+      L.addEventListener("mouseleave", function () { set(false); });
+      L.addEventListener("touchstart", function (e) { set(true); e.preventDefault(); }, { passive: false });
+      L.addEventListener("touchend", function (e) { set(false); e.preventDefault(); }, { passive: false });
+    }
+    hold("g-left", function (v) { moveL = v; });
+    hold("g-right", function (v) { moveR = v; });
+    reset(); read.innerHTML = "Best score: <b>" + best + "</b>"; draw();
+  })();
+
+  // ---------- Puzzle: tick tracer ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"),
+        input = document.getElementById("pz-input"),
+        resEl = document.getElementById("pz-result");
+    function newQ() {
+      var kind = Math.floor(Math.random() * 3);
+      if (kind === 0) {
+        var p = 2 + Math.floor(Math.random() * 8), v = 1 + Math.floor(Math.random() * 5), t = 2 + Math.floor(Math.random() * 6);
+        q = { ans: String(p + v * t),
+              work: "start " + p + ", each tick +" + v + ", after " + t + " ticks: " + p + " + " + v + "×" + t + " = " + (p + v * t),
+              text: "A rock starts at position <b>" + p + "</b> and its velocity is <b>" + v + "</b> per tick. Where is it after <b>" + t + "</b> ticks?" };
+      } else if (kind === 1) {
+        var fps = [30, 60][Math.floor(Math.random() * 2)], sec = 2 + Math.floor(Math.random() * 4);
+        q = { ans: String(fps * sec),
+              work: fps + " ticks/second × " + sec + " seconds = " + (fps * sec),
+              text: "A game runs at <b>" + fps + "</b> ticks per second. How many ticks happen in <b>" + sec + "</b> seconds?" };
+      } else {
+        var a = 3 + Math.floor(Math.random() * 6), vv = 2 + Math.floor(Math.random() * 4);
+        q = { ans: String(-vv),
+              text: "A ball moving right at velocity <b>+" + vv + "</b> hits the right wall and bounces. What's its new velocity?",
+              work: "bouncing flips the sign: +" + vv + " → −" + vv };
+      }
+      promptEl.innerHTML = q.text;
+      input.value = ""; input.focus();
+      resEl.className = "result";
+      resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ The loop agrees! &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath && streak % 3 === 0) DadMath.star("gl1", 1, "Tick-tracer streak " + streak);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ Not quite — one tick at a time. (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result";
+      resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.work + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+</body>
+</html>

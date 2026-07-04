@@ -37,6 +37,21 @@ stars, and passing all five unlocks the 🎓 Homework Hero badge. Index cards sh
 - **📖 Story mode: The Cat in the Box** — quantum mechanics as a read-aloud story with a
   collapsing coin, a double-slit toy, and entangled gloves. → `qm01-quantum-story.html`
 
+## 🎮 Game Lab
+
+The games the kid already loves (Factorio, StarCraft, Deep Rock Galactic), taken apart and rebuilt
+from scratch — each page derives one building block of how games actually work.
+
+- **🎮 GL·1 Make a Game from Scratch** — the game loop (update→draw→repeat), position + velocity,
+  collision, and a state machine, ending in a real playable *Cave Dodge*. → `gl01-game-loop.html`
+- **🧭 GL·2 How Units Find Their Way** — pathfinding by breadth-first search: build walls and watch
+  the map flood to find the shortest route (the StarCraft thread; sibling of the Seven Bridges).
+  → `gl02-pathfinding.html`
+- **⚙️ GL·3 Factory Logic** — production ratios and a bottleneck balancer, then real logic gates
+  (AND/OR/XOR) wired into a half adder that adds two bits. → `gl03-factory.html`
+- **🗺️ GL·4 Random Worlds** — procedural generation: a random-walk cave grower plus seeds and
+  determinism (why a Minecraft seed rebuilds the same world). → `gl04-worlds.html`
+
 ## 🕹️ The Arcade (gamification)
 
 `arcade.html` has five timed games, one per big idea: **Sum Sprint**, **Pair Pop**,

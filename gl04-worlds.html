@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Lab 4 · Random Worlds — Math in Half an Hour</title>
+<meta name="description" content="Deep Rock Galactic never gives you the same cave twice — yet it stores no caves at all. Learn how a few random steps and a seed conjure endless worlds nobody has ever seen.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Lab · Topic 04</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Random Worlds</h1>
+    <p class="lede">Deep Rock Galactic drops you into a fresh cave every single mission, and no two are
+      ever alike — yet the game ships with <em>zero</em> caves inside it. It <b>grows</b> them on the
+      spot from a pinch of randomness and a handful of rules. It's called <b>procedural generation</b>,
+      and it's how Minecraft, Factorio, and No Man's Sky build worlds bigger than any hard drive.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">the “how is it always different?” topic</span></p>
+  </header>
+
+  <!-- 1 THE DIGGER -->
+  <h2>1 · A drunk little digger</h2>
+  <p>Here's the simplest cave-maker there is. Drop a digger in the middle of solid rock. Each step it
+    picks a random direction — up, down, left, or right — and tunnels one square that way. Let it wander
+    a few hundred steps and it leaves behind a twisty, cave-like hollow. Because it only ever steps to a
+    touching square, <b>everywhere it dug connects back</b> — no walled-off pockets you can't reach.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🕳️</span> The cave grower</div>
+    <p class="phint">Press <b>Dig a new cave</b> a few times. Same rule every time — a totally different
+      cave every time. That's the whole trick behind “infinite” worlds.</p>
+    <div class="canvaswrap"><canvas id="cave" width="480" height="300"></canvas></div>
+    <div class="ctrlrow">
+      <button class="btn" id="cv-new">🎲 Dig a new cave</button>
+      <label class="slab">tunnel length <input id="cv-steps" type="range" min="200" max="1400" step="100" value="700"></label>
+    </div>
+    <div class="result" id="cv-read">…</div>
+  </div>
+
+  <!-- 2 SEEDS -->
+  <h2>2 · The magic word: a seed</h2>
+  <p>If it's random, how do two friends load the <em>same</em> Minecraft world? The secret is that game
+    “randomness” isn't truly random — it's a <b>recipe</b> that starts from one number, the <b>seed</b>.
+    Same seed in, exact same sequence of “random” steps out, so the exact same world. Change the seed
+    and everything changes. Type a seed and dig — then type it again and get the identical cave.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🌱</span> Seeded caves</div>
+    <p class="phint">Enter any number as a seed. The <em>same</em> seed always grows the <em>same</em>
+      cave — that's why seeds are shareable.</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <label class="slab">seed <input id="sd-seed" type="number" value="2024" style="width:9ch"></label>
+      <button class="btn" id="sd-go">Grow this seed</button>
+      <button class="btn ghost" id="sd-same">Grow it again ↻</button>
+    </div>
+    <div class="canvaswrap"><canvas id="scave" width="480" height="300"></canvas></div>
+    <div class="result" id="sd-read">Pick a seed and grow it.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Try:</span> grow seed 7, then hit <b>Grow it again</b> — pixel-for-pixel identical,
+    because the recipe replays the same steps. Now change it to 8. A brand-new world. This is exactly
+    how a Minecraft seed you find online gives you someone else's world.
+  </div>
+
+  <!-- 3 RULES -->
+  <h2>3 · Randomness + rules = a <em>world</em></h2>
+  <p>Pure randomness looks like TV static — no fun. Real games tame it with <b>rules</b>: “caves must
+    connect,” “don't spawn lava next to the start,” “put ore in clumps.” The art of procedural generation
+    is picking a few good rules so every random world still feels fair and playable. Our one rule —
+    <em>the digger only steps to a touching square</em> — already bought us a guarantee: the whole cave
+    is reachable. Deep Rock stacks dozens of rules like that.</p>
+
+  <!-- 4 PUZZLE -->
+  <h2>4 · 🧩 Puzzle: run the recipe</h2>
+  <p>Game “dice” follow a fixed recipe. This one is: <b>next = (5 × seed + 3) mod 16</b> — multiply, add,
+    keep the remainder after dividing by 16. Run it. Streak of 3 = ⭐, streak of 5 = 🗺️ badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Seed recipe</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:8ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Big idea:</span> a real game does that little multiply-add-remainder millions of
+    times a second to get its “random” numbers. Feed it the same seed and it hums out the same numbers —
+    which is the whole reason a shared seed rebuilds a shared world.
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Hunt for a seed.</strong> Does a game you play let you type a seed (Minecraft does)? What
+      changes when you change it? What stays the same?</li>
+    <li><strong>Be the digger.</strong> On graph paper, flip a coin for direction (heads = right/up, tails
+      = left/down) and carve 30 squares. Did you make a cave? Is it all connected?</li>
+    <li><strong>Invent a rule.</strong> Our caves can look messy. Write one rule to improve them — e.g.
+      “fill in any single leftover rock surrounded by floor.” That smoothing rule is real; it's called
+      cellular automata.</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">procedural generation · random walk · seed · deterministic · pseudo-random · connectivity · rules / constraints</p>
+
+  <div class="lessonnav">
+    <a href="gl03-factory.html">← Game Lab 3: Factory logic</a>
+    <a href="index.html#games">All Game Lab topics →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=3"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // seeded pseudo-random generator (mulberry32) — a real "recipe from a seed"
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  // dig a connected cave using a supplied rng()
+  function digCave(C, R, steps, rng) {
+    var floor = {}, x = Math.floor(C / 2), y = Math.floor(R / 2);
+    floor[y + "," + x] = true;
+    var d = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    for (var i = 0; i < steps; i++) {
+      var m = d[Math.floor(rng() * 4)];
+      x = Math.max(0, Math.min(C - 1, x + m[0]));
+      y = Math.max(0, Math.min(R - 1, y + m[1]));
+      floor[y + "," + x] = true;
+    }
+    return floor;
+  }
+  function paintCave(cv, floor, C, R) {
+    var ctx = cv.getContext("2d"), cw = cv.width / C, ch = cv.height / R;
+    var dark = window.matchMedia && matchMedia("(prefers-color-scheme:dark)").matches;
+    ctx.fillStyle = dark ? "#1e1b16" : "#5b4636"; ctx.fillRect(0, 0, cv.width, cv.height); // rock
+    ctx.fillStyle = dark ? "#3a3327" : "#d8c3a5"; // dug floor
+    for (var k in floor) { var p = k.split(","); ctx.fillRect(p[1] * cw, p[0] * ch, cw + .5, ch + .5); }
+  }
+
+  var C = 32, R = 20;
+
+  // ---------- Random cave ----------
+  (function () {
+    var cv = document.getElementById("cave"), read = document.getElementById("cv-read"), steps = document.getElementById("cv-steps");
+    function grow() {
+      var f = digCave(C, R, +steps.value, Math.random);
+      paintCave(cv, f, C, R);
+      read.innerHTML = "🕳️ New cave — <b>" + Object.keys(f).length + "</b> squares dug from " + steps.value + " random steps. All connected.";
+    }
+    document.getElementById("cv-new").addEventListener("click", grow);
+    steps.addEventListener("input", grow);
+    grow();
+  })();
+
+  // ---------- Seeded cave ----------
+  (function () {
+    var cv = document.getElementById("scave"), seed = document.getElementById("sd-seed"), read = document.getElementById("sd-read");
+    function grow() {
+      var s = parseInt(seed.value, 10) || 0;
+      var f = digCave(C, R, 700, mulberry32(s));
+      paintCave(cv, f, C, R);
+      read.innerHTML = "🌱 Seed <b>" + s + "</b> → this exact cave, every time.";
+    }
+    document.getElementById("sd-go").addEventListener("click", grow);
+    document.getElementById("sd-same").addEventListener("click", grow);
+    grow();
+  })();
+
+  // ---------- Puzzle: seed recipe (LCG) ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    function newQ() {
+      var s = Math.floor(Math.random() * 16);
+      var ans = (5 * s + 3) % 16;
+      q = { ans: String(ans), work: "(5 × " + s + " + 3) mod 16 = " + (5 * s + 3) + " mod 16 = " + ans, seed: s };
+      promptEl.innerHTML = "Seed = <b>" + s + "</b>. Run <b>(5 × " + s + " + 3) mod 16</b> — what comes out?";
+      input.value = ""; input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Recipe agrees! &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("gl4", 1, "Seed-recipe streak " + streak);
+          if (streak >= 5) DadMath.badge("gl-world");
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ Multiply by 5, add 3, then take the remainder after ÷16. (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.work + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+</body>
+</html>

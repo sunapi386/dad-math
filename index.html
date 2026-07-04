@@ -7,7 +7,7 @@
 <meta name="description" content="Short, hands-on math workshops for curious kids — derive big ideas from scratch in about thirty minutes, with interactive examples and puzzles.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
-<link rel="stylesheet" href="assets/style.css?v=3">
+<link rel="stylesheet" href="assets/style.css?v=4">
 </head>
 <body>
 
@@ -109,6 +109,36 @@
     </div>
   </div>
 
+  <h2 id="games">🎮 Game Lab</h2>
+  <p class="muted">Your favourite games — Factorio, StarCraft, Deep Rock — are secretly built from math
+    and code. Take them apart, then build the pieces yourself.</p>
+  <div class="grid">
+    <a class="card" href="gl01-game-loop.html" style="border-color:var(--accent)">
+      <div class="num">🎮</div>
+      <h3>Make a Game from Scratch</h3>
+      <p>The heartbeat every game shares: update, draw, repeat. Learn position + velocity + collision, then build a real playable dodge game right here.</p>
+      <div class="go" style="color:var(--accent)">Build it →</div>
+    </a>
+    <a class="card" href="gl02-pathfinding.html">
+      <div class="num">🧭</div>
+      <h3>How Units Find Their Way</h3>
+      <p>Click a spot and your StarCraft unit walks around the buildings. Watch the map flood to find the shortest path — and race it in a puzzle.</p>
+      <div class="go">Start topic →</div>
+    </a>
+    <a class="card" href="gl03-factory.html">
+      <div class="num">⚙️</div>
+      <h3>Factory Logic</h3>
+      <p>Factorio is a math lab in disguise. Balance a factory with ratios, then wire real logic gates into a machine that adds — the seed of every chip.</p>
+      <div class="go">Start topic →</div>
+    </a>
+    <a class="card" href="gl04-worlds.html">
+      <div class="num">🗺️</div>
+      <h3>Random Worlds</h3>
+      <p>Deep Rock never gives the same cave twice, yet stores no caves at all. Grow endless worlds from a random walk and a shareable seed.</p>
+      <div class="go">Start topic →</div>
+    </a>
+  </div>
+
   <h2 id="graphs">🕸️ Graph theory</h2>
   <p class="muted">Dots and lines — the math of every network on Earth.</p>
   <div class="grid">
@@ -193,7 +223,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js?v=2"></script>
+<script defer src="assets/game.js?v=3"></script>
 <script>
   // render the tiny inline snippets used in cards
   document.addEventListener("DOMContentLoaded", function () {
