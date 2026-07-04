@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS 1 · Binary: How Computers Count — Math in Half an Hour</title>
+<meta name="description" content="Computers only know on and off — yet they count everything. Flip real bits, count to 31 on one hand, and let the page read your mind in six questions.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=3">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Computer Science · Topic 01</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Binary: How Computers Count</h1>
+    <p class="lede">A computer is billions of tiny switches, and a switch knows exactly two things:
+      <b>on</b> and <b>off</b>. That's it. No nine, no seven, not even a three. So how does it count
+      to a billion? The same way you'd count if someone stole all your digits except two.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">no math lesson needed first</span></p>
+  </header>
+
+  <!-- 1 PLACE VALUE -->
+  <h2>1 · You already use a place system</h2>
+  <p>The number <b>342</b> secretly means <span class="katex-inline">3\times100 + 4\times10 + 2\times1</span> —
+    columns worth 100, 10, 1. Each column is <b>ten times</b> the one to its right, because we have ten digits.</p>
+  <p>Binary does the identical thing with two digits (0 and 1), so each column is only
+    <b>twice</b> the one to its right: <span class="katex-inline">\dots,\ 32,\ 16,\ 8,\ 4,\ 2,\ 1</span>.</p>
+  $$\texttt{101}_2 = 1\times4 + 0\times2 + 1\times1 = 5$$
+
+  <!-- 2 BIT FLIPPER -->
+  <h2>2 · Flip real bits</h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">💡</span> The bit flipper</div>
+    <p class="phint">Eight switches — one <b>byte</b>. Click to flip. Try making your age, then 100, then the biggest number possible.</p>
+    <div class="bits" id="bf-bits"></div>
+    <div class="result" id="bf-result"></div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Challenges:</span> ① make 42 &nbsp;② make 255 (what do you notice?) &nbsp;③ add 1 to 255 —
+    why can't the byte do it? (That's a real bug called <em>overflow</em>; old games wrapped to 0.)
+  </div>
+
+  <!-- 3 FINGERS -->
+  <h2>3 · Count to 31 on one hand</h2>
+  <p>Your fingers are switches: up = 1, down = 0. Thumb = 1, index = 2, middle = 4, ring = 8, pinky = 16.
+    One hand counts to <span class="katex-inline">1+2+4+8+16 = 31</span>, two hands to <b>1023</b>.
+    (Watch out for the number 4.)</p>
+  <p>Why do computer numbers look so weird — 256, 1024, 65536? They're powers of two: what one more
+    switch buys you. Every extra bit <strong>doubles</strong> what you can count.</p>
+
+  <!-- 4 GUESSING GAME -->
+  <h2>4 · 🔮 The mind reader</h2>
+  <p>Here's the superpower hiding in binary. Think of any number from 0 to 63. I'll find it in
+    <b>six</b> yes/no questions — never more — because six bits is all a number that size <em>is</em>.
+    Each answer you give me is exactly <b>one bit of information</b>.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🔮</span> Six questions</div>
+    <p class="phint" id="mg-hint">Think of a whole number from 0 to 63. Don't tell me. Ready?</p>
+    <div class="bigq" id="mg-q" style="display:none"></div>
+    <div class="tablescroll"><div class="chips" id="mg-card" style="margin:8px 0"></div></div>
+    <div class="choice2">
+      <button class="btn" id="mg-yes" style="display:none">Yes, it's there</button>
+      <button class="btn ghost" id="mg-no" style="display:none">No</button>
+      <button class="btn" id="mg-go">▶ I've got my number</button>
+    </div>
+    <div class="result" id="mg-result">Grown-up hint: each card is “numbers whose bit k is 1.” The yes/no answers spell the number in binary.</div>
+  </div>
+
+  <!-- 5 PUZZLE -->
+  <h2>5 · 🧩 Puzzle: talk robot</h2>
+  <p>Translate both ways. Streak of 3 = ⭐, streak of 5 = 💡 badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Binary ↔ decimal</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:12ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Write your birthday day-number in binary</strong> (e.g. the 23rd → 10111). Check it by adding the column values back.</li>
+    <li><strong>Finger-count</strong> from 0 to 10 in binary on one hand without looking at the page.</li>
+    <li><strong>Challenge:</strong> play the mind reader on a family member using paper cards — write the six
+      cards yourself. Why does card k contain exactly the numbers it does?</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">bit · byte · binary · place value · base 2 · power of two · overflow · one bit of information</p>
+
+  <div class="lessonnav">
+    <a href="index.html#cs">← All CS topics</a>
+    <a href="cs02-secret-codes.html">CS 2: Secret Codes →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=2"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var K = window.katex;
+  document.querySelectorAll(".katex-inline").forEach(function (el) {
+    if (K) K.render(el.textContent, el, { throwOnError: false });
+  });
+
+  // ---------- Bit flipper ----------
+  (function () {
+    var NBITS = 8, bits = [0, 0, 0, 0, 0, 0, 0, 0];
+    var wrap = document.getElementById("bf-bits"), res = document.getElementById("bf-result");
+    function val() { return bits.reduce(function (a, b, i) { return a + b * Math.pow(2, NBITS - 1 - i); }, 0); }
+    function paint() {
+      Array.prototype.forEach.call(wrap.children, function (w, i) {
+        w.querySelector(".bitbtn").className = "bitbtn" + (bits[i] ? " on" : "");
+        w.querySelector(".bitbtn").textContent = bits[i];
+      });
+      var v = val();
+      var parts = bits.map(function (b, i) { return b ? Math.pow(2, NBITS - 1 - i) : null; }).filter(Boolean);
+      res.innerHTML = "<span style='font-family:var(--mono)'>" + bits.join("") + "<sub>2</sub></span> = " +
+        (parts.length ? parts.join(" + ") + " = " : "") + "<b style='color:var(--good); font-size:1.2em'>" + v + "</b>" +
+        (v === 255 ? " &nbsp;🎉 all switches on — the byte's maximum!" : v === 42 ? " &nbsp;🐋 the answer to everything." : "");
+    }
+    for (var i = 0; i < NBITS; i++) (function (i) {
+      var w = document.createElement("div");
+      w.className = "bitwrap";
+      w.innerHTML = "<div class='bitbtn'>0</div><div class='bitlab'>" + Math.pow(2, NBITS - 1 - i) + "</div>";
+      w.querySelector(".bitbtn").addEventListener("click", function () { bits[i] ^= 1; paint(); });
+      wrap.appendChild(w);
+    })(i);
+    paint();
+  })();
+
+  // ---------- Mind reader ----------
+  (function () {
+    var bit = 0, acc = 0;
+    var hint = document.getElementById("mg-hint"), q = document.getElementById("mg-q"),
+        card = document.getElementById("mg-card"), res = document.getElementById("mg-result"),
+        yes = document.getElementById("mg-yes"), no = document.getElementById("mg-no"),
+        go = document.getElementById("mg-go");
+    function showCard() {
+      q.style.display = "";
+      q.textContent = "Question " + (bit + 1) + " of 6 — is your number on this card?";
+      card.innerHTML = "";
+      for (var n = 0; n < 64; n++) {
+        if (n & (1 << bit)) {
+          var c = document.createElement("span");
+          c.className = "chip pa";
+          c.textContent = n;
+          card.appendChild(c);
+        }
+      }
+    }
+    function answer(saidYes) {
+      if (saidYes) acc |= (1 << bit);
+      bit++;
+      if (bit < 6) { showCard(); return; }
+      q.style.display = "none"; card.innerHTML = "";
+      yes.style.display = no.style.display = "none";
+      go.style.display = ""; go.textContent = "▶ Again";
+      hint.textContent = "Think of a whole number from 0 to 63. Ready?";
+      res.className = "result win";
+      res.innerHTML = "🔮 Your number is <b style='font-size:1.3em'>" + acc + "</b> &nbsp;·&nbsp; binary <span style='font-family:var(--mono)'>" +
+        acc.toString(2).padStart(6, "0") + "</span> — your six answers, written down. That's all a number is!";
+    }
+    go.addEventListener("click", function () {
+      bit = 0; acc = 0;
+      hint.textContent = "Answer honestly — I get it in exactly six.";
+      yes.style.display = no.style.display = "";
+      go.style.display = "none";
+      res.className = "result"; res.innerHTML = "…";
+      showCard();
+    });
+    yes.addEventListener("click", function () { answer(true); });
+    no.addEventListener("click", function () { answer(false); });
+  })();
+
+  // ---------- Puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"),
+        input = document.getElementById("pz-input"),
+        resEl = document.getElementById("pz-result");
+    function newQ() {
+      var n = 3 + Math.floor(Math.random() * 28); // 3..30
+      if (Math.random() < 0.5) {
+        q = { ans: String(n), work: n.toString(2) + " → " + n.toString(2).split("").reverse().map(function (b, i) { return b === "1" ? Math.pow(2, i) : null; }).filter(Boolean).reverse().join("+") + " = " + n,
+              text: "Binary <b style='font-family:var(--mono)'>" + n.toString(2) + "</b> — what number is it in decimal?" };
+      } else {
+        q = { ans: n.toString(2), work: n + " = " + n.toString(2).split("").reverse().map(function (b, i) { return b === "1" ? Math.pow(2, i) : null; }).filter(Boolean).reverse().join("+") + " → " + n.toString(2),
+              text: "Write <b>" + n + "</b> in binary (just 1s and 0s)." };
+      }
+      promptEl.innerHTML = q.text;
+      input.value = ""; input.focus();
+      resEl.className = "result";
+      resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim().replace(/^0+(?=.)/, "");
+      if (v === "") return;
+      if (v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Beep boop — correct! &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("cs1", 1, "Binary streak " + streak);
+          if (streak >= 5) DadMath.badge("cs-bin");
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ Not quite. Columns are worth 16, 8, 4, 2, 1. (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result";
+      resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.work + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+</body>
+</html>

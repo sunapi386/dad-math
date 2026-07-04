@@ -7,17 +7,15 @@
 <meta name="description" content="Short, hands-on math workshops for curious kids — derive big ideas from scratch in about thirty minutes, with interactive examples and puzzles.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
-<link rel="stylesheet" href="assets/style.css?v=2">
+<link rel="stylesheet" href="assets/style.css?v=3">
 </head>
 <body>
 
 <div class="topbar"><div class="row">
   <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
   <span class="spacer"></span>
-  <a class="nav" href="01-gauss.html">01</a>
-  <a class="nav" href="02-squares.html">02</a>
-  <a class="nav" href="03-triangles.html">03</a>
-  <a class="nav" href="04-evens.html">04</a>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
   <a class="nav" href="arcade.html">🕹️ Arcade</a>
   <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
 </div></div>
@@ -32,6 +30,10 @@
       <em>derived</em> — not memorized. Play along in the browser.</p>
     <p style="margin-top:18px"><span class="badge">⏱ ~30 min each</span> &nbsp; <span class="badge amber">✏️ derive, don't memorize</span> &nbsp; <span class="badge green">🧩 interactive puzzles</span></p>
   </header>
+
+  <h2 id="lessons" style="margin-top:1em">∑ The math track</h2>
+  <p class="muted">Do these in order — each one uses the last. Pass a lesson's
+    <a href="homework.html">homework check</a> and it's marked ✅ here.</p>
 
   <div class="grid">
     <a class="card" href="01-gauss.html">
@@ -62,12 +64,95 @@
       <div class="go">Start lesson →</div>
     </a>
 
+    <a class="card" href="05-fib.html">
+      <div class="num">05</div>
+      <h3>Fibonacci &amp; the Golden Ratio</h3>
+      <p>An 800-year-old rabbit puzzle that hides in sunflowers, seashells — and secretly contains the most famous number in art.</p>
+      <div class="go">Start lesson →</div>
+    </a>
+
+    <a class="card" href="homework.html">
+      <div class="num">📓</div>
+      <h3>The Homework Check</h3>
+      <p>Prove each lesson stuck: 5 fresh random questions, pass with 4. Checked-off lessons stay ✅ on this device. All five = the 🎓 badge.</p>
+      <div class="go">Take a check →</div>
+    </a>
+
     <a class="card" href="arcade.html" style="border-color:var(--accent)">
       <div class="num">🕹️</div>
       <h3>The Math Arcade</h3>
       <p>Five fast games built on the lessons. Earn ⭐ stars, unlock badges, and climb from 🐣 Rookie to 👑 Little Gauss. Progress saves on your device.</p>
       <div class="go" style="color:var(--accent)">Play →</div>
     </a>
+  </div>
+
+  <h2 id="cs">💻 Computer science</h2>
+  <p class="muted">How the machines actually think. No math track required — jump in anywhere.</p>
+  <div class="grid">
+    <a class="card" href="cs01-binary.html">
+      <div class="num">CS·1</div>
+      <h3>Binary: How Computers Count</h3>
+      <p>Billions of switches, two digits, all of civilization. Flip real bits, count to 31 on one hand, and let the page read your mind in six questions.</p>
+      <div class="go">Start topic →</div>
+    </a>
+    <a class="card" href="cs02-secret-codes.html">
+      <div class="num">CS·2</div>
+      <h3>Secret Codes</h3>
+      <p>Encrypt like Julius Caesar, then break his cipher by brute force. Why modern secrets need numbers with 77 digits.</p>
+      <div class="go">Start topic →</div>
+    </a>
+    <div class="card soon">
+      <div class="num">CS·3</div>
+      <h3>How to Sort a Messy Bookshelf <span class="badge amber" style="vertical-align:middle">soon</span></h3>
+      <p>Algorithms: why a computer sorts a million things the same way you'd sort ten — and the trick that makes it fast.</p>
+      <div class="go muted">Coming soon</div>
+    </div>
+  </div>
+
+  <h2 id="graphs">🕸️ Graph theory</h2>
+  <p class="muted">Dots and lines — the math of every network on Earth.</p>
+  <div class="grid">
+    <a class="card" href="gt01-bridges.html">
+      <div class="num">G·1</div>
+      <h3>The Seven Bridges</h3>
+      <p>The 1736 puzzle that invented graph theory. Try the impossible stroll, then prove why it's impossible — in two sentences.</p>
+      <div class="go">Start topic →</div>
+    </a>
+    <div class="card soon">
+      <div class="num">G·2</div>
+      <h3>Six Handshakes to Anyone <span class="badge amber" style="vertical-align:middle">soon</span></h3>
+      <p>Small worlds: why you're ~6 friendships away from anyone alive, and how diseases and memes ride the same wires.</p>
+      <div class="go muted">Coming soon</div>
+    </div>
+    <div class="card soon">
+      <div class="num">G·3</div>
+      <h3>The Map-Colouring War <span class="badge amber" style="vertical-align:middle">soon</span></h3>
+      <p>Four colours are always enough for any map — a theorem so stubborn it was the first ever proved by a computer.</p>
+      <div class="go muted">Coming soon</div>
+    </div>
+  </div>
+
+  <h2 id="story">📖 Story mode</h2>
+  <p class="muted">The big weird ideas, told as bedtime stories with experiments inside. Read aloud, pause, play.</p>
+  <div class="grid">
+    <a class="card" href="qm01-quantum-story.html">
+      <div class="num">⚛️</div>
+      <h3>The Cat in the Box</h3>
+      <p>Quantum mechanics as a story: a coin that hasn't decided, doors that act differently when watched, and gloves that choose together across the world.</p>
+      <div class="go">Read the story →</div>
+    </a>
+    <div class="card soon">
+      <div class="num">🏴‍☠️</div>
+      <h3>The Pirate Split <span class="badge amber" style="vertical-align:middle">soon</span></h3>
+      <p>Game theory as a story: five pirates, one treasure, perfectly logical greed — and the shocking split that follows.</p>
+      <div class="go muted">Coming soon</div>
+    </div>
+    <div class="card soon">
+      <div class="num">❓</div>
+      <h3>Twenty Questions vs. the Universe <span class="badge amber" style="vertical-align:middle">soon</span></h3>
+      <p>Information theory as a story: why every secret in existence is just a game of twenty questions — if you ask perfectly.</p>
+      <div class="go muted">Coming soon</div>
+    </div>
   </div>
 
   <hr class="rule">
@@ -108,13 +193,22 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js"></script>
+<script defer src="assets/game.js?v=2"></script>
 <script>
   // render the tiny inline snippets used in cards
   document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".katex-inline").forEach(function (el) {
       if (window.katex) katex.render(el.textContent, el, { throwOnError: false });
     });
+    // homework ticks on lesson cards
+    if (window.DadMath) {
+      [["01-gauss.html","l1"],["02-squares.html","l2"],["03-triangles.html","l3"],
+       ["04-evens.html","l4"],["05-fib.html","l5"]].forEach(function (pair) {
+        if (!DadMath.hwDone(pair[1])) return;
+        var card = document.querySelector('a.card[href="' + pair[0] + '"] h3');
+        if (card) card.insertAdjacentHTML("beforeend", " <span class='hwtick'>✅ checked</span>");
+      });
+    }
   });
 </script>
 </body>

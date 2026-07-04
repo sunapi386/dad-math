@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📖 The Cat in the Box — a quantum story · Math in Half an Hour</title>
+<meta name="description" content="An introduction to quantum mechanics told as a bedtime story — with a coin that hasn't decided, two doors a ball takes at once, and a pair of very strange gloves.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=3">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap story">
+
+  <header class="hero" style="padding-bottom:10px; text-align:center">
+    <div class="eyebrow">Story Mode · Quantum Mechanics</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">The Cat in the Box</h1>
+    <p class="lede" style="margin:0 auto">A mostly-true story about the smallest things in the universe,
+      told one chapter at a time. Read it aloud. Stop at each experiment and <em>play</em>.</p>
+    <p style="margin-top:14px"><span class="badge">📖 story mode</span> &nbsp; <span class="badge amber">⏱ ~30 min aloud</span> &nbsp; <span class="badge green">finish = 🐱 badge</span></p>
+  </header>
+
+  <!-- CH 1 -->
+  <div class="chapter open" id="ch1">
+    <div class="chtitle">Chapter 1 · The coin that couldn't decide</div>
+    <div class="prose">
+      <p>Once upon a time — which is how all the best physics begins — there was a girl named Nova who
+        found a very old coin in her grandfather's desk. Taped to it was a note:</p>
+      <p class="dialog">“This coin is not heads. It is not tails. Until you look, it is genuinely,
+        stubbornly, BOTH. Looking is what makes it choose. —Grandpa”</p>
+      <p>Nova laughed. Everything is <em>something</em>, even when nobody's looking. The fridge light is
+        off when the door is shut. Probably. She flipped the coin and slapped it onto the desk, hand
+        covering it.</p>
+      <p>And she felt it — a tiny buzzing under her palm. Not a coin lying still, being secretly heads
+        or secretly tails. A coin still <em>humming with both possibilities at once</em>.</p>
+      <p>Scientists have a word for that humming: <strong>superposition</strong>. The smallest things in
+        the universe — electrons, photons, atoms — really do hum like this. Not "we don't know which" —
+        truly <em>neither and both</em>, until a measurement forces the choice.</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">🪙</span> Grandpa's coin</div>
+      <p class="phint">While it spins, it is both. Press <b>LOOK</b> and force it to choose. Do it many
+        times — can you find a pattern in the answers? (Spoiler: nobody can. It's the universe's only true coin-flip.)</p>
+      <div class="qcoin spin" id="qc-coin">?</div>
+      <div class="controls" style="justify-content:center; margin-top:14px">
+        <button class="btn" id="qc-look">👁 LOOK</button>
+        <button class="btn ghost" id="qc-again">↺ un-look (new coin)</button>
+      </div>
+      <div class="result" id="qc-tally" style="text-align:center">Looks: 0 · Heads: 0 · Tails: 0</div>
+    </div>
+    <div class="continue-row"><button class="btn" data-next="ch2">Keep reading →</button></div>
+  </div>
+
+  <!-- CH 2 -->
+  <div class="chapter" id="ch2">
+    <div class="chtitle">Chapter 2 · The two doors</div>
+    <div class="prose">
+      <p>In the desk drawer, under the coin, Nova found a strange toy: a little launcher, a wall with
+        <strong>two doors</strong>, and a screen behind it that remembered every ball that hit it.</p>
+      <p>She fired thousands of tiny balls. Balls are sensible: each one goes through the left door or the
+        right door, and you get <strong>two piles</strong> on the screen. And that's exactly what happened —
+        as long as the little <strong>detector light</strong> on the doors was on, watching which door each
+        ball used.</p>
+      <p>Then she switched the detector off. Nobody — nothing — watching.</p>
+      <p>The piles vanished. In their place: <strong>stripes</strong>. Many stripes, like ripples in a
+        pond, including stripes in places no ball could sensibly reach. Each unwatched ball had gone
+        through <em>both doors at once</em> — like the coin humming both answers — and its two possible
+        paths had rippled into each other.</p>
+      <p class="dialog">“The universe acts differently when you watch it,” said the note taped to the
+        launcher. “This is not a metaphor. This is the actual result of the actual experiment.”</p>
+      <p>It's called the <strong>double-slit experiment</strong>, and it is the most famous experiment in
+        all of physics. Try it yourself:</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">🚪</span> The two-door toy</div>
+      <p class="phint">Fire balls with the detector on, then off. Watch what pattern grows on the screen.</p>
+      <div class="controls">
+        <label class="ctl"><input type="checkbox" id="ds-watch" checked> 👁 detector on (watching the doors)</label>
+        <button class="btn" id="ds-fire">Fire 500 balls</button>
+        <button class="btn ghost" id="ds-clear">Clear screen</button>
+      </div>
+      <canvas class="slitcanvas" id="ds-canvas" width="440" height="170"></canvas>
+      <div class="result" id="ds-read">Screen empty.</div>
+    </div>
+    <div class="continue-row"><button class="btn" data-next="ch3">Keep reading →</button></div>
+  </div>
+
+  <!-- CH 3 -->
+  <div class="chapter" id="ch3">
+    <div class="chtitle">Chapter 3 · The gloves that decide together</div>
+    <div class="prose">
+      <p>The last thing in the drawer was a pair of small boxes and a letter.</p>
+      <p class="dialog">“Nova — inside these boxes is a pair of quantum gloves. Like any pair, one is LEFT
+        and one is RIGHT. Mail one box to your cousin in Australia. Then open yours.”</p>
+      <p>Nova did. When she opened her box and found a LEFT glove, she knew — <em>instantly</em>, faster
+        than any message could travel — that the box in Australia held the RIGHT one. So far, not spooky:
+        ordinary gloves work like that too. The pair was decided when it was packed.</p>
+      <p>But quantum gloves are not decided when they're packed. Each glove hums, LEFT-and-RIGHT at once,
+        like Grandpa's coin — and careful experiments (this won a Nobel Prize in 2022) prove there is
+        <strong>no secret answer hiding inside the box</strong>. Yet the moment one glove chooses, its
+        twin — across the world, across the galaxy — always matches. They don't <em>have</em> answers;
+        they <em>share</em> one.</p>
+      <p>Einstein hated this. He called it <span class="dialog">“spooky action at a distance”</span> and
+        spent years trying to prove it couldn't be real. The experiments say: it's real. It's called
+        <strong>entanglement</strong>.</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">🧤</span> The glove boxes</div>
+      <p class="phint">Open either box — the other decides at the same instant. Ship new pairs and keep score.</p>
+      <div style="display:flex; gap:26px; justify-content:center; align-items:center; flex-wrap:wrap; margin:10px 0">
+        <div style="text-align:center"><div class="glovebox" id="gb-a">📦</div><div class="muted small">your box</div></div>
+        <div style="font-size:1.4rem">🌍</div>
+        <div style="text-align:center"><div class="glovebox" id="gb-b">📦</div><div class="muted small">Australia</div></div>
+      </div>
+      <div class="controls" style="justify-content:center">
+        <button class="btn ghost" id="gb-new">📮 ship a new pair</button>
+      </div>
+      <div class="result" id="gb-read" style="text-align:center">Pairs opened: 0 · matched (one L, one R): 0</div>
+    </div>
+    <div class="continue-row"><button class="btn" data-next="ch4">Keep reading →</button></div>
+  </div>
+
+  <!-- CH 4 -->
+  <div class="chapter" id="ch4">
+    <div class="chtitle">Chapter 4 · Why grandpa's desk matters</div>
+    <div class="prose">
+      <p>Nova sat back. A coin that hums both answers. Doors that behave differently when watched. Gloves
+        that decide together across the world. <em>Why would anyone build a desk full of this?</em></p>
+      <p>Because, said the last note, <strong>the whole universe is built of it</strong>. Every atom in
+        your hand hums. The sun shines because particles do things that "shouldn't" be possible —
+        they borrow the both-at-once trick to squeeze past barriers. The chip in your tablet only works
+        because engineers learned the humming's rules.</p>
+      <p>And the newest machines — <strong>quantum computers</strong> — use humming coins (called
+        <strong>qubits</strong>) instead of the ordinary bits from our binary lesson. A regular bit is 0
+        <em>or</em> 1. A qubit hums 0-and-1, and entangled qubits hum <em>together</em> — so a quantum
+        computer can explore a huge maze of possibilities in one go, where a normal computer must walk
+        the corridors one at a time.</p>
+      <p class="dialog">“One warning,” the note ended. “Nobody — nobody — fully knows WHY looking makes
+        the choosing happen. We know the rules perfectly; the reason is still a mystery. Maybe leave the
+        mystery for the next scientist in this family. —Grandpa”</p>
+      <p>Nova closed the drawer, put the coin in her pocket, and felt it hum.</p>
+      <p style="text-align:center; font-family:var(--serif)">— The End (of chapter one of physics) —</p>
+    </div>
+    <div class="continue-row"><button class="btn" id="story-done">✨ Finish the story</button></div>
+  </div>
+
+  <!-- EPILOGUE -->
+  <div class="chapter" id="ch5">
+    <div class="chtitle">Epilogue · What was true?</div>
+    <div class="prose">
+      <p>Nearly all of it. Superposition, the double-slit experiment, entanglement and the 2022 Nobel
+        Prize, quantum tunnelling in the sun, qubits — all real, all tested thousands of times. The only
+        made-up parts are Nova, the desk, and gloves big enough to see (real entangled things are
+        particles). And the famous <strong>cat in the box</strong> of the title? That was Schrödinger's
+        joke-experiment: put a cat's fate in the hands of one humming atom and the cat must hum too —
+        alive-and-asleep at once — which he invented to show how <em>weird</em> the rules sound. The rules
+        won anyway.</p>
+    </div>
+    <h3>Words we learned</h3>
+    <p class="muted small">superposition · measurement · collapse (the choosing) · double-slit ·
+      entanglement · qubit · “spooky action at a distance”</p>
+    <div class="note try">
+      <span class="t">Talk about it:</span> if looking changes the answer… what does “looking” even mean?
+      Does a camera count? A fly? There's no agreed answer — your guess is a real position some physicists hold.
+    </div>
+    <div class="lessonnav">
+      <a href="gt01-bridges.html">← Graphs: The Seven Bridges</a>
+      <a href="index.html#story">All stories →</a>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=2"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ---------- chapter reveal ----------
+  document.querySelectorAll("[data-next]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.getElementById(btn.dataset.next).classList.add("open");
+      btn.parentNode.style.display = "none";
+      document.getElementById(btn.dataset.next).scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+  document.getElementById("story-done").addEventListener("click", function () {
+    document.getElementById("ch5").classList.add("open");
+    this.parentNode.style.display = "none";
+    document.getElementById("ch5").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (window.DadMath) {
+      DadMath.star("qm1", 2, "Finished the quantum story");
+      DadMath.badge("qm-story");
+    }
+  });
+
+  // ---------- Ch1: quantum coin ----------
+  (function () {
+    var coin = document.getElementById("qc-coin"), tally = document.getElementById("qc-tally");
+    var looks = 0, heads = 0, collapsed = false;
+    document.getElementById("qc-look").addEventListener("click", function () {
+      if (collapsed) return;
+      collapsed = true;
+      coin.classList.remove("spin");
+      var h = Math.random() < 0.5;
+      coin.textContent = h ? "H" : "T";
+      looks++; if (h) heads++;
+      tally.className = "result win";
+      tally.innerHTML = "It chose <b>" + (h ? "HEADS" : "TAILS") + "</b>. &nbsp;Looks: " + looks +
+        " · Heads: " + heads + " · Tails: " + (looks - heads) +
+        (looks >= 10 ? " &nbsp;→ hovering near 50/50, but the <em>order</em> has no pattern at all." : "");
+    });
+    document.getElementById("qc-again").addEventListener("click", function () {
+      collapsed = false;
+      coin.textContent = "?";
+      coin.classList.add("spin");
+      tally.className = "result";
+      tally.innerHTML = "Humming again — both at once. &nbsp;Looks so far: " + looks;
+    });
+  })();
+
+  // ---------- Ch2: double slit ----------
+  (function () {
+    var cv = document.getElementById("ds-canvas"), ctx = cv.getContext("2d");
+    var W = cv.width, H = cv.height, fired = 0, mode = null;
+    var css = getComputedStyle(document.documentElement);
+    function dotColor() { return (css.getPropertyValue("--primary") || "#5b4bd6").trim(); }
+    // sample x-position: watched = two gaussian bands; unwatched = interference fringes
+    function sample(watched) {
+      while (true) {
+        var x = Math.random();                       // 0..1 across the screen
+        var p;
+        if (watched) {
+          var d1 = (x - 0.38) / 0.07, d2 = (x - 0.62) / 0.07;
+          p = Math.exp(-d1 * d1) + Math.exp(-d2 * d2);          // two piles
+        } else {
+          var env = Math.exp(-Math.pow((x - 0.5) / 0.22, 2));   // envelope
+          p = env * Math.pow(Math.cos((x - 0.5) * 34), 2);      // stripes
+        }
+        if (Math.random() < p) return x;
+      }
+    }
+    function fire() {
+      var watched = document.getElementById("ds-watch").checked;
+      if (mode !== null && mode !== watched) clear();  // switching modes clears the screen
+      mode = watched;
+      css = getComputedStyle(document.documentElement);
+      ctx.fillStyle = dotColor();
+      ctx.globalAlpha = 0.5;
+      for (var i = 0; i < 500; i++) {
+        var x = sample(watched) * W;
+        var y = 8 + Math.random() * (H - 16);
+        ctx.beginPath(); ctx.arc(x, y, 1.3, 0, 7); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      fired += 500;
+      document.getElementById("ds-read").innerHTML = fired + " balls · detector <b>" +
+        (watched ? "ON → two sensible piles. Balls being balls." : "OFF → stripes! Each ball took BOTH doors and rippled into itself.") + "</b>";
+    }
+    function clear() {
+      ctx.clearRect(0, 0, W, H); fired = 0; mode = null;
+      document.getElementById("ds-read").textContent = "Screen empty.";
+    }
+    document.getElementById("ds-fire").addEventListener("click", fire);
+    document.getElementById("ds-clear").addEventListener("click", clear);
+  })();
+
+  // ---------- Ch3: entangled gloves ----------
+  (function () {
+    var A = document.getElementById("gb-a"), B = document.getElementById("gb-b"),
+        read = document.getElementById("gb-read");
+    var pairs = 0, matched = 0, decided = false;
+    function open(mine) {
+      if (decided) return;
+      decided = true;
+      var aLeft = Math.random() < 0.5;   // the PAIR decides now — at the moment of first opening
+      A.textContent = aLeft ? "🫲" : "🫱";
+      B.textContent = aLeft ? "🫱" : "🫲";
+      A.classList.add("opened"); B.classList.add("opened");
+      pairs++; matched++; // always opposite — that's the point
+      read.className = "result win";
+      read.innerHTML = (mine === "A" ? "You opened yours" : "Australia opened theirs") +
+        " — <b>" + (aLeft ? "LEFT here, RIGHT there" : "RIGHT here, LEFT there") + "</b>, decided at the same instant." +
+        "<br>Pairs opened: " + pairs + " · perfectly opposite: <b>" + matched + "/" + pairs + "</b> — every single time.";
+    }
+    function ship() {
+      decided = false;
+      A.textContent = B.textContent = "📦";
+      A.classList.remove("opened"); B.classList.remove("opened");
+      read.className = "result";
+      read.innerHTML = "New pair humming in transit… open either box. &nbsp;(So far: " + matched + "/" + pairs + " opposite)";
+    }
+    A.addEventListener("click", function () { open("A"); });
+    B.addEventListener("click", function () { open("B"); });
+    document.getElementById("gb-new").addEventListener("click", ship);
+  })();
+});
+</script>
+</body>
+</html>

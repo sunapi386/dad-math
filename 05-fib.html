@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 5 · Fibonacci &amp; the Golden Ratio — Math in Half an Hour</title>
+<meta name="description" content="An 800-year-old rabbit puzzle creates the most famous sequence in math. Build it, find it hiding in flowers, and watch the golden ratio appear out of nowhere.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=3">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Lesson 05</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Fibonacci &amp; the Golden Ratio</h1>
+    <p class="lede">In the year 1202, a mathematician named Fibonacci asked a silly question about rabbits.
+      The answer turned out to be hiding in sunflowers, pinecones, seashells — and it secretly contains
+      the most famous number in art. Let's chase the rabbits.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">ages ~8+</span></p>
+  </header>
+
+  <!-- 1 THE RABBITS -->
+  <h2>1 · The rabbit puzzle</h2>
+  <p>Fibonacci's question: start with <strong>one baby pair</strong> of rabbits. Each month:</p>
+  <ul>
+    <li>a <strong>baby pair</strong> 🐇 grows into an <strong>adult pair</strong> 🐰</li>
+    <li>every <strong>adult pair</strong> 🐰 makes one new <strong>baby pair</strong> 🐇 (rabbits are busy)</li>
+  </ul>
+  <p>How many pairs will there be after a year?</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🐰</span> The rabbit farm</div>
+    <p class="phint">Press <b>Next month</b>. Babies (🐇) grow up; adults (🐰) make babies. Watch the total.</p>
+    <div class="controls">
+      <button class="btn" id="rf-next">Next month →</button>
+      <button class="btn ghost" id="rf-reset">Reset</button>
+      <span class="qcount" id="rf-month">Month 1</span>
+    </div>
+    <div id="rf-pen" style="font-size:1.5rem; line-height:1.9; letter-spacing:2px; overflow-wrap:anywhere"></div>
+    <div class="result" id="rf-readout"></div>
+  </div>
+
+  <p>The totals month by month:</p>
+  $$1,\ 1,\ 2,\ 3,\ 5,\ 8,\ 13,\ 21,\ 34,\ 55,\ 89,\ 144,\ \dots$$
+  <div class="note try">
+    <span class="t">Stare at it.</span> Cover the list and try to say what the rule is <em>out loud</em>
+    before reading on. (Hint: look at any number and its two left-hand neighbours.)
+  </div>
+  <p>Every number is the <strong>sum of the two before it</strong>. That's the whole rule. In symbols —
+    subscripts, just like Lesson 1:</p>
+  <div style="padding:8px 0">
+  $$\boxed{\;F_n = F_{n-1} + F_{n-2}\;}\qquad F_1 = F_2 = 1$$
+  </div>
+  <p>Why? An adult pair this month = every pair from last month (nobody leaves). A baby pair this month =
+    one per adult, and the adults this month are exactly <em>everyone from two months ago</em>. Last month +
+    two months ago. That's the rabbit logic — and the formula. <span style="font-family:var(--serif)">□</span></p>
+
+  <!-- 2 SEQUENCE EXPLORER -->
+  <h2>2 · The golden ratio sneaks in</h2>
+  <p>Now do something strange: <strong>divide each Fibonacci number by the one before it</strong>.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🌀</span> Ratio explorer</div>
+    <p class="phint">Slide n and watch <span class="katex-inline">F_{n+1} \div F_n</span>. The ratios bounce —
+      then settle onto one mysterious value.</p>
+    <div class="controls">
+      <label class="ctl">n = <span class="nbox" id="re-n">4</span></label>
+      <input type="range" id="re-range" min="1" max="20" value="4">
+    </div>
+    <div id="re-bars" style="display:flex; align-items:flex-end; gap:4px; height:120px; margin-bottom:10px"></div>
+    <div class="result" id="re-result"></div>
+  </div>
+
+  <p>The ratios close in on</p>
+  $$\varphi = \frac{1+\sqrt5}{2} = 1.6180339\ldots$$
+  <p>— the <strong>golden ratio</strong>, the proportion painters and architects have used for centuries
+    because it just <em>looks right</em>. Nobody put it in the rabbit puzzle. It grew out of it.</p>
+
+  <!-- 3 SPIRAL -->
+  <h2>3 · Draw the spiral</h2>
+  <p>Stack squares whose sides are Fibonacci numbers — 1, 1, 2, 3, 5, 8 — each new square hugging the
+    previous ones. Then run a quarter-circle through each square:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🐚</span> Spiral builder</div>
+    <p class="phint">Add squares one at a time. This is the shape of nautilus shells, hurricane arms, and galaxy spirals.</p>
+    <div class="controls">
+      <button class="btn" id="sp-add">Add square +</button>
+      <button class="btn ghost" id="sp-reset">Reset</button>
+      <span class="qcount" id="sp-count"></span>
+    </div>
+    <svg id="sp-svg" width="340" height="220" viewBox="0 0 340 220" style="max-width:100%; border:1px solid var(--line); border-radius:12px; background:var(--panel-2)"></svg>
+    <div class="result" id="sp-readout"></div>
+  </div>
+
+  <p>Nature uses this because Fibonacci growth is what happens when <strong>new stuff is built from what's
+    already there</strong> — a sunflower packs its seeds at the golden angle and gets 34 spirals one way,
+    55 the other. Count them on a real pinecone tonight: you'll get neighbouring Fibonacci numbers.</p>
+
+  <!-- 4 GUESS AND TEST -->
+  <h2>4 · Guess, then test <span class="katex-inline">\therefore</span></h2>
+  <p>Our usual move. Add up the <em>first few</em> Fibonacci numbers and compare to the sequence itself:</p>
+  $$1+1=2 \qquad 1+1+2=4 \qquad 1+1+2+3=7 \qquad 1+1+2+3+5=12$$
+  <div class="note try">
+    <span class="t">Hypothesis <span class="katex-inline">\therefore</span></span> the totals
+    <span class="katex-inline">2, 4, 7, 12, \dots</span> are each exactly <strong>one less</strong> than a Fibonacci number
+    two steps ahead: <span class="katex-inline">F_1+F_2+\cdots+F_n = F_{n+2}-1</span>.
+  </div>
+  <p>Test it: first six are <span class="katex-inline">1+1+2+3+5+8 = 20</span>, and
+    <span class="katex-inline">F_8 - 1 = 21 - 1 = 20</span> ✓. It holds — a hidden shortcut, just like Gauss's.</p>
+
+  <!-- 5 PUZZLE -->
+  <h2>5 · 🧩 Puzzle: think like a rabbit</h2>
+  <p>Streak of 3 earns a ⭐, streak of 5 earns the 🐰 badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Rabbit logic</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="number" inputmode="numeric" placeholder="?" aria-label="your answer">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New question →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Write the sequence</strong> out to <span class="katex-inline">F_{15}</span> in your notebook —
+      no peeking, just the rule.</li>
+    <li><strong>Nature hunt:</strong> find one Fibonacci number in the real world — flower petals, a pinecone's
+      spirals, a pineapple. Draw what you counted.</li>
+    <li><strong>Challenge:</strong> pick any four <em>neighbouring</em> Fibonacci numbers (like 2, 3, 5, 8).
+      Multiply the outside pair, then the inside pair. Compare. Try another four. What do you notice?</li>
+  </ol>
+  <div class="note try">
+    <span class="t">Prove you've got it:</span> take the <a href="homework.html">Lesson 5 homework check</a> —
+    pass it and it's marked ✅ forever (plus ⭐⭐).
+  </div>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">Fibonacci sequence · recurrence (a rule that feeds on itself) · golden ratio φ ·
+    convergence · spiral · F-notation (F₁, F₂, …)</p>
+
+  <div class="lessonnav">
+    <a href="04-evens.html">← Lesson 4: Evens &amp; the Parity Trick</a>
+    <a href="homework.html">📓 Homework checks →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=2"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var K = window.katex;
+  function tex(el, s) { if (K) K.render(s, el, { throwOnError: false }); else el.textContent = s; }
+  document.querySelectorAll(".katex-inline").forEach(function (el) { tex(el, el.textContent); });
+  function fib(n) { var a = 1, b = 1; for (var i = 2; i < n; i++) { var t = a + b; a = b; b = t; } return n <= 2 ? 1 : b; }
+
+  // ---------- Rabbit farm ----------
+  (function () {
+    var babies = 1, adults = 0, month = 1;
+    var pen = document.getElementById("rf-pen"), read = document.getElementById("rf-readout");
+    function draw() {
+      document.getElementById("rf-month").textContent = "Month " + month;
+      var show = "";
+      var cap = 89; // don't melt the page
+      for (var i = 0; i < Math.min(adults, cap); i++) show += "🐰";
+      for (var j = 0; j < Math.min(babies, Math.max(0, cap - adults)); j++) show += "🐇";
+      pen.textContent = show + ((adults + babies) > cap ? " …" : "");
+      read.innerHTML = "🐰 adults: <b>" + adults + "</b> &nbsp;·&nbsp; 🐇 babies: <b>" + babies +
+        "</b> &nbsp;·&nbsp; total pairs: <b style='color:var(--good)'>" + (adults + babies) + "</b>" +
+        (month >= 3 ? " &nbsp;= last month + the month before. Fibonacci!" : "");
+    }
+    document.getElementById("rf-next").addEventListener("click", function () {
+      if (adults + babies > 500) return;
+      var newBabies = adults;   // every adult pair breeds
+      adults = adults + babies; // babies grow up
+      babies = newBabies;
+      month++;
+      draw();
+    });
+    document.getElementById("rf-reset").addEventListener("click", function () {
+      babies = 1; adults = 0; month = 1; draw();
+    });
+    draw();
+  })();
+
+  // ---------- Ratio explorer ----------
+  (function () {
+    var r = document.getElementById("re-range");
+    var PHI = (1 + Math.sqrt(5)) / 2;
+    function upd() {
+      var n = +r.value;
+      document.getElementById("re-n").textContent = n;
+      var bars = document.getElementById("re-bars");
+      bars.innerHTML = "";
+      for (var k = 1; k <= n; k++) {
+        var ratio = fib(k + 1) / fib(k);
+        var d = document.createElement("div");
+        d.style.cssText = "flex:1; max-width:34px; border-radius:6px 6px 0 0; background:" +
+          (k === n ? "var(--accent)" : "var(--primary)") + "; height:" + Math.round(ratio / 2.1 * 100) + "%";
+        d.title = "F" + (k + 1) + "/F" + k + " = " + ratio.toFixed(4);
+        bars.appendChild(d);
+      }
+      var ratio = fib(n + 1) / fib(n);
+      var res = document.getElementById("re-result");
+      res.className = "result " + (Math.abs(ratio - PHI) < 0.001 ? "win" : "");
+      res.innerHTML = "<span style='font-family:var(--mono)'>F<sub>" + (n + 1) + "</sub> ÷ F<sub>" + n + "</sub> = " +
+        fib(n + 1) + " ÷ " + fib(n) + " = <b>" + ratio.toFixed(6) + "</b></span>" +
+        "<br><span class='muted small'>golden ratio φ = 1.618034… &nbsp;·&nbsp; distance: " + Math.abs(ratio - PHI).toFixed(6) + "</span>";
+    }
+    r.addEventListener("input", upd); upd();
+  })();
+
+  // ---------- Spiral builder ----------
+  (function () {
+    var svg = document.getElementById("sp-svg"), NS = "http://www.w3.org/2000/svg";
+    var n = 0, MAX = 9;
+    function draw() {
+      svg.innerHTML = "";
+      document.getElementById("sp-count").textContent = n ? (n + " square" + (n > 1 ? "s" : "") + " · sides: " +
+        Array.from({length: n}, function (_, i) { return fib(i + 1); }).join(", ")) : "";
+      if (!n) { document.getElementById("sp-readout").innerHTML = "Press <b>Add square +</b> to start with a 1×1."; return; }
+      // layout squares by the classic spiral tiling; directions cycle R, U, L, D
+      var x = 0, y = 0, w = 1, h = 1; // bounding box of everything so far (in fib units)
+      var boxes = [{ x: 0, y: 0, s: 1 }];
+      var arcs = [{ cx: 1, cy: 1, r: 1, a0: Math.PI, a1: 1.5 * Math.PI, sq: boxes[0] }];
+      for (var i = 2; i <= n; i++) {
+        var s = fib(i), dir = (i - 2) % 4, b;
+        if (dir === 0)      { b = { x: x + w, y: y + h - s, s: s }; }        // right
+        else if (dir === 1) { b = { x: x + w - s, y: y - s, s: s }; }        // top
+        else if (dir === 2) { b = { x: x - s, y: y, s: s }; }                // left
+        else                { b = { x: x, y: y + h, s: s }; }                // bottom
+        boxes.push(b);
+        var nx = Math.min(x, b.x), ny = Math.min(y, b.y);
+        w = Math.max(x + w, b.x + b.s) - nx; h = Math.max(y + h, b.y + b.s) - ny;
+        x = nx; y = ny;
+      }
+      var pad = 8, sc = Math.min((340 - 2 * pad) / w, (220 - 2 * pad) / h);
+      var ox = pad + (340 - 2 * pad - w * sc) / 2 - x * sc, oy = pad + (220 - 2 * pad - h * sc) / 2 - y * sc;
+      boxes.forEach(function (b, i) {
+        var r = document.createElementNS(NS, "rect");
+        r.setAttribute("x", ox + b.x * sc); r.setAttribute("y", oy + b.y * sc);
+        r.setAttribute("width", b.s * sc); r.setAttribute("height", b.s * sc);
+        r.setAttribute("fill", i === boxes.length - 1 ? "var(--accent-soft)" : "var(--primary-soft)");
+        r.setAttribute("stroke", i === boxes.length - 1 ? "var(--accent)" : "var(--primary)");
+        r.setAttribute("stroke-width", "1.5");
+        svg.appendChild(r);
+        if (b.s * sc > 16) {
+          var t = document.createElementNS(NS, "text");
+          t.setAttribute("x", ox + (b.x + b.s / 2) * sc); t.setAttribute("y", oy + (b.y + b.s / 2) * sc + 4);
+          t.setAttribute("text-anchor", "middle");
+          t.setAttribute("fill", "var(--ink-soft)");
+          t.setAttribute("font-size", Math.min(16, b.s * sc / 3));
+          t.setAttribute("font-family", "var(--mono)");
+          t.textContent = b.s;
+          svg.appendChild(t);
+        }
+      });
+      // quarter-circle spiral: simulate — each arc turns 90° around a center that keeps
+      // radii collinear at the joins (tangent-continuous), landing corner to corner.
+      // Verified chain in tile coords: (0,0) → (1,1) → (2,0) → (0,-2) → (-3,1) → …
+      function rotCW(v) { return [-v[1], v[0]]; } // screen coords (y down): quarter turn
+      var P = [0, 0], C = [0, 1];
+      var path = "M" + (ox + P[0] * sc) + "," + (oy + P[1] * sc);
+      for (var i = 1; i <= n; i++) {
+        var rad = fib(i);
+        var d0 = rotCW([P[0] - C[0], P[1] - C[1]]);
+        var E = [C[0] + d0[0], C[1] + d0[1]];
+        path += " A" + (rad * sc) + "," + (rad * sc) + " 0 0,1 " + (ox + E[0] * sc) + "," + (oy + E[1] * sc);
+        if (i < n) {
+          var u = [(E[0] - C[0]) / rad, (E[1] - C[1]) / rad];
+          C = [E[0] + fib(i + 1) * u[0], E[1] + fib(i + 1) * u[1]];
+        }
+        P = E;
+      }
+      var p = document.createElementNS(NS, "path");
+      p.setAttribute("d", path);
+      p.setAttribute("fill", "none");
+      p.setAttribute("stroke", "var(--good)");
+      p.setAttribute("stroke-width", "2.5");
+      p.setAttribute("opacity", ".9");
+      svg.appendChild(p);
+      document.getElementById("sp-readout").innerHTML = n < 3 ? "Keep going…" :
+        "Each square's side = the two previous sides added — the rectangle's shape is heading toward the golden ratio (" +
+        fib(n + 1) + ":" + fib(n) + " ≈ " + (fib(n + 1) / fib(n)).toFixed(3) + ").";
+    }
+    document.getElementById("sp-add").addEventListener("click", function () { if (n < MAX) { n++; draw(); } });
+    document.getElementById("sp-reset").addEventListener("click", function () { n = 0; draw(); });
+    draw();
+  })();
+
+  // ---------- Puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"),
+        input = document.getElementById("pz-input"),
+        resEl = document.getElementById("pz-result");
+    var F = [1, 1]; for (var i = 2; i < 20; i++) F.push(F[i - 1] + F[i - 2]);
+    function newQ() {
+      var kind = Math.floor(Math.random() * 3);
+      if (kind === 0) {          // next number
+        var i = 3 + Math.floor(Math.random() * 8); // show F[i-3..i-1], ask F[i]
+        q = { ans: F[i], work: F[i - 2] + " + " + F[i - 1] + " = " + F[i],
+              text: "The sequence goes … <b>" + F[i - 3] + ", " + F[i - 2] + ", " + F[i - 1] + ", ?</b> — what's next?" };
+      } else if (kind === 1) {   // missing middle
+        var i = 3 + Math.floor(Math.random() * 8);
+        q = { ans: F[i - 1], work: F[i] + " − " + F[i - 2] + " = " + F[i - 1],
+              text: "Fill the gap: <b>" + F[i - 2] + ", ?, " + F[i] + "</b> (Fibonacci neighbours)" };
+      } else {                   // rabbits
+        var m = 4 + Math.floor(Math.random() * 6); // months 4..9
+        q = { ans: F[m - 1], work: "month " + m + " → F" + m + " = " + F[m - 1] + " pairs",
+              text: "The rabbit farm starts with 1 baby pair. How many pairs in <b>month " + m + "</b>?" };
+      }
+      promptEl.innerHTML = q.text;
+      input.value = ""; input.focus();
+      resEl.className = "result";
+      resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      if (input.value === "") return;
+      if (+input.value === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ <b>" + q.ans + "</b> — rabbit-brained! &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("l5", 1, "Fibonacci streak " + streak);
+          if (streak >= 5) DadMath.badge("fib-5");
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ Not " + (+input.value) + ". Remember: each number = the two before it, added. (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result";
+      resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.work + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+</body>
+</html>

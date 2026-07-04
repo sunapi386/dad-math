@@ -11,6 +11,7 @@
   P.stars = P.stars || {};   // { sourceId: starCount }
   P.badges = P.badges || {}; // { badgeId: true }
   P.best = P.best || {};     // { gameId: bestScore }
+  P.hw = P.hw || {};         // { lessonId: true } — homework checks passed
 
   var BADGES = {
     "first-star":  { icon: "⭐", name: "First Star",       desc: "Earn your very first star." },
@@ -25,7 +26,13 @@
     "tri-sprint-8":{ icon: "🎳", name: "Pin Counter",      desc: "8 correct in one Triangle Trouble round." },
     "oracle-10":   { icon: "🧿", name: "Odd Oracle",       desc: "10 correct in one Odd-or-Even round." },
     "star-10":     { icon: "🌟", name: "Star Collector",   desc: "Collect 10 stars in total." },
-    "star-25":     { icon: "🌌", name: "Constellation",    desc: "Collect 25 stars in total." }
+    "star-25":     { icon: "🌌", name: "Constellation",    desc: "Collect 25 stars in total." },
+    "fib-5":       { icon: "🐰", name: "Rabbit Wrangler",  desc: "Get a 5 streak in Lesson 5's Fibonacci puzzle." },
+    "hw-all":      { icon: "🎓", name: "Homework Hero",    desc: "Pass the homework check for all five math lessons." },
+    "cs-bin":      { icon: "💡", name: "Bit Flipper",      desc: "Get a 5 streak in the binary puzzle." },
+    "cs-crypto":   { icon: "🕵️", name: "Code Cracker",     desc: "Get a 5 streak decoding secret messages." },
+    "gt-euler":    { icon: "🌉", name: "Bridge Master",    desc: "Get a 5 streak in the Euler path puzzle." },
+    "qm-story":    { icon: "🐱", name: "Cat Whisperer",    desc: "Finish the quantum story to the very end." }
   };
 
   // [starsNeeded, icon, title]
@@ -110,6 +117,17 @@
       return true;
     },
 
+    /* homework checks: mark a lesson's homework as validated */
+    hwPass: function (id) {
+      var first = !P.hw[id];
+      P.hw[id] = true; save();
+      if (first) this.star("hw-" + id, 2, "Homework check passed!");
+      else this.toast("✅ Homework re-checked — still got it!");
+      var all = ["l1", "l2", "l3", "l4", "l5"].every(function (k) { return P.hw[k]; });
+      if (all) this.badge("hw-all");
+    },
+    hwDone: function (id) { return !!P.hw[id]; },
+
     /* record a best score; returns true if it's a new record */
     best: function (game, score) {
       if (score > (P.best[game] || 0)) { P.best[game] = score; save(); return true; }
@@ -119,7 +137,7 @@
 
     reset: function () {
       if (!confirm("Erase all stars, badges and best scores on this device?")) return;
-      P = { stars: {}, badges: {}, best: {} };
+      P = { stars: {}, badges: {}, best: {}, hw: {} };
       save(); location.reload();
     },
 

@@ -17,6 +17,25 @@ can play with in the browser.
   proof, and the handshake problem. → `03-triangles.html`
 - **04 — Evens & the Parity Trick.** Odd or even without adding; sum of evens = n(n+1);
   finally proves Lesson 1's "why is it always whole" challenge. → `04-evens.html`
+- **05 — Fibonacci & the Golden Ratio.** The rabbit puzzle, ratio convergence to φ, and a
+  spiral builder with tangent-continuous quarter arcs. → `05-fib.html`
+
+## 📓 Homework checks
+
+`homework.html` validates each math lesson: 5 randomized questions (fresh numbers every
+attempt), pass with 4+. Passing marks the lesson ✅ (persisted in localStorage), awards
+stars, and passing all five unlocks the 🎓 Homework Hero badge. Index cards show ticks.
+
+## Beyond math
+
+- **💻 CS·1 Binary** — bit flipper, finger binary, and the six-questions mind reader
+  (one bit of information per answer). → `cs01-binary.html`
+- **💻 CS·2 Secret Codes** — Caesar cipher machine, brute-force code breaker, keyspace.
+  → `cs02-secret-codes.html`
+- **🕸️ G·1 The Seven Bridges** — playable Königsberg + envelope trace + Euler's degree
+  rule. → `gt01-bridges.html`
+- **📖 Story mode: The Cat in the Box** — quantum mechanics as a read-aloud story with a
+  collapsing coin, a double-slit toy, and entangled gloves. → `qm01-quantum-story.html`
 
 ## 🕹️ The Arcade (gamification)
 

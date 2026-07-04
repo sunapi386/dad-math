@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Graphs 1 · The Seven Bridges — Math in Half an Hour</title>
+<meta name="description" content="The puzzle that invented graph theory: walk all seven bridges of Königsberg exactly once. Try it, fail, and then prove why — with Euler's beautiful degree rule.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=3">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Graph Theory · Topic 01</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">The Seven Bridges</h1>
+    <p class="lede">In the 1700s, the city of Königsberg had two islands and seven bridges. Sunday strollers
+      played a game: cross <em>every</em> bridge exactly once. Nobody ever managed it. Then Leonhard Euler
+      proved <em>why</em> nobody ever would — and accidentally invented a whole new kind of math.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">works after Lesson 3's handshakes</span></p>
+  </header>
+
+  <!-- 1 THE GAME -->
+  <h2>1 · Play the Sunday stroll</h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🌉</span> Königsberg, 1736</div>
+    <p class="phint">Click a landmass to start there, then click bridges to cross. Each bridge only once.
+      Cross all <b>7</b>… if you can.</p>
+    <svg class="gt-svg" id="kb-svg" width="480" height="300" viewBox="0 0 480 300" style="max-width:100%"></svg>
+    <div class="controls">
+      <button class="btn ghost" id="kb-reset">↺ Start over</button>
+      <span class="qcount" id="kb-count">0/7 bridges</span>
+    </div>
+    <div class="result" id="kb-result">Pick a starting landmass.</div>
+  </div>
+
+  <!-- 2 THE ABSTRACTION -->
+  <h2>2 · Euler's move: forget the city</h2>
+  <p>Euler's genius was realizing the map doesn't matter. Shrink each landmass to a <strong>dot</strong>
+    (a <em>node</em>) and each bridge to a <strong>line</strong> (an <em>edge</em>). The puzzle survives —
+    everything else was decoration. A picture of dots and lines is called a <strong>graph</strong>, and it's the
+    same object as Lesson 3's handshake circle.</p>
+  <p>Now count each node's <strong>degree</strong> — how many edge-ends touch it. Here's the key idea:</p>
+  <div class="note try">
+    <span class="t">The walking rule:</span> every time your stroll <em>passes through</em> a node, it uses up
+    two of that node's edges — one in, one out. So a node with an <b>odd</b> degree can't be passed through
+    cleanly forever: it must be where you <b>start</b> or where you <b>end</b>. And a walk only has one start
+    and one end — so at most <b>2 odd nodes</b> are allowed. Zero also works (a loop).
+  </div>
+  <p>Königsberg's degrees: the island has 5, the other three landmasses have 3 each. That's
+    <strong>four odd nodes</strong>. Four &gt; two. Impossible — not "hard": <em>impossible</em>, proven
+    forever, without trying a single route. <span style="font-family:var(--serif)">□</span></p>
+
+  <!-- 3 SOLVABLE ONE -->
+  <h2>3 · Now one that <em>can</em> be done</h2>
+  <p>The classic “draw this without lifting your pen”: a house with an X inside. Count odd nodes first —
+    the two bottom corners have degree 3. Exactly two odd nodes → possible, <strong>but you must start at
+    an odd one</strong>.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">✏️</span> The envelope challenge</div>
+    <p class="phint">Same rules: pick a start node, click edges. Trace all <b>8</b> lines. (Try starting at a
+      top corner first, just to feel it fail.) First clear = ⭐.</p>
+    <svg class="gt-svg" id="env-svg" width="480" height="300" viewBox="0 0 480 300" style="max-width:100%"></svg>
+    <div class="controls">
+      <button class="btn ghost" id="env-reset">↺ Start over</button>
+      <span class="qcount" id="env-count">0/8 edges</span>
+    </div>
+    <div class="result" id="env-result">Pick a starting corner. (Psst — the rule says bottom corners.)</div>
+  </div>
+
+  <!-- 4 WHY IT MATTERS -->
+  <h2>4 · Where graphs live now</h2>
+  <p>Every one of these is secretly the same dots-and-lines math: your GPS finding the fastest route ·
+    the internet routing this very page · friend networks (Lesson 3's handshakes!) · garbage-truck and
+    mail routes (they <em>want</em> an Euler walk — no street twice) · molecules · subway maps. Euler's
+    little stroll became the mathematics of <strong>every network on Earth</strong>.</p>
+
+  <!-- 5 PUZZLE -->
+  <h2>5 · 🧩 Puzzle: the route inspector</h2>
+  <p>You're shown a town's node degrees. Can a walk cross every bridge exactly once?
+    Streak of 3 = ⭐, streak of 5 = 🌉 badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Possible or impossible?</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="choice2">
+      <button class="btn" id="pz-yes">Possible</button>
+      <button class="btn ghost" id="pz-no">Impossible</button>
+      <button class="btn ghost" id="pz-new">New town →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b> &nbsp;·&nbsp; Rule: count the odd degrees — 0 or 2 means possible.</div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Fix Königsberg:</strong> the city wants the Sunday stroll to work. Which ONE bridge would you
+      add (or knock down!) to make it possible? Check the degrees after your change.</li>
+    <li><strong>Draw</strong> the envelope puzzle for a friend and watch them try from a top corner. Then reveal the rule.</li>
+    <li><strong>Challenge:</strong> your own house — doorways are bridges, rooms are nodes. Can you walk through
+      every doorway exactly once? Count the degrees and predict <em>before</em> trying.</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">graph · node (vertex) · edge · degree · Euler path · abstraction (keep the structure, drop the decoration)</p>
+
+  <div class="lessonnav">
+    <a href="index.html#graphs">← All graph topics</a>
+    <a href="qm01-quantum-story.html">📖 Story: The Cat in the Box →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=2"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var NS = "http://www.w3.org/2000/svg";
+
+  /* Generic Euler-walk widget: nodes, edges (with optional curve), click to walk. */
+  function walker(svgId, cfg, countId, resId, total, onWin) {
+    var svg = document.getElementById(svgId), res = document.getElementById(resId), cnt = document.getElementById(countId);
+    var cur = null, used = 0, edgeEls = [], nodeEls = [];
+    function midCurve(e) {
+      var a = cfg.nodes[e.a], b = cfg.nodes[e.b];
+      var mx = (a.x + b.x) / 2 + (e.bow || 0) * (b.y - a.y) / 2,
+          my = (a.y + b.y) / 2 - (e.bow || 0) * (b.x - a.x) / 2;
+      return "M" + a.x + "," + a.y + " Q" + mx + "," + my + " " + b.x + "," + b.y;
+    }
+    function stuck() {
+      if (cur === null) return false;
+      return !cfg.edges.some(function (e, i) { return !e.used && (e.a === cur || e.b === cur); });
+    }
+    function paint() {
+      cnt.textContent = used + "/" + total + (cfg.edges[0].name ? " bridges" : " edges");
+      cfg.edges.forEach(function (e, i) {
+        edgeEls[i].setAttribute("class", "edge" + (e.used ? " used" : (cur !== null && e.a !== cur && e.b !== cur ? " dead" : "")));
+      });
+      Object.keys(cfg.nodes).forEach(function (k) {
+        nodeEls[k].setAttribute("class", "node" + (k === cur ? " cur" : ""));
+      });
+    }
+    function reset() {
+      cur = null; used = 0;
+      cfg.edges.forEach(function (e) { e.used = false; });
+      res.className = "result";
+      res.innerHTML = cfg.startMsg;
+      paint();
+    }
+    // landmass shapes (optional decorative blobs)
+    (cfg.shapes || []).forEach(function (s) {
+      var el = document.createElementNS(NS, s.tag);
+      Object.keys(s.attrs).forEach(function (k) { el.setAttribute(k, s.attrs[k]); });
+      el.setAttribute("class", "land");
+      svg.appendChild(el);
+    });
+    cfg.edges.forEach(function (e, i) {
+      var p = document.createElementNS(NS, "path");
+      p.setAttribute("d", midCurve(e));
+      p.setAttribute("class", "edge");
+      p.addEventListener("click", function () {
+        if (e.used) return;
+        if (cur === null) { res.className = "result miss"; res.innerHTML = "Pick a starting " + (cfg.nodeWord || "node") + " first — click a circle."; return; }
+        if (e.a !== cur && e.b !== cur) { res.className = "result miss"; res.innerHTML = "You're at " + cfg.nodes[cur].label + " — that bridge doesn't touch you."; return; }
+        e.used = true; used++;
+        cur = (e.a === cur) ? e.b : e.a;
+        if (used === total) {
+          res.className = "result win";
+          res.innerHTML = cfg.winMsg;
+          if (onWin) onWin();
+        } else if (stuck()) {
+          res.className = "result miss";
+          res.innerHTML = "🚧 Stuck at <b>" + cfg.nodes[cur].label + "</b> with " + used + "/" + total + " crossed — every remaining bridge is somewhere else. " + (cfg.stuckMsg || "Start over!");
+        } else {
+          res.className = "result";
+          res.innerHTML = "Now at <b>" + cfg.nodes[cur].label + "</b> — " + used + "/" + total + ".";
+        }
+        paint();
+      });
+      svg.appendChild(p);
+      edgeEls.push(p);
+    });
+    Object.keys(cfg.nodes).forEach(function (k) {
+      var nd = cfg.nodes[k];
+      var c = document.createElementNS(NS, "circle");
+      c.setAttribute("cx", nd.x); c.setAttribute("cy", nd.y); c.setAttribute("r", 16);
+      c.setAttribute("class", "node");
+      c.style.cursor = "pointer";
+      c.addEventListener("click", function () {
+        if (used > 0) return;
+        cur = k;
+        res.className = "result";
+        res.innerHTML = "Starting at <b>" + nd.label + "</b>. Cross a bridge!";
+        paint();
+      });
+      svg.appendChild(c);
+      nodeEls[k] = c;
+      var t = document.createElementNS(NS, "text");
+      t.setAttribute("x", nd.x); t.setAttribute("y", nd.y + 4);
+      t.setAttribute("class", "nlab");
+      t.textContent = k;
+      t.style.pointerEvents = "none";
+      svg.appendChild(t);
+      var d = document.createElementNS(NS, "text");
+      d.setAttribute("x", nd.x + (nd.dx || 0)); d.setAttribute("y", nd.y + (nd.dy || 30));
+      d.setAttribute("class", "dlab");
+      d.textContent = "degree " + cfg.edges.reduce(function (s, e) { return s + (e.a === k) + (e.b === k); }, 0);
+      svg.appendChild(d);
+    });
+    document.getElementById(cfg.resetBtn).addEventListener("click", reset);
+    reset();
+  }
+
+  // ---- Königsberg: A north bank, B south bank, C island, D east bank ----
+  walker("kb-svg", {
+    nodeWord: "landmass",
+    startMsg: "Pick a starting landmass.",
+    winMsg: "😲 Wait, you did it?! Check the code — Euler proved this impossible!",
+    stuckMsg: "That's not bad luck — it's a theorem. See section 2.",
+    resetBtn: "kb-reset",
+    shapes: [
+      { tag: "rect", attrs: { x: 10, y: 8,   width: 460, height: 66, rx: 18 } },  // north bank
+      { tag: "rect", attrs: { x: 10, y: 226, width: 460, height: 66, rx: 18 } },  // south bank
+      { tag: "ellipse", attrs: { cx: 165, cy: 150, rx: 92, ry: 44 } },            // island C
+      { tag: "ellipse", attrs: { cx: 385, cy: 150, rx: 66, ry: 44 } }             // east D
+    ],
+    nodes: {
+      A: { x: 165, y: 41,  label: "the north bank", dy: -24 },
+      B: { x: 165, y: 259, label: "the south bank", dy: 34 },
+      C: { x: 165, y: 150, label: "the island", dx: -60, dy: 4 },
+      D: { x: 385, y: 150, label: "the east bank", dx: 52, dy: 4 }
+    },
+    edges: [
+      { a: "A", b: "C", bow:  0.45, name: 1 }, { a: "A", b: "C", bow: -0.45, name: 1 },
+      { a: "B", b: "C", bow:  0.45, name: 1 }, { a: "B", b: "C", bow: -0.45, name: 1 },
+      { a: "A", b: "D", bow: -0.25, name: 1 },
+      { a: "B", b: "D", bow:  0.25, name: 1 },
+      { a: "C", b: "D", bow:  0,    name: 1 }
+    ]
+  }, "kb-count", "kb-result", 7);
+
+  // ---- Envelope / house-with-X: square + diagonals + roof ----
+  walker("env-svg", {
+    startMsg: "Pick a starting corner. (Psst — the rule says bottom corners.)",
+    winMsg: "🎉 All 8 traced — one pen stroke! Notice where you started and ended: the two odd-degree corners.",
+    stuckMsg: "Which corners were odd again?",
+    resetBtn: "env-reset",
+    nodes: {
+      L: { x: 140, y: 220, label: "bottom-left", dy: 34 },
+      R: { x: 340, y: 220, label: "bottom-right", dy: 34 },
+      TL: { x: 140, y: 100, label: "top-left", dy: -24 },
+      TR: { x: 340, y: 100, label: "top-right", dy: -24 },
+      P: { x: 240, y: 34,  label: "the roof peak", dx: 44, dy: 4 }
+    },
+    edges: [
+      { a: "L", b: "R" }, { a: "L", b: "TL" }, { a: "R", b: "TR" }, { a: "TL", b: "TR" },
+      { a: "L", b: "TR" }, { a: "R", b: "TL" },
+      { a: "TL", b: "P" }, { a: "TR", b: "P" }
+    ]
+  }, "env-count", "env-result", 8, function () {
+    if (window.DadMath) DadMath.star("gt1", 1, "Envelope traced in one stroke!");
+  });
+
+  // ---------- Puzzle: possible or impossible ----------
+  (function () {
+    var streak = 0, best = 0, degs = [], possible = false;
+    var promptEl = document.getElementById("pz-prompt"), resEl = document.getElementById("pz-result");
+    function newQ() {
+      // build a random connected-ish multigraph so degrees are honest, then read them off
+      var n = 4 + Math.floor(Math.random() * 2); // 4-5 nodes
+      var deg = new Array(n).fill(0);
+      // spanning chain keeps it connected
+      for (var i = 0; i < n - 1; i++) { deg[i]++; deg[i + 1]++; }
+      var extra = 2 + Math.floor(Math.random() * 4);
+      for (var e = 0; e < extra; e++) {
+        var a = Math.floor(Math.random() * n), b = Math.floor(Math.random() * n);
+        if (a === b) { b = (b + 1) % n; }
+        deg[a]++; deg[b]++;
+      }
+      degs = deg;
+      var odd = deg.filter(function (d) { return d % 2 === 1; }).length;
+      possible = (odd === 0 || odd === 2);
+      promptEl.innerHTML = "A town's landmasses have degrees: <b style='font-family:var(--mono)'>" +
+        deg.join(", ") + "</b>. Can one stroll cross every bridge exactly once?";
+      resEl.className = "result";
+      resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function answer(saidYes) {
+      var odd = degs.filter(function (d) { return d % 2 === 1; }).length;
+      if (saidYes === possible) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ " + odd + " odd node" + (odd === 1 ? "" : "s") + " → " + (possible ? "possible (start at an odd one!)" : "impossible") +
+          ". &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("gt1", 1, "Route inspector streak " + streak);
+          if (streak >= 5) DadMath.badge("gt-euler");
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ Count the odds: " + odd + " odd node" + (odd === 1 ? "" : "s") + " → " + (possible ? "possible" : "impossible") + ". (streak reset)";
+      }
+      setTimeout(newQ, 1800);
+    }
+    document.getElementById("pz-yes").addEventListener("click", function () { answer(true); });
+    document.getElementById("pz-no").addEventListener("click", function () { answer(false); });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    newQ();
+  })();
+});
+</script>
+</body>
+</html>
