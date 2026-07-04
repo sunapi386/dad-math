@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Lab 2 · How Units Find Their Way — Math in Half an Hour</title>
+<meta name="description" content="When you click a spot in StarCraft, how does the unit walk around your buildings? It floods the map like spilled water. Build walls and watch pathfinding search — then race it.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Lab · Topic 02</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">How Units Find Their Way</h1>
+    <p class="lede">You click a far-off spot in StarCraft and your marine strolls <em>around</em> the
+      buildings to get there. Nobody told it the route — it worked it out. The trick is beautiful and
+      simple: the map floods, like water spilled at the start, and the first drop to reach the goal
+      came the shortest way.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">friends with 🕸️ Seven Bridges</span></p>
+  </header>
+
+  <!-- 1 THE IDEA -->
+  <h2>1 · Spilled water finds the way</h2>
+  <p>Imagine pouring water on the start square. In one second it seeps to every neighbour. Another
+    second — their neighbours. It spreads in <b>rings</b>: everything 1 step away, then 2 steps, then
+    3… Walls block it, so the water bends around them. The instant the flood touches the goal, you're
+    done — and because it grew one ring at a time, that <b>had</b> to be the shortest way in.</p>
+  <p>Computer scientists call this <b>breadth-first search</b> — “breadth first” because you finish a
+    whole ring before starting the next. It's the same dots-and-lines world as the
+    <a href="gt01-bridges.html">Seven Bridges</a>: squares are dots, neighbours are lines.</p>
+
+  <!-- 2 THE VISUALIZER -->
+  <h2>2 · Watch it flood</h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧭</span> The pathfinder</div>
+    <p class="phint">🟩 start &nbsp; 🟥 goal. <b>Click or drag</b> on the grid to build/erase walls
+      (your “buildings”). Then press <b>Find the path</b> and watch the flood spread out and bend
+      around them. The gold trail is the shortest route.</p>
+    <div class="canvaswrap"><canvas id="grid" width="480" height="300"></canvas></div>
+    <div class="ctrlrow">
+      <button class="btn" id="pf-go">🌊 Find the path</button>
+      <button class="btn ghost" id="pf-rand">🎲 Random walls</button>
+      <button class="btn ghost" id="pf-clear">Clear walls</button>
+    </div>
+    <div class="result" id="pf-read">Build some walls, then find the path.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Try:</span> wall the goal off completely — the flood fills the whole open area and
+    <em>never</em> reaches it. That “no path” answer is exactly why a StarCraft unit sometimes just
+    shrugs and stays put. Then leave one gap and watch the water squeeze through it.
+  </div>
+
+  <!-- 3 WHY SHORTEST -->
+  <h2>3 · Why it's always the shortest</h2>
+  <p>On an open grid with no walls, the shortest trip from here to there is just:
+    <b>steps across + steps up-or-down</b>. No diagonal shortcuts allowed, so you can't do better than
+    covering each on its own. Mathematicians call that the <b>Manhattan distance</b> — like a taxi in a
+    city of square blocks.</p>
+  $$\text{shortest steps} = |\Delta \text{col}| + |\Delta \text{row}|$$
+  <p>The flood <em>discovers</em> this on its own: since it grows one ring per second, the ring number
+    where it first hits the goal <b>is</b> that distance. Walls only ever make the answer bigger, never
+    smaller.</p>
+
+  <!-- 4 PUZZLE -->
+  <h2>4 · 🧩 Puzzle: count the steps</h2>
+  <p>Open grid, no walls. How many steps is the shortest path from 🟩 to 🟥? Streak of 3 = ⭐,
+    streak of 5 = 🧭 badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Manhattan counter</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="canvaswrap"><canvas id="mini" width="360" height="240"></canvas></div>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:10ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Play detective in a game.</strong> In Deep Rock or StarCraft, watch a character walk to
+      a far spot. Did it go straight, or bend around something? What was it avoiding?</li>
+    <li><strong>Be the flood.</strong> On graph paper, mark a start and goal with a wall between them.
+      Write 0 on the start, then 1 on its neighbours, 2 on theirs… until you reach the goal. The number
+      you write there is the shortest distance.</li>
+    <li><strong>Think ahead:</strong> real games use a smarter cousin called <b>A*</b> that aims the
+      flood <em>toward</em> the goal instead of spreading everywhere. Why would aiming save the computer
+      work?</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">pathfinding · breadth-first search (BFS) · frontier / ring · shortest path · Manhattan distance · A*</p>
+
+  <div class="lessonnav">
+    <a href="gl01-game-loop.html">← Game Lab 1: Make a game</a>
+    <a href="gl03-factory.html">Game Lab 3: Factory logic →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=3"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".katex-inline").forEach(function (el) {
+    if (window.katex) katex.render(el.textContent, el, { throwOnError: false });
+  });
+
+  // shared BFS (verified): rings out from start, returns visit order + shortest path
+  function bfs(C, R, walls, start, goal) {
+    var dist = {}, prev = {}, order = [], q = [start], head = 0;
+    dist[start.r + "," + start.c] = 0;
+    while (head < q.length) {
+      var cur = q[head++], ck = cur.r + "," + cur.c;
+      order.push({ r: cur.r, c: cur.c, d: dist[ck] });
+      if (cur.r === goal.r && cur.c === goal.c) break;
+      var nb = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+      for (var i = 0; i < 4; i++) {
+        var nr = cur.r + nb[i][0], nc = cur.c + nb[i][1], k = nr + "," + nc;
+        if (nr < 0 || nc < 0 || nr >= R || nc >= C) continue;
+        if (walls[k] || dist[k] !== undefined) continue;
+        dist[k] = dist[ck] + 1; prev[k] = { r: cur.r, c: cur.c }; q.push({ r: nr, c: nc });
+      }
+    }
+    var gk = goal.r + "," + goal.c;
+    if (dist[gk] === undefined) return { order: order, path: null };
+    var path = [], k = gk;
+    while (k) { var p = k.split(","); path.unshift({ r: +p[0], c: +p[1] }); var pv = prev[k]; k = pv ? pv.r + "," + pv.c : null; }
+    return { order: order, path: path };
+  }
+
+  // ---------- Visualizer ----------
+  (function () {
+    var cv = document.getElementById("grid"), ctx = cv.getContext("2d");
+    var CELL = 30, C = cv.width / CELL, R = cv.height / CELL;   // 16 x 10
+    var start = { r: 0, c: 0 }, goal = { r: R - 1, c: C - 1 };
+    var walls = {}, anim = null, painting = false, paintVal = true;
+    var read = document.getElementById("pf-read");
+
+    function isSG(r, c) { return (r === start.r && c === start.c) || (r === goal.r && c === goal.c); }
+    function cellColor(r, c) {
+      if (r === start.r && c === start.c) return "#22c55e";
+      if (r === goal.r && c === goal.c) return "#ef4444";
+      if (walls[r + "," + c]) return "#475569";
+      return null;
+    }
+    function draw(flood, path) {
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      for (var r = 0; r < R; r++) for (var c = 0; c < C; c++) {
+        var x = c * CELL, y = r * CELL, base = cellColor(r, c);
+        if (base) { ctx.fillStyle = base; ctx.fillRect(x, y, CELL, CELL); }
+        else if (flood && flood[r + "," + c] !== undefined) {
+          var d = flood[r + "," + c];
+          ctx.fillStyle = "hsl(" + (205 - Math.min(d * 6, 150)) + ",70%," + (window.matchMedia && matchMedia("(prefers-color-scheme:dark)").matches ? 32 : 78) + "%)";
+          ctx.fillRect(x, y, CELL, CELL);
+        }
+        ctx.strokeStyle = "rgba(127,127,127,.28)"; ctx.strokeRect(x + .5, y + .5, CELL, CELL);
+      }
+      if (path) {
+        ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 5; ctx.lineJoin = "round"; ctx.beginPath();
+        path.forEach(function (n, i) {
+          var px = n.c * CELL + CELL / 2, py = n.r * CELL + CELL / 2;
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        });
+        ctx.stroke(); ctx.lineWidth = 1;
+      }
+      // labels
+      ctx.fillStyle = "#fff"; ctx.font = "bold 15px system-ui,sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("S", start.c * CELL + CELL / 2, start.r * CELL + CELL / 2 + 5);
+      ctx.fillText("G", goal.c * CELL + CELL / 2, goal.r * CELL + CELL / 2 + 5);
+      ctx.textAlign = "left";
+    }
+    function cellAt(e) {
+      var rect = cv.getBoundingClientRect();
+      var px = (e.clientX - rect.left) * (cv.width / rect.width);
+      var py = (e.clientY - rect.top) * (cv.height / rect.height);
+      return { r: Math.floor(py / CELL), c: Math.floor(px / CELL) };
+    }
+    function paint(e) {
+      var cell = cellAt(e);
+      if (cell.r < 0 || cell.c < 0 || cell.r >= R || cell.c >= C || isSG(cell.r, cell.c)) return;
+      walls[cell.r + "," + cell.c] = paintVal ? true : undefined;
+      if (!paintVal) delete walls[cell.r + "," + cell.c];
+      draw();
+    }
+    cv.addEventListener("mousedown", function (e) {
+      var cell = cellAt(e); if (isSG(cell.r, cell.c)) return;
+      painting = true; paintVal = !walls[cell.r + "," + cell.c]; paint(e);
+    });
+    cv.addEventListener("mousemove", function (e) { if (painting) paint(e); });
+    window.addEventListener("mouseup", function () { painting = false; });
+    cv.addEventListener("touchstart", function (e) { paintVal = true; paint(e.touches[0]); e.preventDefault(); }, { passive: false });
+    cv.addEventListener("touchmove", function (e) { paint(e.touches[0]); e.preventDefault(); }, { passive: false });
+
+    document.getElementById("pf-clear").addEventListener("click", function () { walls = {}; if (anim) clearInterval(anim); draw(); read.textContent = "Walls cleared."; });
+    document.getElementById("pf-rand").addEventListener("click", function () {
+      walls = {};
+      for (var r = 0; r < R; r++) for (var c = 0; c < C; c++)
+        if (!isSG(r, c) && Math.random() < 0.28) walls[r + "," + c] = true;
+      if (anim) clearInterval(anim); draw(); read.textContent = "Random walls dropped — now find the path.";
+    });
+    document.getElementById("pf-go").addEventListener("click", function () {
+      if (anim) clearInterval(anim);
+      var res = bfs(C, R, walls, start, goal), flood = {}, i = 0;
+      anim = setInterval(function () {
+        if (i >= res.order.length) {
+          clearInterval(anim); anim = null;
+          if (res.path) {
+            draw(flood, res.path);
+            read.innerHTML = "🌊 Flooded " + res.order.length + " squares · shortest path = <b>" + (res.path.length - 1) + " steps</b>.";
+            var walled = Object.keys(walls).length;
+            if (walled >= 3 && window.DadMath) DadMath.star("gl2", 1, "Pathfinding around " + walled + " walls!");
+          } else {
+            draw(flood, null);
+            read.innerHTML = "🚫 The flood filled everything and never reached 🟥 — <b>no path exists</b>.";
+          }
+          return;
+        }
+        var n = res.order[i++]; flood[n.r + "," + n.c] = n.d;
+        draw(flood, null);
+      }, 22);
+    });
+    draw();
+  })();
+
+  // ---------- Puzzle: Manhattan counter ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var mini = document.getElementById("mini"), mctx = mini.getContext("2d");
+    var promptEl = document.getElementById("pz-prompt"),
+        input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    function drawMini(s, g, cols, rows) {
+      var cw = mini.width / cols, ch = mini.height / rows;
+      mctx.clearRect(0, 0, mini.width, mini.height);
+      for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+        mctx.strokeStyle = "rgba(127,127,127,.35)";
+        mctx.strokeRect(c * cw + .5, r * ch + .5, cw, ch);
+      }
+      mctx.fillStyle = "#22c55e"; mctx.fillRect(s.c * cw + 2, s.r * ch + 2, cw - 4, ch - 4);
+      mctx.fillStyle = "#ef4444"; mctx.fillRect(g.c * cw + 2, g.r * ch + 2, cw - 4, ch - 4);
+    }
+    function newQ() {
+      var cols = 4 + Math.floor(Math.random() * 4), rows = 3 + Math.floor(Math.random() * 3);
+      var s = { r: Math.floor(Math.random() * rows), c: Math.floor(Math.random() * cols) };
+      var g = { r: Math.floor(Math.random() * rows), c: Math.floor(Math.random() * cols) };
+      while (g.r === s.r && g.c === s.c) { g.r = Math.floor(Math.random() * rows); g.c = Math.floor(Math.random() * cols); }
+      var d = Math.abs(g.c - s.c) + Math.abs(g.r - s.r);
+      q = { ans: String(d), work: "|" + (g.c - s.c) + "| + |" + (g.r - s.r) + "| = " + Math.abs(g.c - s.c) + " + " + Math.abs(g.r - s.r) + " = " + d };
+      promptEl.innerHTML = "Shortest steps from 🟩 to 🟥 (no diagonals)?";
+      drawMini(s, g, cols, rows);
+      input.value = ""; input.focus();
+      resEl.className = "result";
+      resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ The flood agrees! &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("gl2", 1, "Manhattan streak " + streak);
+          if (streak >= 5) DadMath.badge("gl-path");
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ Count across + up/down separately. (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.work + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+</body>
+</html>

@@ -329,3 +329,43 @@ footer.site { border-top: 1px solid var(--line); margin-top: 60px; padding: 26px
   transition: transform .12s ease; }
 .glovebox:hover { transform: scale(1.05); }
 .glovebox.opened { border-style: solid; background: var(--panel-2); cursor: default; }
+
+/* ==== game lab ==== */
+.looplist { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0; justify-content: center; }
+.loopstep { background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-weight: 600; }
+.loopstep b { color: var(--primary); }
+.looparrow { color: var(--ink-faint); font-size: 1.3rem; }
+.canvaswrap { max-width: 480px; margin: 14px auto; }
+.canvaswrap canvas { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--panel-2); touch-action: none; }
+#game { outline: none; }
+#game:focus { border-color: var(--primary); }
+.ctrlrow { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: center; margin: 10px 0 4px; }
+.slab { display: inline-flex; align-items: center; gap: 8px; font-size: .92rem; color: var(--ink-soft); font-weight: 600; }
+.slab input[type=range] { accent-color: var(--primary); vertical-align: middle; }
+.padbtn { min-width: 66px; font-size: 1.3rem; padding: 10px 14px; }
+/* factory balancer bars */
+.barpair { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-items: center; margin: 14px 0 6px; }
+.barlab { font-weight: 700; color: var(--ink-soft); font-size: .9rem; text-align: right; }
+.bartrack { background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; height: 26px; overflow: hidden; }
+.barfill { height: 100%; width: 0; border-radius: 999px; transition: width .18s ease; color: #fff; font-size: .8rem;
+  font-weight: 700; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; box-sizing: border-box; min-width: 2ch; }
+.barfill.sup { background: var(--primary); }
+.barfill.dem { background: var(--accent); }
+/* gates */
+.bitbtn.big { width: 60px; height: 60px; border-radius: 14px; font-size: 1.5rem; }
+.gatesel { font-family: var(--sans); font-weight: 700; font-size: 1rem; padding: 8px 12px; border-radius: 10px;
+  border: 2px solid var(--line); background: var(--panel-2); color: var(--ink); cursor: pointer; }
+.gatearrow { font-size: 1.6rem; color: var(--ink-faint); font-weight: 700; }
+.bulb { width: 60px; height: 60px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 1.5rem;
+  font-weight: 700; border: 2px solid var(--line); background: var(--panel-2); color: var(--ink-soft); }
+.bulb.lit { background: var(--good); border-color: var(--good); color: #fff; box-shadow: 0 0 18px var(--good-soft); }
+/* half adder */
+.addout { font-family: var(--mono); font-size: 2rem; font-weight: 700; color: var(--primary); min-width: 2ch; letter-spacing: 2px; }
+.addwires { max-width: 340px; margin: 14px auto 0; display: grid; gap: 8px; }
+.wireline { display: flex; justify-content: space-between; align-items: center; background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-family: var(--mono); font-size: .95rem; }
+.wireline b { color: var(--primary); }
+.wv { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-weight: 700;
+  background: var(--bg); border: 1px solid var(--line); }
+.wv.on { background: var(--good); border-color: var(--good); color: #fff; }
