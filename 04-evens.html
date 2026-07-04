@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 4 · Evens &amp; the Parity Trick — Math in Half an Hour</title>
+<meta name="description" content="Odd or even — without adding. Derive the parity rules with dots, sum the even numbers to n(n+1), and finally solve Lesson 1's mystery of why n(n+1)/2 is always whole.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=2">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="01-gauss.html">01</a>
+  <a class="nav" href="02-squares.html">02</a>
+  <a class="nav" href="03-triangles.html">03</a>
+  <a class="nav" href="04-evens.html">04</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Lesson 04</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Evens &amp; the Parity Trick</h1>
+    <p class="lede">Is <span style="font-family:var(--mono)">347 + 592</span> odd or even? You can know
+      <em>without adding</em>. Today we learn the parity rules, sum up the even numbers — and finally
+      crack the mystery challenge from Lesson 1.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">solves Lesson 1's challenge</span></p>
+  </header>
+
+  <!-- 1 WHAT IS PARITY -->
+  <h2>1 · Even means “pairs up perfectly”</h2>
+  <p>A number is <strong>even</strong> if you can split that many dots into pairs with none left over.
+    It's <strong>odd</strong> if exactly one dot is left standing alone. That's all
+    <strong>parity</strong> means: is there a loner, or not?</p>
+  $$\text{even} = 2n \qquad\qquad \text{odd} = 2n - 1$$
+
+  <!-- 2 PARITY MACHINE -->
+  <h2>2 · The parity machine</h2>
+  <p>What happens when you <em>add</em> two numbers? Watch the loners.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">⚙️</span> Parity machine</div>
+    <p class="phint">Pick two numbers. Dots pair up in twos; a lonely orange dot means odd.
+      Watch what the loners do when the piles merge.</p>
+    <div class="controls">
+      <label class="ctl">a = <span class="nbox" id="pm-a">7</span></label>
+      <input type="range" id="pm-ar" min="1" max="16" value="7">
+      <label class="ctl">b = <span class="nbox" id="pm-b">5</span></label>
+      <input type="range" id="pm-br" min="1" max="16" value="5">
+    </div>
+    <div style="display:flex; gap:28px; flex-wrap:wrap">
+      <div><div class="muted small" style="font-family:var(--mono)" id="pm-alab"></div><div class="dotgrid" id="pm-adots" style="grid-auto-flow:column; grid-template-rows:repeat(2,1fr)"></div></div>
+      <div><div class="muted small" style="font-family:var(--mono)" id="pm-blab"></div><div class="dotgrid" id="pm-bdots" style="grid-auto-flow:column; grid-template-rows:repeat(2,1fr)"></div></div>
+    </div>
+    <div class="result" id="pm-result"></div>
+  </div>
+
+  <p>Two loners find each other and make a pair! That gives us the <strong>parity rules</strong> — true for
+    <em>any</em> numbers, however huge:</p>
+  $$\text{even}+\text{even}=\text{even}\qquad
+    \text{even}+\text{odd}=\text{odd}\qquad
+    \text{odd}+\text{odd}=\text{even}$$
+  <p>Multiplication has rules too: <span class="katex-inline">\text{even}\times\text{anything}=\text{even}</span>
+    (pairs stay paired when you copy them), and <span class="katex-inline">\text{odd}\times\text{odd}=\text{odd}</span>.</p>
+  <div class="note">
+    <span class="t">So: 347 + 592?</span> odd + even = <b>odd</b>. No adding required. You just judged a
+    sum you never computed — that's real mathematician behaviour.
+  </div>
+
+  <!-- 3 SUM OF EVENS -->
+  <h2>3 · Add up the even numbers</h2>
+  <p>Lesson 1 added <em>all</em> numbers; Lesson 2 added the <em>odds</em>. One family left. What is
+    <span class="katex-inline">2+4+6+\cdots+2n</span>? Easy — every term is <strong>double</strong> a term
+    from Lesson 1, so the whole sum is double the Gauss sum:</p>
+  $$2+4+6+\cdots+2n \;=\; 2\,(1+2+3+\cdots+n) \;=\; 2\cdot\frac{n(n+1)}{2}$$
+  <div style="padding:8px 0">
+  $$\boxed{\;2+4+6+\cdots+2n \;=\; n(n+1)\;}$$
+  </div>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎛️</span> Even-sum explorer</div>
+    <p class="phint">Slide n. The sum of the first n even numbers is a perfect <b>n × (n+1)</b> rectangle —
+      the same rectangle from Lesson 3, no halving needed.</p>
+    <div class="controls">
+      <label class="ctl">n = <span class="nbox" id="es-n">4</span></label>
+      <input type="range" id="es-range" min="1" max="9" value="4">
+    </div>
+    <div id="es-expand" style="font-family:var(--mono); color:var(--ink-soft); overflow-x:auto; margin-bottom:8px"></div>
+    <div class="dotgrid" id="es-grid"></div>
+    <div class="result" id="es-result"></div>
+  </div>
+
+  <!-- 4 PAYOFF -->
+  <h2>4 · The payoff: Lesson 1's mystery, solved</h2>
+  <p>Remember the challenge? The Gauss formula <span class="katex-inline">\frac{n(n+1)}{2}</span>
+    divides by 2 — yet the answer is <em>always</em> a whole number, even when
+    <span class="katex-inline">n</span> is odd. Now you have the tool:</p>
+  <div class="note try">
+    <span class="t">The argument:</span> <span class="katex-inline">n</span> and <span class="katex-inline">n+1</span>
+    are <strong>neighbours</strong> — consecutive numbers. Neighbours always alternate odd, even, odd, even…
+    so <strong>one of them must be even</strong>. And even × anything = even. So
+    <span class="katex-inline">n(n+1)</span> is always even — and an even number splits by 2 with nothing
+    left over. Whole number, guaranteed. <span style="font-family:var(--serif)">□</span>
+  </div>
+  <p>That's a real <strong>proof</strong> — not “it worked for the ones I tried,” but “it can never fail,
+    and here's why.” It covers all infinity of cases in three sentences.</p>
+
+  <!-- 5 PUZZLE -->
+  <h2>5 · 🧩 Puzzle: the parity oracle</h2>
+  <p>Big ugly sums — but you never add them. Just track odd and even. Streak of 3 earns a ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧿</span> Parity oracle</div>
+    <p class="phint">Odd or even, without computing?</p>
+    <div class="bigq" id="pz-q" style="font-family:var(--mono)">…</div>
+    <div class="choice2">
+      <button class="btn" id="pz-odd">Odd</button>
+      <button class="btn ghost" id="pz-even">Even</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Oracle practice:</strong> without adding, decide odd or even —
+      <span class="katex-inline">123+456</span>, &nbsp;<span class="katex-inline">999+999</span>, &nbsp;
+      <span class="katex-inline">7\times 13</span>, &nbsp;<span class="katex-inline">1+2+3+\cdots+9</span>
+      <span class="muted">(that last one: use the formula first!)</span></li>
+    <li><strong>Use the even-sum formula</strong> to find <span class="katex-inline">2+4+\cdots+20</span>
+      and <span class="katex-inline">2+4+\cdots+100</span>.</li>
+    <li><strong>Challenge:</strong> odds sum to <span class="katex-inline">n^2</span> (Lesson 2), evens to
+      <span class="katex-inline">n(n+1)</span> (today). Add those two answers. Do you get Lesson 1's formula
+      for <em>all</em> numbers up to <span class="katex-inline">2n</span>? Check with
+      <span class="katex-inline">n=3</span>.</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">parity · even (2n) · odd (2n−1) · consecutive numbers · proof · “without loss of generality” energy</p>
+
+  <div class="lessonnav">
+    <a href="03-triangles.html">← Lesson 3: Triangular Numbers</a>
+    <a href="arcade.html">🕹️ The Arcade →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var K = window.katex;
+  function tex(el, s) { if (K) K.render(s, el, { throwOnError: false }); else el.textContent = s; }
+  document.querySelectorAll(".katex-inline").forEach(function (el) { tex(el, el.textContent); });
+
+  // ---------- Parity machine ----------
+  (function () {
+    var ar = document.getElementById("pm-ar"), br = document.getElementById("pm-br");
+    function dots(el, n) {
+      el.innerHTML = "";
+      el.style.gridTemplateRows = "repeat(2, 1fr)";
+      for (var i = 0; i < n; i++) {
+        var d = document.createElement("div");
+        // dots fill column-by-column in pairs; a final loner = odd
+        d.className = "dot " + (i === n - 1 && n % 2 === 1 ? "new" : "on");
+        el.appendChild(d);
+      }
+    }
+    function word(n) { return n % 2 === 0 ? "even" : "odd"; }
+    function upd() {
+      var a = +ar.value, b = +br.value;
+      document.getElementById("pm-a").textContent = a;
+      document.getElementById("pm-b").textContent = b;
+      document.getElementById("pm-alab").textContent = "a = " + a + " (" + word(a) + ")";
+      document.getElementById("pm-blab").textContent = "b = " + b + " (" + word(b) + ")";
+      dots(document.getElementById("pm-adots"), a);
+      dots(document.getElementById("pm-bdots"), b);
+      var s = a + b;
+      var res = document.getElementById("pm-result");
+      var loners = (a % 2) + (b % 2);
+      var story = loners === 0 ? "No loners anywhere → still no loners."
+        : loners === 1 ? "One pile has a loner → it stays lonely after the merge."
+        : "Two loners meet → they pair up! Loneliness cancelled.";
+      res.className = "result " + (s % 2 === 0 ? "win" : "miss");
+      res.innerHTML = "<b>" + word(a) + " + " + word(b) + " = " + word(s) + "</b> &nbsp;·&nbsp; " +
+        a + " + " + b + " = " + s + " (" + word(s) + "). " + story;
+    }
+    ar.addEventListener("input", upd); br.addEventListener("input", upd); upd();
+  })();
+
+  // ---------- Even-sum explorer ----------
+  (function () {
+    var r = document.getElementById("es-range");
+    var grid = document.getElementById("es-grid");
+    function upd() {
+      var n = +r.value;
+      document.getElementById("es-n").textContent = n;
+      var terms = [];
+      for (var k = 1; k <= n; k++) terms.push(2 * k);
+      document.getElementById("es-expand").textContent = terms.join(" + ") + " = " + (n * (n + 1));
+      grid.style.gridTemplateColumns = "repeat(" + (n + 1) + ", 1fr)";
+      grid.innerHTML = "";
+      for (var row = 0; row < n; row++) for (var col = 0; col < n + 1; col++) {
+        var d = document.createElement("div");
+        d.className = "dot on";
+        grid.appendChild(d);
+      }
+      tex(document.getElementById("es-result"),
+        "n(n+1) = " + n + "\\times" + (n + 1) + " = " + (n * (n + 1)));
+    }
+    r.addEventListener("input", upd); upd();
+  })();
+
+  // ---------- Puzzle: parity oracle ----------
+  (function () {
+    var streak = 0, best = 0, ans = 0, expl = "";
+    var qEl = document.getElementById("pz-q"), resEl = document.getElementById("pz-result");
+    function ri(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+    function word(n) { return n % 2 === 0 ? "even" : "odd"; }
+    function newQ() {
+      var kind = Math.floor(Math.random() * 3);
+      var a, b, c;
+      if (kind === 0) {          // a + b
+        a = ri(100, 999); b = ri(100, 999); ans = (a + b) % 2;
+        qEl.textContent = a + " + " + b;
+        expl = word(a) + " + " + word(b) + " = " + word(a + b);
+      } else if (kind === 1) {   // a × b
+        a = ri(11, 99); b = ri(11, 99); ans = (a * b) % 2;
+        qEl.textContent = a + " × " + b;
+        expl = word(a) + " × " + word(b) + " = " + word(a * b);
+      } else {                   // a + b + c
+        a = ri(100, 999); b = ri(100, 999); c = ri(100, 999); ans = (a + b + c) % 2;
+        qEl.textContent = a + " + " + b + " + " + c;
+        expl = word(a) + " + " + word(b) + " + " + word(c) + " = " + word(a + b + c);
+      }
+      resEl.className = "result";
+      resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function answer(saidOdd) {
+      var right = (ans === 1) === saidOdd;
+      if (right) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Right — " + expl + ". &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("l4", 1, "Parity oracle streak " + streak);
+          if (streak >= 5) DadMath.badge("parity-5");
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ Nope — " + expl + ". Only the last digit's parity matters! (streak reset)";
+      }
+      setTimeout(newQ, 1600);
+    }
+    document.getElementById("pz-odd").addEventListener("click", function () { answer(true); });
+    document.getElementById("pz-even").addEventListener("click", function () { answer(false); });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    newQ();
+  })();
+});
+</script>
+</body>
+</html>

@@ -7,15 +7,18 @@
 <meta name="description" content="Add up 1 to 100 in one line. Derive the Gauss formula n(n+1)/2 with an interactive summation explorer, the pairing trick, a multiplication table, and a puzzle.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=2">
 </head>
 <body>
 
 <div class="topbar"><div class="row">
   <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
   <span class="spacer"></span>
-  <a class="nav" href="01-gauss.html">Lesson 1</a>
-  <a class="nav" href="02-squares.html">Lesson 2</a>
+  <a class="nav" href="01-gauss.html">01</a>
+  <a class="nav" href="02-squares.html">02</a>
+  <a class="nav" href="03-triangles.html">03</a>
+  <a class="nav" href="04-evens.html">04</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
   <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
 </div></div>
 
@@ -170,6 +173,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
+<script defer src="assets/game.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   var K = window.katex;
@@ -285,6 +289,10 @@ document.addEventListener("DOMContentLoaded", function () {
         streak++; best = Math.max(best, streak);
         resEl.className = "result win";
         resEl.innerHTML = "✅ <b>" + want + "</b> — nice! &nbsp; Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("l1", 1, "Sum sprint streak " + streak);
+          if (streak >= 5) DadMath.badge("gauss-5");
+        }
       } else {
         streak = 0;
         resEl.className = "result miss";

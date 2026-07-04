@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3 · Triangular Numbers — Math in Half an Hour</title>
+<meta name="description" content="Bowling pins, handshakes, and why n(n+1)/2 keeps showing up. Build triangular numbers dot by dot, snap two triangles into a rectangle, and count handshakes.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=2">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="01-gauss.html">01</a>
+  <a class="nav" href="02-squares.html">02</a>
+  <a class="nav" href="03-triangles.html">03</a>
+  <a class="nav" href="04-evens.html">04</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Lesson 03</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Triangular Numbers</h1>
+    <p class="lede">Ten bowling pins stack into a perfect triangle. So do 15, and 21, and 28…
+      These “triangular numbers” hide inside handshakes, party games — and the exact same
+      formula you derived in Lesson 1. Coincidence? Let's find out.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">follows Lesson 1</span></p>
+  </header>
+
+  <!-- 1 THE PROBLEM -->
+  <h2>1 · The bowling-pin question</h2>
+  <p>Bowling uses <strong>10 pins</strong>: a row of 1, then 2, then 3, then 4.</p>
+  $$1 + 2 + 3 + 4 = 10$$
+  <p>Numbers you can stack into a triangle like that are called <strong>triangular numbers</strong>.
+    Question: if a giant bowling alley stacked <strong>100 rows</strong> of pins, how many pins would it need?
+    (Try to feel the Lesson 1 déjà vu…)</p>
+
+  <!-- 2 BUILDER -->
+  <h2>2 · Build them</h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎳</span> Triangle builder</div>
+    <p class="phint">Slide to stack rows. Each new row (orange) adds its row-number of dots — row 5 adds 5 dots.</p>
+    <div class="controls">
+      <label class="ctl">rows, n = <span class="nbox" id="tb-n">4</span></label>
+      <input type="range" id="tb-range" min="1" max="10" value="4">
+    </div>
+    <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:center">
+      <div class="tri-rows" id="tb-tri"></div>
+      <div style="min-width:220px; flex:1">
+        <div class="result" id="tb-readout" style="margin-top:0"></div>
+      </div>
+    </div>
+  </div>
+
+  <p>The totals go <span class="katex-inline">1, 3, 6, 10, 15, 21, \dots</span> — and the
+    <span class="katex-inline">n</span>-th one is just</p>
+  $$T_n \;=\; 1 + 2 + 3 + \cdots + n \;=\; \sum_{i=1}^{n} i$$
+  <div class="note try">
+    <span class="t">Wait a second.</span> That's <em>exactly</em> the sum from Lesson 1! A triangular
+    number isn't a new thing — it's the Gauss sum wearing a costume. So we already know the answer…
+    but this time, let's <strong>see</strong> why the formula is true, with a picture.
+  </div>
+
+  <!-- 3 RECTANGLE PROOF -->
+  <h2>3 · The picture proof: two triangles make a rectangle</h2>
+  <p>Take the triangle (as a staircase of dots). Make a <strong>copy</strong>, flip it upside-down,
+    and snap the two together. They fit perfectly into a rectangle that is
+    <span class="katex-inline">n</span> dots tall and <span class="katex-inline">n+1</span> dots wide.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧲</span> Snap two triangles together</div>
+    <p class="phint">Purple = your staircase triangle. Orange = the flipped copy. Together: a perfect
+      <b>n × (n+1)</b> rectangle — so one triangle is half of it.</p>
+    <div class="controls">
+      <label class="ctl">n = <span class="nbox" id="rp-n">4</span></label>
+      <input type="range" id="rp-range" min="2" max="9" value="4">
+      <label class="ctl"><input type="checkbox" id="rp-show" checked> show the flipped copy</label>
+    </div>
+    <div class="dotgrid" id="rp-grid"></div>
+    <div class="result" id="rp-result"></div>
+  </div>
+
+  <p>Rectangle = <span class="katex-inline">n(n+1)</span> dots. Triangle = half the rectangle:</p>
+  <div style="padding:8px 0">
+  $$\boxed{\;T_n = \frac{n(n+1)}{2}\;}$$
+  </div>
+  <p>The same formula as Lesson 1 — but now you can <em>see</em> it. The giant bowling alley needs
+    <span class="katex-inline">\tfrac{100 \times 101}{2} = 5050</span> pins. <span style="font-family:var(--serif)">□</span></p>
+
+  <!-- 4 HANDSHAKES -->
+  <h2>4 · The handshake problem</h2>
+  <p>Here's where triangular numbers sneak into real life. <strong>If everyone at a party shakes hands
+    with everyone else exactly once, how many handshakes happen?</strong></p>
+  <p>Think about person-by-person: with <span class="katex-inline">p</span> people, the 1st person shakes
+    <span class="katex-inline">p-1</span> hands. The 2nd already shook the 1st, so they add
+    <span class="katex-inline">p-2</span> <em>new</em> ones. Then <span class="katex-inline">p-3</span>, and so on down to 1 and 0:</p>
+  $$(p-1) + (p-2) + \cdots + 2 + 1 \;=\; T_{p-1} \;=\; \frac{(p-1)\,p}{2}$$
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🤝</span> Handshake circle</div>
+    <p class="phint">Each dot is a person; each line is one handshake. Count the lines — always a triangular number.</p>
+    <div class="controls">
+      <label class="ctl">people, p = <span class="nbox" id="hs-n">5</span></label>
+      <input type="range" id="hs-range" min="2" max="12" value="5">
+    </div>
+    <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:center">
+      <svg class="hs-svg" id="hs-svg" width="260" height="260" viewBox="0 0 260 260" role="img" aria-label="handshake diagram"></svg>
+      <div style="min-width:220px; flex:1"><div class="result" id="hs-result" style="margin-top:0"></div></div>
+    </div>
+  </div>
+
+  <!-- 5 PUZZLE -->
+  <h2>5 · 🧩 Puzzle: pins &amp; parties</h2>
+  <p>Mixed round — sometimes pins, sometimes handshakes. Streak of 3 earns a ⭐, streak of 5 earns a badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Triangle trouble</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="number" inputmode="numeric" placeholder="?" aria-label="your answer">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New question →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>List</strong> the first ten triangular numbers <span class="katex-inline">T_1</span> to
+      <span class="katex-inline">T_{10}</span> in your notebook. Check two of them with the formula.</li>
+    <li><strong>Your class:</strong> if everyone in a class of 20 high-fives everyone else once, how many
+      high-fives? <span class="muted">(Careful: is it <span class="katex-inline">T_{20}</span> or
+      <span class="katex-inline">T_{19}</span>?)</span></li>
+    <li><strong>Challenge:</strong> add two <em>neighbouring</em> triangular numbers, like
+      <span class="katex-inline">T_3 + T_4 = 6 + 10</span>. Try a few pairs. What kind of number do you always
+      get? <span class="muted">(Hint: Lesson 2 knows.)</span></li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">triangular number · staircase · rectangle proof · handshake problem · T-notation (T₁, T₂, …)</p>
+
+  <div class="lessonnav">
+    <a href="02-squares.html">← Lesson 2: Odd Numbers Make Squares</a>
+    <a href="04-evens.html">Lesson 4: Evens &amp; the Parity Trick →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var K = window.katex;
+  function tex(el, s) { if (K) K.render(s, el, { throwOnError: false }); else el.textContent = s; }
+  document.querySelectorAll(".katex-inline").forEach(function (el) { tex(el, el.textContent); });
+  function T(n) { return n * (n + 1) / 2; }
+
+  // ---------- Triangle builder ----------
+  (function () {
+    var r = document.getElementById("tb-range");
+    function upd() {
+      var n = +r.value;
+      document.getElementById("tb-n").textContent = n;
+      var tri = document.getElementById("tb-tri");
+      tri.innerHTML = "";
+      for (var row = 1; row <= n; row++) {
+        var line = document.createElement("div");
+        line.className = "trow";
+        for (var c = 0; c < row; c++) {
+          var d = document.createElement("div");
+          d.className = "dot " + (row === n ? "new" : "on");
+          line.appendChild(d);
+        }
+        tri.appendChild(line);
+      }
+      var terms = [];
+      for (var k = 1; k <= n; k++) terms.push(k);
+      document.getElementById("tb-readout").innerHTML =
+        "<div style='font-family:var(--mono); margin-bottom:6px'>" + terms.join(" + ") +
+        " = <b style='color:var(--good)'>" + T(n) + "</b></div>" +
+        "<div>T<sub>" + n + "</sub> = <b>" + T(n) + "</b> — the " + n + "-row triangle." +
+        (n < 10 ? " The next row would add <b>" + (n + 1) + "</b> dots." : "") + "</div>";
+    }
+    r.addEventListener("input", upd); upd();
+  })();
+
+  // ---------- Rectangle proof ----------
+  (function () {
+    var r = document.getElementById("rp-range"), show = document.getElementById("rp-show");
+    var grid = document.getElementById("rp-grid"), res = document.getElementById("rp-result");
+    function upd() {
+      var n = +r.value, copy = show.checked;
+      document.getElementById("rp-n").textContent = n;
+      grid.style.gridTemplateColumns = "repeat(" + (n + 1) + ", 1fr)";
+      grid.innerHTML = "";
+      for (var row = 1; row <= n; row++) {
+        for (var col = 1; col <= n + 1; col++) {
+          var d = document.createElement("div");
+          var mine = col <= row; // staircase: row k holds k dots
+          d.className = "dot " + (mine ? "on" : (copy ? "new" : ""));
+          grid.appendChild(d);
+        }
+      }
+      if (copy) {
+        tex(res, "\\text{rectangle} = " + n + "\\times" + (n + 1) + " = " + (n * (n + 1)) +
+          "\\ \\Rightarrow\\ T_{" + n + "} = \\tfrac{" + n + "\\times" + (n + 1) + "}{2} = " + T(n));
+      } else {
+        res.innerHTML = "Just your triangle: <b>" + T(n) + "</b> dots. Tick the box to snap the flipped copy in.";
+      }
+    }
+    r.addEventListener("input", upd); show.addEventListener("change", upd); upd();
+  })();
+
+  // ---------- Handshake circle ----------
+  (function () {
+    var r = document.getElementById("hs-range");
+    var svg = document.getElementById("hs-svg"), res = document.getElementById("hs-result");
+    var NS = "http://www.w3.org/2000/svg";
+    function upd() {
+      var p = +r.value;
+      document.getElementById("hs-n").textContent = p;
+      svg.innerHTML = "";
+      var cx = 130, cy = 130, R = 100, pts = [];
+      for (var i = 0; i < p; i++) {
+        var a = -Math.PI / 2 + i * 2 * Math.PI / p;
+        pts.push([cx + R * Math.cos(a), cy + R * Math.sin(a)]);
+      }
+      // handshakes = all pairs
+      var count = 0;
+      for (var i = 0; i < p; i++) for (var j = i + 1; j < p; j++) {
+        var L = document.createElementNS(NS, "line");
+        L.setAttribute("x1", pts[i][0]); L.setAttribute("y1", pts[i][1]);
+        L.setAttribute("x2", pts[j][0]); L.setAttribute("y2", pts[j][1]);
+        svg.appendChild(L); count++;
+      }
+      for (var i = 0; i < p; i++) {
+        var c = document.createElementNS(NS, "circle");
+        c.setAttribute("cx", pts[i][0]); c.setAttribute("cy", pts[i][1]); c.setAttribute("r", 8);
+        svg.appendChild(c);
+      }
+      res.innerHTML = "<b>" + p + "</b> people → <b style='color:var(--good)'>" + count + "</b> handshakes" +
+        " &nbsp;= T<sub>" + (p - 1) + "</sub> = " + (p - 1) + "×" + p + "÷2.";
+    }
+    r.addEventListener("input", upd); upd();
+  })();
+
+  // ---------- Puzzle: triangle trouble ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"),
+        input = document.getElementById("pz-input"),
+        resEl = document.getElementById("pz-result");
+    function newQ() {
+      var kind = Math.floor(Math.random() * 3);
+      if (kind === 0) {
+        var n = 3 + Math.floor(Math.random() * 8); // 3..10
+        q = { ans: T(n), work: "T_{" + n + "} = \\tfrac{" + n + "\\times" + (n + 1) + "}{2} = " + T(n),
+              text: "A pin triangle has <b>" + n + " rows</b>. How many pins in total?" };
+      } else if (kind === 1) {
+        var p = 3 + Math.floor(Math.random() * 8); // 3..10
+        q = { ans: T(p - 1), work: "T_{" + (p - 1) + "} = \\tfrac{" + (p - 1) + "\\times" + p + "}{2} = " + T(p - 1),
+              text: "<b>" + p + " people</b> at a party each shake hands once with everyone else. How many handshakes?" };
+      } else {
+        var n = 3 + Math.floor(Math.random() * 8);
+        q = { ans: n, work: "\\tfrac{" + n + "\\times" + (n + 1) + "}{2} = " + T(n) + "\\ \\Rightarrow\\ n = " + n,
+              text: "<b>" + T(n) + "</b> pins stack into a perfect triangle. How many <b>rows</b>?" };
+      }
+      promptEl.innerHTML = q.text;
+      input.value = ""; input.focus();
+      resEl.className = "result";
+      resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      if (input.value === "") return;
+      if (+input.value === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ <b>" + q.ans + "</b> — got it! &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("l3", 1, "Triangle trouble streak " + streak);
+          if (streak >= 5) DadMath.badge("tri-5");
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ Not " + (+input.value) + ". Think: which triangular number is this? (streak reset)";
+      }
+    }
+    function reveal() {
+      resEl.className = "result";
+      resEl.innerHTML = "Working: <span id='pz-work'></span>";
+      tex(document.getElementById("pz-work"), q.work);
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", reveal);
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+</body>
+</html>

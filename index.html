@@ -7,15 +7,18 @@
 <meta name="description" content="Short, hands-on math workshops for curious kids — derive big ideas from scratch in about thirty minutes, with interactive examples and puzzles.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=2">
 </head>
 <body>
 
 <div class="topbar"><div class="row">
   <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
   <span class="spacer"></span>
-  <a class="nav" href="01-gauss.html">Lesson 1</a>
-  <a class="nav" href="02-squares.html">Lesson 2</a>
+  <a class="nav" href="01-gauss.html">01</a>
+  <a class="nav" href="02-squares.html">02</a>
+  <a class="nav" href="03-triangles.html">03</a>
+  <a class="nav" href="04-evens.html">04</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
   <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
 </div></div>
 
@@ -45,12 +48,26 @@
       <div class="go">Start lesson →</div>
     </a>
 
-    <div class="card soon">
+    <a class="card" href="03-triangles.html">
       <div class="num">03</div>
-      <h3>Triangular Numbers <span class="badge amber" style="vertical-align:middle">soon</span></h3>
-      <p>Bowling pins, handshakes, and why <span class="katex-inline">n(n+1)/2</span> keeps showing up everywhere.</p>
-      <div class="go muted">Coming soon</div>
-    </div>
+      <h3>Triangular Numbers</h3>
+      <p>Bowling pins, handshakes, and why <span class="katex-inline">n(n+1)/2</span> keeps showing up everywhere. With a picture proof you can click.</p>
+      <div class="go">Start lesson →</div>
+    </a>
+
+    <a class="card" href="04-evens.html">
+      <div class="num">04</div>
+      <h3>Evens &amp; the Parity Trick</h3>
+      <p>Odd or even — without adding. Sum the even numbers, learn the parity rules, and finally solve Lesson 1's mystery challenge.</p>
+      <div class="go">Start lesson →</div>
+    </a>
+
+    <a class="card" href="arcade.html" style="border-color:var(--accent)">
+      <div class="num">🕹️</div>
+      <h3>The Math Arcade</h3>
+      <p>Five fast games built on the lessons. Earn ⭐ stars, unlock badges, and climb from 🐣 Rookie to 👑 Little Gauss. Progress saves on your device.</p>
+      <div class="go" style="color:var(--accent)">Play →</div>
+    </a>
   </div>
 
   <hr class="rule">
@@ -91,6 +108,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
+<script defer src="assets/game.js"></script>
 <script>
   // render the tiny inline snippets used in cards
   document.addEventListener("DOMContentLoaded", function () {

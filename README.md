@@ -13,6 +13,18 @@ can play with in the browser.
   trick, a living multiplication table, and a "sum sprint" puzzle. → `01-gauss.html`
 - **02 — Odd Numbers Make Squares.** Why 1+3+5+7… always lands on a perfect square,
   built dot-by-dot with a gnomon (L-shape) builder. → `02-squares.html`
+- **03 — Triangular Numbers.** Bowling pins, the two-triangles-make-a-rectangle picture
+  proof, and the handshake problem. → `03-triangles.html`
+- **04 — Evens & the Parity Trick.** Odd or even without adding; sum of evens = n(n+1);
+  finally proves Lesson 1's "why is it always whole" challenge. → `04-evens.html`
+
+## 🕹️ The Arcade (gamification)
+
+`arcade.html` has five timed games, one per big idea: **Sum Sprint**, **Pair Pop**,
+**Square or Not?**, **Triangle Trouble**, and **Odd or Even?**. Correct answers and
+lesson-puzzle streaks earn ⭐ stars; stars climb a rank ladder (🐣 Rookie → 👑 Little
+Gauss); feats unlock badges. Progress persists in `localStorage` on the device —
+no accounts, no server, nothing leaves the browser (`assets/game.js`).
 
 ## Structure
 
@@ -20,8 +32,12 @@ can play with in the browser.
 index.html          landing / series hub
 01-gauss.html       lesson 1 (self-contained page + inline widget JS)
 02-squares.html     lesson 2
+03-triangles.html   lesson 3
+04-evens.html       lesson 4
+arcade.html         the games + rank + badge wall
 assets/style.css    shared design system (light + dark, theme toggle)
 assets/site.js      theme toggle + KaTeX auto-render bootstrap
+assets/game.js      stars / badges / ranks engine (localStorage)
 ```
 
 Formulas render with [KaTeX](https://katex.org/) loaded from the jsDelivr CDN.

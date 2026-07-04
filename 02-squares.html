@@ -7,15 +7,18 @@
 <meta name="description" content="Add the odd numbers 1, 3, 5, 7 and you always land on a perfect square. Build it dot by dot, with an interactive gnomon builder and a puzzle.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
-<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/style.css?v=2">
 </head>
 <body>
 
 <div class="topbar"><div class="row">
   <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
   <span class="spacer"></span>
-  <a class="nav" href="01-gauss.html">Lesson 1</a>
-  <a class="nav" href="02-squares.html">Lesson 2</a>
+  <a class="nav" href="01-gauss.html">01</a>
+  <a class="nav" href="02-squares.html">02</a>
+  <a class="nav" href="03-triangles.html">03</a>
+  <a class="nav" href="04-evens.html">04</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
   <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
 </div></div>
 
@@ -125,7 +128,7 @@
 
   <div class="lessonnav">
     <a href="01-gauss.html">← Lesson 1: The Gauss Formula</a>
-    <a class="disabled" href="#">Next (soon) →</a>
+    <a href="03-triangles.html">Lesson 3: Triangular Numbers →</a>
   </div>
 
 </div>
@@ -137,6 +140,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
+<script defer src="assets/game.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   var K = window.katex;
@@ -210,6 +214,10 @@ document.addEventListener("DOMContentLoaded", function () {
         resEl.className = "result win";
         resEl.innerHTML = "✅ Yes! <b>" + k + "</b> odd numbers, because " + k + "×" + k + " = " + (k * k) +
           ". &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("l2", 1, "Square puzzle streak " + streak);
+          if (streak >= 5) DadMath.badge("square-5");
+        }
       } else {
         streak = 0;
         resEl.className = "result miss";

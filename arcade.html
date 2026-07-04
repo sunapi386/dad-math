@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🕹️ The Math Arcade — Math in Half an Hour</title>
+<meta name="description" content="Five fast games built on the lessons: Sum Sprint, Pair Pop, Square or Not, Triangle Trouble, and the Odd-or-Even oracle. Earn stars, unlock badges, climb the ranks.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=2">
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="01-gauss.html">01</a>
+  <a class="nav" href="02-squares.html">02</a>
+  <a class="nav" href="03-triangles.html">03</a>
+  <a class="nav" href="04-evens.html">04</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Play what you learned</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">🕹️ The Math Arcade</h1>
+    <p class="lede">Five fast games, one per big idea. Every game pays out <b>⭐ stars</b>; stars raise your
+      <b>rank</b>; special feats unlock <b>badges</b>. Everything saves on this device — come back tomorrow
+      and keep climbing.</p>
+  </header>
+
+  <!-- RANK -->
+  <div class="panel" id="rankpanel">
+    <div class="ptitle"><span class="ic" id="rk-icon">🐣</span> <span id="rk-title">Rookie</span>
+      <span class="badge" style="margin-left:8px" id="rk-stars">⭐ 0</span></div>
+    <div class="rankline">
+      <div class="rankbar"><i id="rk-bar" style="width:0%"></i></div>
+      <span class="muted small" id="rk-next"></span>
+    </div>
+    <p class="phint" style="margin:10px 0 0">How to earn: puzzle streaks in every lesson, and the games below.</p>
+  </div>
+
+  <!-- 1 SUM SPRINT -->
+  <h2>⚡ Sum Sprint <span class="muted small" style="font-weight:400">· uses Lesson 1</span></h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">⚡</span> 60 seconds of Gauss</div>
+    <p class="phint">Add 1 to n with the formula — as many as you can before the clock runs out.
+      The numbers grow as you go. ⭐ per 3 correct; 10 correct = 🏃 badge.</p>
+    <div class="scorebar">
+      <span>Score <span class="sc" id="ss-score">0</span></span>
+      <span>Best <span class="bb" id="ss-best">0</span></span>
+      <div class="timerbar" id="ss-tbar"><i style="width:100%"></i></div>
+    </div>
+    <div class="bigq" id="ss-q">Press start!</div>
+    <div class="controls">
+      <input class="answer" id="ss-input" type="number" inputmode="numeric" placeholder="?" aria-label="answer" disabled>
+      <button class="btn" id="ss-go">▶ Start</button>
+    </div>
+    <div class="result" id="ss-result">Formula reminder: <span class="katex-inline">1+2+\cdots+n = \tfrac{n(n+1)}{2}</span></div>
+  </div>
+
+  <!-- 2 PAIR POP -->
+  <h2>🫧 Pair Pop <span class="muted small" style="font-weight:400">· uses Lesson 1's pairing trick</span></h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🫧</span> Pop the Gauss pairs</div>
+    <p class="phint">Click two bubbles that sum to <b><span id="pp-target">13</span></b> (that's n + 1!) and they pop.
+      Clear the board = 🫧 badge and ⭐⭐. Under 25 seconds = 💨 badge.</p>
+    <div class="scorebar">
+      <span>Pairs <span class="sc" id="pp-pairs">0/6</span></span>
+      <span>Time <span class="bb" id="pp-time">0.0s</span></span>
+      <span>Best <span class="bb" id="pp-best">—</span></span>
+    </div>
+    <div class="bubblefield" id="pp-field"></div>
+    <div class="controls"><button class="btn" id="pp-go">▶ Start / Shuffle</button></div>
+    <div class="result" id="pp-result">Every pair that pops sums to the same number — that's the whole Gauss trick.</div>
+  </div>
+
+  <!-- 3 SQUARE OR NOT -->
+  <h2>🎯 Square or Not? <span class="muted small" style="font-weight:400">· uses Lesson 2</span></h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎯</span> 45-second square hunt</div>
+    <p class="phint">A number flashes. Is it a perfect square (1, 4, 9, 16, 25…)? Watch out — the fakes
+      are only a step away from the real ones. 12 correct in a round = 🎯 badge.</p>
+    <div class="scorebar">
+      <span>Score <span class="sc" id="sq-score">0</span></span>
+      <span>Best <span class="bb" id="sq-best">0</span></span>
+      <div class="timerbar" id="sq-tbar"><i style="width:100%"></i></div>
+    </div>
+    <div class="bigq" id="sq-q" style="font-family:var(--mono)">Press start!</div>
+    <div class="choice2">
+      <button class="btn" id="sq-yes" disabled>Square!</button>
+      <button class="btn ghost" id="sq-no" disabled>Nope</button>
+      <button class="btn ghost" id="sq-go">▶ Start</button>
+    </div>
+    <div class="result" id="sq-result">Tip: squares end in 0, 1, 4, 5, 6 or 9 — never 2, 3, 7 or 8.</div>
+  </div>
+
+  <!-- 4 TRIANGLE TROUBLE -->
+  <h2>🎳 Triangle Trouble <span class="muted small" style="font-weight:400">· uses Lesson 3</span></h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎳</span> 60 seconds of pins &amp; parties</div>
+    <p class="phint">Pins in a triangle, handshakes at a party — all triangular numbers, all
+      <span class="katex-inline">\tfrac{n(n+1)}{2}</span>. 8 correct in a round = 🎳 badge.</p>
+    <div class="scorebar">
+      <span>Score <span class="sc" id="tt-score">0</span></span>
+      <span>Best <span class="bb" id="tt-best">0</span></span>
+      <div class="timerbar" id="tt-tbar"><i style="width:100%"></i></div>
+    </div>
+    <div class="bigq" id="tt-q">Press start!</div>
+    <div class="controls">
+      <input class="answer" id="tt-input" type="number" inputmode="numeric" placeholder="?" aria-label="answer" disabled>
+      <button class="btn" id="tt-go">▶ Start</button>
+    </div>
+    <div class="result" id="tt-result">Handshake trap: p people make T<sub>p−1</sub> handshakes, not T<sub>p</sub>.</div>
+  </div>
+
+  <!-- 5 ODD OR EVEN -->
+  <h2>⚖️ Odd or Even? <span class="muted small" style="font-weight:400">· uses Lesson 4</span></h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧿</span> 45-second oracle run</div>
+    <p class="phint">Huge sums and products — never compute them, just track parity. 10 correct in a
+      round = 🧿 badge.</p>
+    <div class="scorebar">
+      <span>Score <span class="sc" id="oe-score">0</span></span>
+      <span>Best <span class="bb" id="oe-best">0</span></span>
+      <div class="timerbar" id="oe-tbar"><i style="width:100%"></i></div>
+    </div>
+    <div class="bigq" id="oe-q" style="font-family:var(--mono)">Press start!</div>
+    <div class="choice2">
+      <button class="btn" id="oe-odd" disabled>Odd</button>
+      <button class="btn ghost" id="oe-even" disabled>Even</button>
+      <button class="btn ghost" id="oe-go">▶ Start</button>
+    </div>
+    <div class="result" id="oe-result">Rules: E+E=E · E+O=O · O+O=E · O×O=O · E×anything=E</div>
+  </div>
+
+  <hr class="rule">
+
+  <!-- BADGES -->
+  <h2>🏅 Badge wall</h2>
+  <p class="muted">Earned badges light up. They save on this device.</p>
+  <div class="badgewall" id="badgewall"></div>
+
+  <p class="small" style="margin-top:34px"><a href="#" id="resetLink" class="muted">Reset all progress on this device…</a></p>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var K = window.katex;
+  function tex(el, s) { if (K) K.render(s, el, { throwOnError: false }); else el.textContent = s; }
+  document.querySelectorAll(".katex-inline").forEach(function (el) { tex(el, el.textContent); });
+  function ri(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
+  function T(n) { return n * (n + 1) / 2; }
+
+  // ---------- rank + badge wall ----------
+  function paintMeta() {
+    var r = DadMath.rank();
+    document.getElementById("rk-icon").textContent = r.icon;
+    document.getElementById("rk-title").textContent = r.title;
+    document.getElementById("rk-stars").textContent = "⭐ " + r.stars;
+    var bar = document.getElementById("rk-bar"), nxt = document.getElementById("rk-next");
+    if (r.next) {
+      var span = r.next.at - r.at, done = r.stars - r.at;
+      bar.style.width = Math.round(100 * done / span) + "%";
+      nxt.textContent = (r.next.at - r.stars) + " ⭐ to " + r.next.icon + " " + r.next.title;
+    } else {
+      bar.style.width = "100%";
+      nxt.textContent = "Top rank reached. Bow, wizard. 👑";
+    }
+    var wall = document.getElementById("badgewall");
+    wall.innerHTML = "";
+    var owned = DadMath.data().badges;
+    Object.keys(DadMath.BADGES).forEach(function (id) {
+      var b = DadMath.BADGES[id];
+      var d = document.createElement("div");
+      d.className = "badge-card " + (owned[id] ? "unlocked" : "locked");
+      d.innerHTML = "<div class='bi'>" + b.icon + "</div><div class='bn'>" + b.name + "</div><div class='bd'>" + b.desc + "</div>";
+      wall.appendChild(d);
+    });
+  }
+  paintMeta();
+  document.getElementById("resetLink").addEventListener("click", function (e) { e.preventDefault(); DadMath.reset(); });
+
+  /* generic countdown-round helper */
+  function makeRound(opts) {
+    // opts: seconds, tbar, onTick?, onEnd
+    var t0 = null, iv = null;
+    return {
+      running: function () { return iv !== null; },
+      start: function () {
+        t0 = performance.now();
+        var bar = opts.tbar.querySelector("i");
+        opts.tbar.classList.remove("low");
+        iv = setInterval(function () {
+          var left = opts.seconds - (performance.now() - t0) / 1000;
+          if (left <= 10) opts.tbar.classList.add("low");
+          bar.style.width = Math.max(0, 100 * left / opts.seconds) + "%";
+          if (left <= 0) { clearInterval(iv); iv = null; opts.onEnd(); }
+        }, 100);
+      },
+      stop: function () { if (iv) { clearInterval(iv); iv = null; } }
+    };
+  }
+
+  function endToast(name, correct, starsPerCorrect, starSrc, extraBadge, bestKey, bestEl) {
+    var stars = Math.floor(correct / starsPerCorrect);
+    if (stars > 0) DadMath.star(starSrc, stars, name + ": " + correct + " correct");
+    else DadMath.toast("⏱ Round over — <b>" + correct + "</b> correct. " + starsPerCorrect + "+ correct earns stars!");
+    if (extraBadge && correct >= extraBadge.at) DadMath.badge(extraBadge.id);
+    if (DadMath.best(bestKey, correct)) bestEl.textContent = correct;
+    paintMeta();
+  }
+
+  // ---------- ⚡ Sum Sprint ----------
+  (function () {
+    var score = 0, n = 0;
+    var q = document.getElementById("ss-q"), input = document.getElementById("ss-input"),
+        res = document.getElementById("ss-result"), scoreEl = document.getElementById("ss-score"),
+        bestEl = document.getElementById("ss-best"), go = document.getElementById("ss-go");
+    bestEl.textContent = DadMath.getBest("sprint");
+    var round = makeRound({
+      seconds: 60, tbar: document.getElementById("ss-tbar"),
+      onEnd: function () {
+        input.disabled = true; go.disabled = false; go.textContent = "▶ Again";
+        q.textContent = "Time! " + score + " correct.";
+        endToast("Sum Sprint", score, 3, "arc-sprint", { id: "sprint-10", at: 10 }, "sprint", bestEl);
+      }
+    });
+    function ask() {
+      var lo = Math.min(5 + score * 2, 90), hi = Math.min(12 + score * 3, 99);
+      n = ri(lo, hi);
+      q.textContent = "1 + 2 + ⋯ + " + n + " = ?";
+      input.value = ""; input.focus();
+    }
+    go.addEventListener("click", function () {
+      score = 0; scoreEl.textContent = 0; input.disabled = false; go.disabled = true;
+      res.className = "result"; res.innerHTML = "Go go go!";
+      round.start(); ask();
+    });
+    input.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" || !round.running() || input.value === "") return;
+      if (+input.value === T(n)) {
+        score++; scoreEl.textContent = score;
+        res.className = "result win"; res.innerHTML = "✅ " + T(n) + " — next!";
+        ask();
+      } else {
+        res.className = "result miss";
+        res.innerHTML = "❌ Try again: <span id='ss-hint'></span>";
+        tex(document.getElementById("ss-hint"), "\\tfrac{" + n + "\\times" + (n + 1) + "}{2}");
+        input.value = ""; input.focus();
+      }
+    });
+  })();
+
+  // ---------- 🫧 Pair Pop ----------
+  (function () {
+    var N = 12, target = N + 1, sel = null, matched = 0, t0 = 0, iv = null;
+    var field = document.getElementById("pp-field"), res = document.getElementById("pp-result"),
+        pairsEl = document.getElementById("pp-pairs"), timeEl = document.getElementById("pp-time"),
+        bestEl = document.getElementById("pp-best");
+    document.getElementById("pp-target").textContent = target;
+    var prevBest = DadMath.getBest("pairpop-neg"); // stored as negative ms so "higher is better"
+    if (prevBest) bestEl.textContent = (-prevBest / 1000).toFixed(1) + "s";
+    function stopClock() { if (iv) { clearInterval(iv); iv = null; } }
+    function build() {
+      stopClock(); sel = null; matched = 0;
+      pairsEl.textContent = "0/" + (N / 2);
+      var nums = []; for (var i = 1; i <= N; i++) nums.push(i);
+      for (var i = nums.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = nums[i]; nums[i] = nums[j]; nums[j] = t; }
+      field.innerHTML = "";
+      nums.forEach(function (v) {
+        var b = document.createElement("div");
+        b.className = "bubble"; b.textContent = v; b.dataset.v = v;
+        b.addEventListener("click", function () { click(b); });
+        field.appendChild(b);
+      });
+      res.className = "result"; res.innerHTML = "Find two bubbles that sum to <b>" + target + "</b>.";
+      t0 = performance.now();
+      iv = setInterval(function () { timeEl.textContent = ((performance.now() - t0) / 1000).toFixed(1) + "s"; }, 100);
+    }
+    function click(b) {
+      if (b.classList.contains("pop")) return;
+      if (!sel) { sel = b; b.classList.add("sel"); return; }
+      if (sel === b) { b.classList.remove("sel"); sel = null; return; }
+      var a = +sel.dataset.v, c = +b.dataset.v;
+      if (a + c === target) {
+        sel.classList.add("pop"); b.classList.add("pop");
+        sel.classList.remove("sel"); sel = null;
+        matched++;
+        pairsEl.textContent = matched + "/" + (N / 2);
+        res.className = "result win";
+        res.innerHTML = "✅ " + a + " + " + c + " = " + target;
+        if (matched === N / 2) {
+          stopClock();
+          var secs = (performance.now() - t0) / 1000;
+          res.innerHTML = "🎉 Board cleared in <b>" + secs.toFixed(1) + "s</b>! All " + (N / 2) +
+            " pairs sum to " + target + " — that's why the Gauss sum is " + (N / 2) + " × " + target + " = " + T(N) + ".";
+          DadMath.star("arc-pairs", 2, "Pair Pop board cleared");
+          DadMath.badge("pairs-clear");
+          if (secs < 25) DadMath.badge("pairs-fast");
+          if (DadMath.best("pairpop-neg", -Math.round(secs * 1000))) bestEl.textContent = secs.toFixed(1) + "s";
+          paintMeta();
+        }
+      } else {
+        b.classList.add("err"); sel.classList.add("err");
+        var s = sel; sel = null;
+        setTimeout(function () { b.classList.remove("err"); s.classList.remove("err", "sel"); }, 320);
+        res.className = "result miss";
+        res.innerHTML = "❌ " + a + " + " + c + " = " + (a + c) + ", not " + target + ".";
+      }
+    }
+    document.getElementById("pp-go").addEventListener("click", build);
+  })();
+
+  // ---------- 🎯 Square or Not ----------
+  (function () {
+    var score = 0, isSq = false, cur = 0;
+    var q = document.getElementById("sq-q"), res = document.getElementById("sq-result"),
+        scoreEl = document.getElementById("sq-score"), bestEl = document.getElementById("sq-best"),
+        yes = document.getElementById("sq-yes"), no = document.getElementById("sq-no"),
+        go = document.getElementById("sq-go");
+    bestEl.textContent = DadMath.getBest("squarenot");
+    var round = makeRound({
+      seconds: 45, tbar: document.getElementById("sq-tbar"),
+      onEnd: function () {
+        yes.disabled = no.disabled = true; go.disabled = false; go.textContent = "▶ Again";
+        q.textContent = "Time! " + score + " correct.";
+        endToast("Square or Not", score, 4, "arc-squares", { id: "squarenot-12", at: 12 }, "squarenot", bestEl);
+      }
+    });
+    function ask() {
+      var k = ri(2, 15);
+      isSq = Math.random() < 0.5;
+      cur = isSq ? k * k : k * k + (Math.random() < 0.5 ? -ri(1, 3) : ri(1, 3));
+      // guard: a nudged number can still be square (e.g. 16+... no: k²±1..3 can hit (k±1)² for small k, like 4-3=1)
+      var r = Math.round(Math.sqrt(cur));
+      isSq = r * r === cur;
+      q.textContent = cur;
+    }
+    function answer(saidYes) {
+      if (!round.running()) return;
+      var r = Math.round(Math.sqrt(cur));
+      if (saidYes === isSq) {
+        score++; scoreEl.textContent = score;
+        res.className = "result win";
+        res.innerHTML = "✅ " + (isSq ? cur + " = " + r + "²" : cur + " sits between " + (Math.floor(Math.sqrt(cur))) + "² and " + (Math.floor(Math.sqrt(cur)) + 1) + "²");
+      } else {
+        res.className = "result miss";
+        res.innerHTML = "❌ " + (isSq ? cur + " IS " + r + "²!" : cur + " is not a square.");
+      }
+      ask();
+    }
+    go.addEventListener("click", function () {
+      score = 0; scoreEl.textContent = 0; yes.disabled = no.disabled = false; go.disabled = true;
+      res.className = "result"; res.innerHTML = "Trust the last digit…";
+      round.start(); ask();
+    });
+    yes.addEventListener("click", function () { answer(true); });
+    no.addEventListener("click", function () { answer(false); });
+  })();
+
+  // ---------- 🎳 Triangle Trouble ----------
+  (function () {
+    var score = 0, ans = 0, work = "";
+    var q = document.getElementById("tt-q"), input = document.getElementById("tt-input"),
+        res = document.getElementById("tt-result"), scoreEl = document.getElementById("tt-score"),
+        bestEl = document.getElementById("tt-best"), go = document.getElementById("tt-go");
+    bestEl.textContent = DadMath.getBest("tritrouble");
+    var round = makeRound({
+      seconds: 60, tbar: document.getElementById("tt-tbar"),
+      onEnd: function () {
+        input.disabled = true; go.disabled = false; go.textContent = "▶ Again";
+        q.textContent = "Time! " + score + " correct.";
+        endToast("Triangle Trouble", score, 3, "arc-tri", { id: "tri-sprint-8", at: 8 }, "tritrouble", bestEl);
+      }
+    });
+    function ask() {
+      var kind = Math.floor(Math.random() * 3);
+      if (kind === 0) {
+        var n = ri(3, 12);
+        ans = T(n); work = "T(" + n + ") = " + n + "×" + (n + 1) + "÷2 = " + ans;
+        q.textContent = n + " rows of pins — total pins?";
+      } else if (kind === 1) {
+        var p = ri(3, 10);
+        ans = T(p - 1); work = p + " people → T(" + (p - 1) + ") = " + (p - 1) + "×" + p + "÷2 = " + ans;
+        q.textContent = p + " people, everyone shakes hands once — how many handshakes?";
+      } else {
+        var n = ri(3, 12);
+        ans = n; work = "T(" + n + ") = " + T(n) + " → " + n + " rows";
+        q.textContent = T(n) + " pins form a perfect triangle — how many rows?";
+      }
+      input.value = ""; input.focus();
+    }
+    go.addEventListener("click", function () {
+      score = 0; scoreEl.textContent = 0; input.disabled = false; go.disabled = true;
+      res.className = "result"; res.innerHTML = "Pins and parties!";
+      round.start(); ask();
+    });
+    input.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" || !round.running() || input.value === "") return;
+      if (+input.value === ans) {
+        score++; scoreEl.textContent = score;
+        res.className = "result win"; res.innerHTML = "✅ " + work;
+        ask();
+      } else {
+        res.className = "result miss"; res.innerHTML = "❌ Hint: " + work.split("=")[0] + "= ?";
+        input.value = ""; input.focus();
+      }
+    });
+  })();
+
+  // ---------- ⚖️ Odd or Even ----------
+  (function () {
+    var score = 0, ansOdd = false, expl = "";
+    var q = document.getElementById("oe-q"), res = document.getElementById("oe-result"),
+        scoreEl = document.getElementById("oe-score"), bestEl = document.getElementById("oe-best"),
+        odd = document.getElementById("oe-odd"), even = document.getElementById("oe-even"),
+        go = document.getElementById("oe-go");
+    bestEl.textContent = DadMath.getBest("oracle");
+    function word(n) { return n % 2 === 0 ? "even" : "odd"; }
+    var round = makeRound({
+      seconds: 45, tbar: document.getElementById("oe-tbar"),
+      onEnd: function () {
+        odd.disabled = even.disabled = true; go.disabled = false; go.textContent = "▶ Again";
+        q.textContent = "Time! " + score + " correct.";
+        endToast("Odd or Even", score, 4, "arc-oracle", { id: "oracle-10", at: 10 }, "oracle", bestEl);
+      }
+    });
+    function ask() {
+      var kind = Math.floor(Math.random() * 3), a, b, c, v;
+      if (kind === 0) { a = ri(100, 999); b = ri(100, 999); v = a + b; q.textContent = a + " + " + b; expl = word(a) + "+" + word(b) + "=" + word(v); }
+      else if (kind === 1) { a = ri(11, 99); b = ri(11, 99); v = a * b; q.textContent = a + " × " + b; expl = word(a) + "×" + word(b) + "=" + word(v); }
+      else { a = ri(100, 999); b = ri(100, 999); c = ri(100, 999); v = a + b + c; q.textContent = a + " + " + b + " + " + c; expl = word(a) + "+" + word(b) + "+" + word(c) + "=" + word(v); }
+      ansOdd = v % 2 === 1;
+    }
+    function answer(saidOdd) {
+      if (!round.running()) return;
+      if (saidOdd === ansOdd) {
+        score++; scoreEl.textContent = score;
+        res.className = "result win"; res.innerHTML = "✅ " + expl;
+      } else {
+        res.className = "result miss"; res.innerHTML = "❌ " + expl + " — only last digits matter!";
+      }
+      ask();
+    }
+    go.addEventListener("click", function () {
+      score = 0; scoreEl.textContent = 0; odd.disabled = even.disabled = false; go.disabled = true;
+      res.className = "result"; res.innerHTML = "Never compute. Only parity.";
+      round.start(); ask();
+    });
+    odd.addEventListener("click", function () { answer(true); });
+    even.addEventListener("click", function () { answer(false); });
+  })();
+});
+</script>
+</body>
+</html>
