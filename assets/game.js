@@ -85,7 +85,8 @@
     "gl-mine":     { icon: "⛏️", name: "Terraformer",      desc: "Get a 5 streak running the Minecraft world recipe." },
     "gm-nim":      { icon: "🎲", name: "Grandmaster",      desc: "Beat the perfect stick-game bot at its own game." },
     "gm-coop":     { icon: "🤝", name: "Peacemaker",       desc: "Get rich together — finish the repeated deal with 40+ coins for BOTH players." },
-    "cs-sort":     { icon: "📚", name: "Shelf Master",     desc: "Sort a shuffled shelf in the fewest possible swaps — exactly par." }
+    "cs-sort":     { icon: "📚", name: "Shelf Master",     desc: "Sort a shuffled shelf in the fewest possible swaps — exactly par." },
+    "cs-qubit":    { icon: "🌀", name: "Qubit Wrangler",   desc: "Steer the qubit onto three targets in a row at exactly par gates." }
   };
 
   // [starsNeeded, icon, title]
