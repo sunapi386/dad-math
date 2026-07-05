@@ -66,6 +66,14 @@ client-side, so this is a trust-and-verify aid for a present parent, not tamper-
   then a **pattern-sniffing rock-paper-scissors bot** (a Markov counter on your habits) that
   teaches why the only unbeatable plan in a mixing game is a **mixed strategy** — true
   randomness. → `gm01-winning-games.html`
+- **🎲 GT·3 Rock, Paper, Scissors… SCV!** — a kid-invented game, balanced with real math.
+  Dominance graphs; a two-line **impossibility proof** that no deterministic 4-move RPS can be
+  fair (parity: 6 arrows ÷ 4 moves = 1.5 — and each old move's score becomes ±1); the coin-flip
+  patch and its **uniqueness** (every SCV matchup must be 50/50) plus the "quit button" design
+  trap it creates; then the odd-number **circle construction** — Rock→SCV→Scissors→Paper→Zergling,
+  each beating the next two, which preserves *every* rule the kid proposed with zero coin flips.
+  Two playable arenas vs the GT·1 pattern sniffer (4-move and 5-move; badge for beating it at
+  the 5-move game). → `gm03-rps-scv.html`
 - **🎲 GT·2 The Prisoner's Dilemma** — the most famous game in game theory: why cheating is a
   **dominant strategy** yet everyone-cheats is the worst outcome (Nash equilibrium), the escape
   hatch of **repeated games** (play 15 rounds vs a tit-for-tat bot; get rich *together* for a

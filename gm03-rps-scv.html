@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Theory 3 · Rock, Paper, Scissors… SCV! — Math in Half an Hour</title>
+<meta name="description" content="Balance a game you invented: graph theory proves no fair 4-move rock-paper-scissors can exist, coin flips patch it (one unique way), and a 5-move circle fixes it for real — Rock, SCV, Scissors, Paper, Zergling.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.graphwrap { display: flex; gap: 20px; justify-content: center; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+.gnode { font-size: 1.5rem; }
+.powbars { min-width: 230px; flex: 1; max-width: 340px; }
+.powrow { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.powrow .pl { width: 6ch; font-weight: 800; flex: none; font-size: 1.1rem; text-align: center; }
+.powrow .ptrack { flex: 1; background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px; height: 20px; position: relative; overflow: hidden; }
+.powrow .pzero { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.powrow .pbar { position: absolute; top: 0; bottom: 0; transition: left .2s ease, width .2s ease, background .2s ease; }
+.powrow .pv { width: 5ch; font-family: var(--mono); font-weight: 700; flex: none; text-align: right; font-size: .9rem; }
+.edgebtn { padding: 8px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--panel-2);
+  cursor: pointer; font-weight: 700; font-family: var(--mono); font-size: .95rem; transition: transform .1s ease, border-color .1s ease; }
+.edgebtn:hover { transform: translateY(-2px); border-color: var(--primary); }
+.sliderow { display: flex; align-items: center; gap: 10px; margin: 10px 0; flex-wrap: wrap; justify-content: center; }
+.sliderow .sl { width: 18ch; font-weight: 700; font-size: .92rem; flex: none; }
+.sliderow input { flex: 1; min-width: 140px; max-width: 260px; }
+.sliderow .sv { width: 5ch; font-family: var(--mono); font-weight: 700; flex: none; }
+.movebtn { font-size: 1.6rem; width: 64px; height: 64px; border-radius: 16px; border: 2px solid var(--line);
+  background: var(--panel-2); cursor: pointer; transition: transform .1s ease, border-color .1s ease; }
+.movebtn:hover { transform: translateY(-3px); border-color: var(--primary); }
+.arenascore { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; }
+.legend { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; font-size: .88rem; color: var(--muted); margin: 6px 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Theory · Topic 03 · a JJ original</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Rock, Paper, Scissors… SCV!</h1>
+    <p class="lede">This lesson exists because <b>JJ invented a game at the dinner table</b>: rock,
+      paper, scissors — plus the SCV, StarCraft's hard-working construction unit. Tonight we do
+      what real game studios do: put the invention on the whiteboard, use
+      <a href="gt01-bridges.html">graph theory</a> to find out why it's unbalanced, prove that
+      <em>no</em> four-move game can ever be fair, and then fix it — twice. Once JJ's way, with
+      coin flips. Once the designer's way, with a fifth unit.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">uses GT·1 + the bridges lesson</span> &nbsp; <span class="badge green">🚜 balance your own game</span></p>
+  </header>
+
+  <!-- 1 THE GRAPH -->
+  <h2>1 · Put the game on a whiteboard</h2>
+  <p>Draw every move as a dot, and an arrow from each winner to each loser — the same
+    dots-and-arrows trick as the Seven Bridges. Classic rock-paper-scissors becomes a perfect
+    three-arrow cycle:</p>
+  <p style="text-align:center;font-size:1.25rem">🪨 → ✂️ → 📄 → 🪨</p>
+  <p>Why does classic RPS feel fair? Count each move's record: everything <b>beats exactly 1</b>
+    and <b>loses to exactly 1</b>. Score: beats minus loses = <b>0 for everyone</b>. That's what
+    <em>balanced</em> means — no move is secretly the best, so every choice stays alive. Now let's
+    add the SCV and watch the balance break.</p>
+
+  <!-- 2 IMPOSSIBLE -->
+  <h2>2 · The impossible patch: four moves can NEVER be fair</h2>
+  <p>The SCV needs a relationship with each old move: 🪨–🚜, 📄–🚜, ✂️–🚜. Three new arrows, and
+    each must point one way or the other. Try every combination yourself — flip the arrows and
+    watch the power meter:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">⚖️</span> The balance bench</div>
+    <p class="phint">Click an arrow button to flip who wins. Score = beats − loses. Can you get
+      all four bars to zero?</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="edgebtn" id="eb-r">🪨 → 🚜</button>
+      <button class="edgebtn" id="eb-p">📄 → 🚜</button>
+      <button class="edgebtn" id="eb-s">✂️ → 🚜</button>
+    </div>
+    <div class="graphwrap"><div class="powbars" id="bb-bars"></div></div>
+    <div class="result" id="bb-read">Flip away. (Spoiler: you can't win this one — and proving WHY is the lesson.)</div>
+  </div>
+
+  <p>You can't do it — and here's the beautiful two-line proof. Look at rock: its old score is 0
+    (beats scissors, loses to paper). Its new SCV arrow either helps it (+1) or hurts it (−1). So
+    rock's score is now <b>+1 or −1 — never 0 again</b>. Same for paper and scissors. Adding a
+    fourth move <em>ruins every old move's perfect record</em>, no matter which way the arrows
+    point.</p>
+  <p>The counting version: 4 moves make $\frac{4 \times 3}{2} = 6$ pairs (the handshake formula —
+    third lesson in a row it shows up!). Fair means everyone wins the same share:
+    $6 \div 4 = 1.5$ arrows each. But an arrow can't point one-and-a-half ways.
+    <b>Whole arrows split evenly only when the number of moves is odd.</b> That's a real theorem,
+    and it's why the famous five-move game (rock-paper-scissors-lizard-Spock) has five.</p>
+
+  <!-- 3 THE COIN -->
+  <h2>3 · JJ's patch: the coin flip (half an arrow!)</h2>
+  <p>At the dinner table JJ proposed something game designers get paid for: if two SCVs meet,
+    <b>flip a coin</b>. A coin-flip matchup is like an arrow that points <em>half a way each</em> —
+    worth $+\tfrac12$ and $-\tfrac12$ at once. Suddenly “1.5 arrows each” is possible! But which
+    matchups should be coin flips? Slide the SCV's win-chances and hunt for perfect balance:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎚️</span> The probability workshop</div>
+    <p class="phint">Each slider = the old move's chance of beating the SCV. Score = expected wins
+      minus expected losses. Find the setting where all four bars hit zero — there is exactly ONE.
+      (⭐ when you nail it.)</p>
+    <div class="sliderow"><span class="sl">🪨 beats 🚜 …</span><input type="range" id="pw-r" min="0" max="100" step="5" value="100"><span class="sv" id="pw-rv">100%</span></div>
+    <div class="sliderow"><span class="sl">📄 beats 🚜 …</span><input type="range" id="pw-p" min="0" max="100" step="5" value="0"><span class="sv" id="pw-pv">0%</span></div>
+    <div class="sliderow"><span class="sl">✂️ beats 🚜 …</span><input type="range" id="pw-s" min="0" max="100" step="5" value="0"><span class="sv" id="pw-sv">0%</span></div>
+    <div class="graphwrap"><div class="powbars" id="pw-bars"></div></div>
+    <div class="result" id="pw-read">Starting from JJ's dinner-table rules: rock smashes the SCV, but the SCV beats scissors AND paper. Check the meter…</div>
+  </div>
+
+  <p>The unique answer: <b>every single SCV matchup must be a 50/50 coin flip</b>. The proof is
+    the same two-liner as before — rock's score is $2w - 1$ where $w$ is its chance against the
+    SCV, and that's zero only when $w = \tfrac12$. Each old move <em>forces</em> its own slider to
+    the middle, and then the SCV balances automatically. JJ's coin-flip instinct wasn't just a
+    fun rule — it's the <em>only</em> way to balance four moves.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🕹️</span> ARENA · JJ's balanced patch <span class="qcount" id="a4-count"></span></div>
+    <p class="phint">Play the balanced 4-move game against the pattern sniffer from GT·1 (it
+      learned a fourth column). Classic matchups are skill — every 🚜 matchup is a fresh coin
+      flip, even 🚜 vs 🚜 (JJ's rule).</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="movebtn" data-m4="r" title="rock">🪨</button>
+      <button class="movebtn" data-m4="p" title="paper">📄</button>
+      <button class="movebtn" data-m4="s" title="scissors">✂️</button>
+      <button class="movebtn" data-m4="v" title="SCV">🚜</button>
+    </div>
+    <div class="arenascore"><span>you <b id="a4-you">0</b></span><span>bot <b id="a4-bot">0</b></span><span>ties <b id="a4-tie">0</b></span><span class="muted" id="a4-n">0 rounds</span></div>
+    <div class="result" id="a4-read">Throw your first move.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">The designer's dilemma:</span> balanced, yes — but play 🚜 every round and
+    check what happens. The sniffer can't read you (nothing beats a coin), and you can't win
+    either: the SCV became a <b>“quit button”</b> — press it and the game stops being a game.
+    Perfectly fair and perfectly hollow. Balance is necessary… but it isn't the whole job. Real
+    patch notes wrestle with exactly this trade-off.
+  </div>
+
+  <!-- 4 FIVE MOVES -->
+  <h2>4 · The designer's fix: call in the Zergling</h2>
+  <p>The theorem said fair-without-coins needs an <b>odd</b> number of moves. So don't fight the
+    theorem — recruit a fifth unit. And there's a construction that <em>always</em> works: put the
+    five moves in a circle, and let <b>each move beat the next two clockwise</b>. Everyone beats 2,
+    everyone loses to 2. Balanced by design, for any odd number.</p>
+  <p>Now the genuinely amazing part. Arrange the circle as
+    <b>🪨 Rock → 🚜 SCV → ✂️ Scissors → 📄 Paper → 👾 Zergling</b> and check the arrows:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">⭕</span> The pentagon of power</div>
+    <div class="graphwrap"><svg id="pent" viewBox="-110 -110 220 220" width="290" height="290" aria-label="five-move dominance pentagon"></svg></div>
+    <div class="legend"><span>🪨 beats 🚜 ✂️</span><span>🚜 beats ✂️ 📄</span><span>✂️ beats 📄 👾</span><span>📄 beats 👾 🪨</span><span>👾 beats 🪨 🚜</span></div>
+    <div class="result" id="pent-read">Every rule JJ made up at dinner survived: 🪨 smashes the 🚜 (through the window!), the 🚜 welds ✂️ shut and builds right over 📄's blueprint. And the two new arrows are pure StarCraft: 👾 zerglings rush 🪨 defenses and — every Terran's nightmare — eat worker 🚜s.</div>
+  </div>
+
+  <p>All three classic rules: intact. All three of JJ's SCV rules: intact. Zero coin flips. Every
+    move beats exactly two and loses to exactly two — the dinner-table game, balanced without
+    changing a single rule JJ wrote. (Only the two brand-new 👾 arrows needed choosing, and
+    StarCraft chose them for us.) This is the actual workflow of balance designers: the flavor
+    comes from the inventor, the structure comes from the theorem.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🏟️</span> ARENA · Rock, Paper, Scissors, SCV, Zergling <span class="qcount" id="a5-count"></span></div>
+    <p class="phint">The full JJ game vs the pattern sniffer. Get <b>5 ahead</b> of the bot (25+
+      rounds) for the 🚜 badge. It counts your habits — five moves means five ways to be
+      predictable… and five ways to feed it lies.</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="movebtn" data-m5="r" title="rock">🪨</button>
+      <button class="movebtn" data-m5="p" title="paper">📄</button>
+      <button class="movebtn" data-m5="s" title="scissors">✂️</button>
+      <button class="movebtn" data-m5="v" title="SCV">🚜</button>
+      <button class="movebtn" data-m5="z" title="zergling">👾</button>
+    </div>
+    <div class="arenascore"><span>you <b id="a5-you">0</b></span><span>bot <b id="a5-bot">0</b></span><span>ties <b id="a5-tie">0</b></span><span class="muted" id="a5-n">0 rounds</span></div>
+    <div class="result" id="a5-read">Your game, JJ. Show it who's boss.</div>
+  </div>
+
+  <!-- 5 PUZZLE -->
+  <h2>5 · 🧩 Puzzle: think like a balance designer</h2>
+  <p>Arrows, fair shares and coin flips. Streak of 3 = ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Patch-note drills</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:8ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Flavor the weird arrows.</strong> The theorem picked two arrows nobody asked for:
+      ✂️ beats 👾 and 📄 beats 👾. Invent the in-universe reasons (why WOULD paper stop a
+      zergling? Supply block? Wrapped like a burrito?). A balance patch isn't shipped until the
+      flavor text is written.</li>
+    <li><strong>Playtest it.</strong> Teach a friend the pentagon (draw it — each move beats the
+      next two) and play 20 rounds. Does any move feel too strong? The math says no — does the
+      <em>fun</em> agree?</li>
+    <li><strong>Design the 7-move game.</strong> The circle trick works for any odd number: 7
+      moves, each beating the next <b>3</b>. Pick 7 StarCraft units, draw the circle, and check
+      one unit's score by hand. (How many pairs of moves are there in total? You know the
+      formula.)</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">dominance graph · balanced game · out-degree / in-degree · parity (odd vs even) · impossibility proof · expected score · probabilistic edge · regular tournament · the circle construction</p>
+
+  <div class="lessonnav">
+    <a href="gm02-prisoners-dilemma.html">← GT·2: The Prisoner's Dilemma</a>
+    <a href="gt01-bridges.html">Graph theory: The Seven Bridges →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=12"></script>
+<script>
+/* === GM3:PURE START === (DOM-free balance/game logic; node-tested before deploy) */
+var GM3 = {};
+GM3.ICON = { r: "🪨", p: "📄", s: "✂️", v: "🚜", z: "👾" };
+GM3.NAME = { r: "rock", p: "paper", s: "scissors", v: "SCV", z: "zergling" };
+/* classic core: +1 = first player wins */
+GM3.core = function (a, b) {
+  if (a === b) return 0;
+  var W = { r: "s", s: "p", p: "r" };
+  return W[a] === b ? 1 : -1;
+};
+/* §2/§3 power scores. w = {r,p,s}: each old move's probability of beating the SCV.
+   score(move) = expected wins − expected losses playing one game vs each other move. */
+GM3.power = function (w) {
+  return {
+    r: 2 * w.r - 1,
+    p: 2 * w.p - 1,
+    s: 2 * w.s - 1,
+    v: 3 - 2 * (w.r + w.p + w.s)
+  };
+};
+GM3.balanced = function (w) {
+  var p = GM3.power(w);
+  return ["r", "p", "s", "v"].every(function (m) { return Math.abs(p[m]) < 1e-9; });
+};
+/* JJ's balanced 4-move game: classic core; ANY matchup involving the SCV — including the
+   SCV mirror, JJ's dinner-table rule — is a fresh coin flip. +1 = first player wins. */
+GM3.result4 = function (a, b, rng) {
+  if (a === "v" || b === "v") {
+    if (a === b) return rng() < 0.5 ? 1 : -1;      // SCV vs SCV: someone wins the flip
+    return rng() < 0.5 ? 1 : -1;                    // SCV vs old move: 50/50
+  }
+  return GM3.core(a, b);
+};
+/* the five-move circle: [r, v, s, p, z], each beats the next two clockwise */
+GM3.ORDER5 = ["r", "v", "s", "p", "z"];
+GM3.BEATS5 = (function () {
+  var B = {};
+  GM3.ORDER5.forEach(function (m, i) {
+    B[m] = [GM3.ORDER5[(i + 1) % 5], GM3.ORDER5[(i + 2) % 5]];
+  });
+  return B;
+})();
+GM3.result5 = function (a, b) {
+  if (a === b) return 0;
+  return GM3.BEATS5[a].indexOf(b) >= 0 ? 1 : -1;
+};
+GM3.beaters5 = function (m) {
+  return GM3.ORDER5.filter(function (x) { return GM3.BEATS5[x].indexOf(m) >= 0; });
+};
+/* the GT·1 pattern sniffer, generalized: counts what the human throws after each of their own
+   moves, predicts the most likely next throw, and plays something that beats the prediction. */
+GM3.sniff = function (moves, counts, last, beatersOf, rng) {
+  var rand = function () { return moves[Math.floor(rng() * moves.length)]; };
+  if (!last || !counts[last]) return rand();
+  var row = counts[last], mx = 0, top = [];
+  moves.forEach(function (m) { if ((row[m] || 0) > mx) mx = row[m]; });
+  if (mx === 0) return rand();
+  moves.forEach(function (m) { if ((row[m] || 0) === mx) top.push(m); });
+  var predicted = top[Math.floor(rng() * top.length)];
+  var beaters = beatersOf(predicted);
+  if (!beaters.length) return rand();
+  return beaters[Math.floor(rng() * beaters.length)];
+};
+/* generic helpers for the puzzles */
+GM3.pairs = function (n) { return n * (n - 1) / 2; };
+GM3.fairShare = function (n) { return (n - 1) / 2; };
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+GM3.GENS = [
+  function (rng) {   // arrows = handshake count
+    var n = 4 + Math.floor(rng() * 9);
+    return { text: "A game with " + n + " moves needs an arrow (a winner) for every pair. How many arrows is that?",
+             ans: GM3.pairs(n),
+             why: "the handshake formula again: " + n + "×" + (n - 1) + "÷2 = " + GM3.pairs(n) };
+  },
+  function (rng) {   // fair share for odd n
+    var n = 5 + 2 * Math.floor(rng() * 5);
+    return { text: "You design a fair coin-flip-free game with " + n + " moves (an odd number). Each move must beat exactly how many others?",
+             ans: GM3.fairShare(n),
+             why: "arrows ÷ moves = " + GM3.pairs(n) + " ÷ " + n + " = " + GM3.fairShare(n) + " — the circle trick: beat the next " + GM3.fairShare(n) + " clockwise" };
+  },
+  function (rng) {   // parity possibility
+    var n = 4 + Math.floor(rng() * 12);
+    return { text: "Could a perfectly fair game with " + n + " moves exist WITHOUT any coin flips? (1 = yes, 0 = no)",
+             ans: n % 2,
+             why: n % 2 === 1 ? (n + " is odd — fair share " + GM3.pairs(n) + "÷" + n + " = " + GM3.fairShare(n) + " whole arrows each: possible (circle trick)") : (n + " is even — each move would need " + (GM3.pairs(n) / n) + " arrows, and arrows don't come in halves") };
+  },
+  function (rng) {   // expected coin-flip wins
+    var n = 2 * (10 + Math.floor(rng() * 41));
+    return { text: "In JJ's balanced patch you play the SCV " + n + " times (every SCV matchup is a 50/50 flip). About how many of those do you expect to WIN?",
+             ans: n / 2,
+             why: "coin flips: half of " + n + " = " + (n / 2) + " — the SCV can't lose on average… or win. That's the quit button" };
+  }
+];
+/* === GM3:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  function paintBars(el, scores, order) {
+    el.innerHTML = "";
+    order.forEach(function (m) {
+      var v = scores[m];
+      var row = document.createElement("div");
+      row.className = "powrow";
+      var pct = Math.min(50, Math.abs(v) / 3 * 50);
+      var left = v >= 0 ? 50 : 50 - pct;
+      var color = Math.abs(v) < 1e-9 ? "#16a34a" : (v > 0 ? "var(--accent)" : "#dc2626");
+      row.innerHTML = "<span class='pl'>" + GM3.ICON[m] + "</span>" +
+        "<div class='ptrack'><div class='pzero'></div><div class='pbar' style='left:" + left + "%;width:" + Math.max(pct, 1) + "%;background:" + color + "'></div></div>" +
+        "<span class='pv'>" + (v > 0 ? "+" : "") + (Math.round(v * 100) / 100) + "</span>";
+      el.appendChild(row);
+    });
+  }
+
+  // ---------- §2 balance bench (deterministic arrows) ----------
+  (function () {
+    var dir = { r: true, p: true, s: true };   // true = old move beats SCV
+    var bars = document.getElementById("bb-bars"), read = document.getElementById("bb-read");
+    function paint() {
+      ["r", "p", "s"].forEach(function (m) {
+        document.getElementById("eb-" + m).textContent =
+          dir[m] ? (GM3.ICON[m] + " → 🚜") : ("🚜 → " + GM3.ICON[m]);
+      });
+      var w = { r: dir.r ? 1 : 0, p: dir.p ? 1 : 0, s: dir.s ? 1 : 0 };
+      var sc = GM3.power(w);
+      paintBars(bars, sc, ["r", "p", "s", "v"]);
+      var flips = 8 - [dir.r, dir.p, dir.s].filter(Boolean).length;
+      read.className = "result";
+      read.innerHTML = "Every old move sits at ±1 (its SCV arrow helps or hurts — never neither), and the 🚜 is stuck on odd numbers too. All 8 combinations fail. <b>Whole arrows can't balance four moves.</b>";
+    }
+    ["r", "p", "s"].forEach(function (m) {
+      document.getElementById("eb-" + m).addEventListener("click", function () { dir[m] = !dir[m]; paint(); });
+    });
+    paint();
+  })();
+
+  // ---------- §3 probability workshop ----------
+  (function () {
+    var starred = false;
+    var bars = document.getElementById("pw-bars"), read = document.getElementById("pw-read");
+    function get() {
+      return { r: +document.getElementById("pw-r").value / 100,
+               p: +document.getElementById("pw-p").value / 100,
+               s: +document.getElementById("pw-s").value / 100 };
+    }
+    function paint() {
+      var w = get();
+      ["r", "p", "s"].forEach(function (m) {
+        document.getElementById("pw-" + m + "v").textContent = Math.round(w[m] * 100) + "%";
+      });
+      paintBars(bars, GM3.power(w), ["r", "p", "s", "v"]);
+      if (GM3.balanced(w)) {
+        read.className = "result win";
+        read.innerHTML = "⚖️ <b>PERFECT BALANCE — and it's the only setting that works.</b> Every SCV matchup: a 50/50 coin flip. Each old move forces its own slider to the middle, and the 🚜 balances itself. JJ's instinct, proved.";
+        if (!starred && window.DadMath) { starred = true; DadMath.star("gm3", 2, "Found the one true balance patch"); }
+      } else {
+        var p = GM3.power(w);
+        var worst = ["r", "p", "s", "v"].sort(function (a, b) { return Math.abs(p[b]) - Math.abs(p[a]); })[0];
+        read.className = "result";
+        read.innerHTML = GM3.ICON[worst] + " is " + (p[worst] > 0 ? "overpowered (+" : "underpowered (") + (Math.round(p[worst] * 100) / 100) + ") — smart players would " + (p[worst] > 0 ? "spam it" : "never touch it") + ". Keep tuning.";
+      }
+    }
+    ["r", "p", "s"].forEach(function (m) {
+      document.getElementById("pw-" + m).addEventListener("input", paint);
+    });
+    paint();
+  })();
+
+  // ---------- §3 arena: balanced 4-move ----------
+  (function () {
+    var moves = ["r", "p", "s", "v"];
+    var counts = {}, last = null, you = 0, bot = 0, tie = 0, rounds = 0, vPlays = 0;
+    var read = document.getElementById("a4-read");
+    function beatersOf(m) {   // deterministic beaters only — nothing reliably beats the SCV
+      if (m === "v") return [];
+      return moves.filter(function (x) { return x !== "v" && GM3.core(x, m) === 1; });
+    }
+    function play(m) {
+      var b = GM3.sniff(moves, counts, last, beatersOf, Math.random);
+      var r = GM3.result4(m, b, Math.random);
+      rounds++;
+      if (m === "v") vPlays++;
+      if (r === 1) you++; else if (r === -1) bot++; else tie++;
+      if (last) { counts[last] = counts[last] || {}; counts[last][m] = (counts[last][m] || 0) + 1; }
+      last = m;
+      document.getElementById("a4-you").textContent = you;
+      document.getElementById("a4-bot").textContent = bot;
+      document.getElementById("a4-tie").textContent = tie;
+      document.getElementById("a4-n").textContent = rounds + " rounds";
+      var flip = (m === "v" || b === "v");
+      var msg = "You " + GM3.ICON[m] + " vs " + GM3.ICON[b] + " — " + (r === 1 ? "you win" : r === -1 ? "bot wins" : "tie") + (flip ? " (coin flip!)" : "") + ".";
+      if (rounds >= 12 && vPlays / rounds >= 0.8) {
+        read.className = "result";
+        read.innerHTML = msg + " 🚜 <b>You found the quit button.</b> All-SCV can't be read and can't be beaten — or win. You're not playing anymore, you're flipping coins. Feel the design problem?";
+      } else if (rounds >= 15 && bot - you >= 4) {
+        read.className = "result miss";
+        read.innerHTML = msg + " 🤖 It's reading your classic moves. Your SCVs are invisible to it — pure coin — but everything else has a pattern.";
+      } else if (rounds >= 15 && you - bot >= 4) {
+        read.className = "result win";
+        read.innerHTML = msg + " 🏆 You're ahead — either luck on the flips, or it can't pin your pattern down.";
+      } else {
+        read.className = "result";
+        read.innerHTML = msg;
+      }
+    }
+    document.querySelectorAll("[data-m4]").forEach(function (b) {
+      b.addEventListener("click", function () { play(b.getAttribute("data-m4")); });
+    });
+  })();
+
+  // ---------- §4 pentagon ----------
+  (function () {
+    var svg = document.getElementById("pent");
+    var NS = "http://www.w3.org/2000/svg";
+    var defs = document.createElementNS(NS, "defs");
+    defs.innerHTML = '<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--primary)"/></marker>';
+    svg.appendChild(defs);
+    var pos = {};
+    GM3.ORDER5.forEach(function (m, i) {
+      var a = Math.PI / 2 - i * 2 * Math.PI / 5;
+      pos[m] = [90 * Math.cos(a), -90 * Math.sin(a)];
+    });
+    GM3.ORDER5.forEach(function (m) {
+      GM3.BEATS5[m].forEach(function (t) {
+        var x1 = pos[m][0], y1 = pos[m][1], x2 = pos[t][0], y2 = pos[t][1];
+        var dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx * dx + dy * dy);
+        var ux = dx / len, uy = dy / len;
+        var line = document.createElementNS(NS, "line");
+        line.setAttribute("x1", x1 + ux * 18); line.setAttribute("y1", y1 + uy * 18);
+        line.setAttribute("x2", x2 - ux * 20); line.setAttribute("y2", y2 - uy * 20);
+        line.setAttribute("stroke", "var(--primary)"); line.setAttribute("stroke-width", "2.5");
+        line.setAttribute("marker-end", "url(#arr)"); line.setAttribute("opacity", "0.8");
+        svg.appendChild(line);
+      });
+    });
+    GM3.ORDER5.forEach(function (m) {
+      var t = document.createElementNS(NS, "text");
+      t.setAttribute("x", pos[m][0]); t.setAttribute("y", pos[m][1] + 7);
+      t.setAttribute("text-anchor", "middle"); t.setAttribute("font-size", "24");
+      t.textContent = GM3.ICON[m];
+      svg.appendChild(t);
+    });
+  })();
+
+  // ---------- §4 arena: five-move game ----------
+  (function () {
+    var moves = GM3.ORDER5;
+    var counts = {}, last = null, you = 0, bot = 0, tie = 0, rounds = 0, badged = false;
+    var read = document.getElementById("a5-read"), count = document.getElementById("a5-count");
+    function play(m) {
+      var b = GM3.sniff(moves, counts, last, GM3.beaters5, Math.random);
+      var r = GM3.result5(m, b);
+      rounds++;
+      if (r === 1) you++; else if (r === -1) bot++; else tie++;
+      if (last) { counts[last] = counts[last] || {}; counts[last][m] = (counts[last][m] || 0) + 1; }
+      last = m;
+      document.getElementById("a5-you").textContent = you;
+      document.getElementById("a5-bot").textContent = bot;
+      document.getElementById("a5-tie").textContent = tie;
+      document.getElementById("a5-n").textContent = rounds + " rounds";
+      if (window.DadMath && you > bot) DadMath.best("gm3-lead", you - bot);
+      count.textContent = "best lead " + (window.DadMath ? DadMath.getBest("gm3-lead") : 0);
+      var msg = "You " + GM3.ICON[m] + " vs " + GM3.ICON[b] + " — " + (r === 1 ? "<b>" + GM3.NAME[m] + " beats " + GM3.NAME[b] + "</b>" : r === -1 ? GM3.NAME[b] + " beats " + GM3.NAME[m] : "mirror — tie") + ".";
+      if (!badged && rounds >= 25 && you - bot >= 5) {
+        badged = true;
+        read.className = "result win";
+        read.innerHTML = msg + " 🏆 <b>You beat the sniffer at your own game, " + (you - bot) + " ahead.</b> Inventor AND champion.";
+        if (window.DadMath) { DadMath.badge("gm-scv"); DadMath.star("gm3", 2, "Beat the bot at JJ's five-move game"); }
+      } else if (rounds >= 15 && bot - you >= 4) {
+        read.className = "result miss";
+        read.innerHTML = msg + " 🤖 It has your number — it literally counts what you throw after each move. Mix it up (GT·1's lesson: randomness is the only unreadable book).";
+      } else {
+        read.className = "result";
+        read.innerHTML = msg;
+      }
+    }
+    document.querySelectorAll("[data-m5]").forEach(function (b) {
+      b.addEventListener("click", function () { play(b.getAttribute("data-m5")); });
+    });
+  })();
+
+  // ---------- §5 puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    function newQ() {
+      q = GM3.GENS[Math.floor(Math.random() * GM3.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Patch approved. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath && streak % 3 === 0) DadMath.star("gm3", 1, "Patch-note drills — streak " + streak);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>
