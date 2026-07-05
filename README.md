@@ -54,6 +54,9 @@ from scratch — each page derives one building block of how games actually work
   (AND/OR/XOR) wired into a half adder that adds two bits. → `gl03-factory.html`
 - **🗺️ GL·4 Random Worlds** — procedural generation: a random-walk cave grower plus seeds and
   determinism (why a Minecraft seed rebuilds the same world). → `gl04-worlds.html`
+- **🐦 GL·5 Why the Angry Bird Flies in an Arc** — projectile motion: an aim-and-launch slingshot
+  (exact closed-form parabola), the two independent motions, and why 45° maximizes range while
+  30°/60° tie. → `gl05-projectiles.html`
 
 ## 🕹️ The Arcade (gamification)
 

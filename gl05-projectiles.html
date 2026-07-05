@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Lab 5 · Why the Angry Bird Flies in an Arc — Math in Half an Hour</title>
+<meta name="description" content="Pull back the slingshot and the bird curves through the air in a perfect arc — a parabola. Two motions at once: steady sideways, gravity pulling down. Aim it, then learn why 45° flies farthest.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Lab · Topic 05</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Why the Angry Bird Flies in an Arc</h1>
+    <p class="lede">Pull the slingshot, let go, and the bird swoops through the air in a graceful curve to
+      smash the pig's tower. It never flies in a straight line — always that same arch. Why? Because
+      <em>two</em> things happen at once, and adding them makes the most famous curve in physics: the
+      <b>parabola</b>.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">builds on 🎮 GL·1 velocity &amp; gravity</span></p>
+  </header>
+
+  <!-- 1 THE IDEA -->
+  <h2>1 · Two motions at the same time</h2>
+  <p>Once the bird leaves the slingshot, nothing pushes it sideways anymore. So its <b>sideways</b> speed
+    just stays the same — steady, forever (until it hits something). But <b>gravity</b> never stops tugging
+    it <em>down</em>, and that downward pull gets stronger every single moment.</p>
+  <ul>
+    <li>➡️ <b>Sideways:</b> constant speed — equal steps, tick, tick, tick.</li>
+    <li>⬇️ <b>Down:</b> gravity speeds it up — the drops get bigger and bigger.</li>
+  </ul>
+  <p>Glue those two together and the path bends: it rises, slows, tips over the top, then dives — faster and
+    faster — into the pig. That shape is a <strong>parabola</strong>, the same curve you met with the
+    <a href="02-squares.html">square numbers</a> (1, 4, 9, 16… — gravity uses those very jumps!).</p>
+
+  <!-- 2 LAUNCHER -->
+  <h2>2 · Fire the slingshot</h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🐦</span> The slingshot</div>
+    <p class="phint">Set the <b>angle</b> and <b>power</b>, watch the dotted <em>aim line</em>, then
+      <b>Launch</b> and try to splat the pig 🐷. The bird traces its arc as it flies.</p>
+    <div class="canvaswrap"><canvas id="sling" width="480" height="300"></canvas></div>
+    <div class="controls">
+      <label class="ctl">angle = <span class="nbox" id="sl-adeg">45</span>°</label>
+      <input type="range" id="sl-ang" min="15" max="75" value="45">
+      <label class="ctl">power = <span class="nbox" id="sl-pval">11</span></label>
+      <input type="range" id="sl-pow" min="8" max="14" value="11" step="1">
+    </div>
+    <div class="ctrlrow">
+      <button class="btn" id="sl-go">🎯 Launch</button>
+      <button class="btn ghost" id="sl-new">🐷 New pig</button>
+    </div>
+    <div class="result" id="sl-read">Aim with the dotted line, then launch!</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Try:</span> keep the power the same and slide the angle up from low to high. The landing
+    spot goes <em>out</em>, reaches its farthest at <b>45°</b>, then comes back <em>in</em> again — so a low
+    30° shot and a steep 60° shot land in the <b>same place</b>! One skims low and fast, the other loops high
+    and slow.
+  </div>
+
+  <!-- 3 THE MATH -->
+  <h2>3 · The math behind the arc</h2>
+  <p>Call the launch speed \(v\) and the angle \(\theta\). Split the speed into its two jobs — going
+    <em>out</em> and going <em>up</em>:</p>
+  $$x = \underbrace{v\cos\theta}_{\text{sideways speed}}\; t \qquad\qquad
+    y = \underbrace{v\sin\theta}_{\text{upward speed}}\; t \;-\; \tfrac{1}{2}\,g\,t^2$$
+  <p>The sideways part is a plain steady march (\(x\) grows evenly with time \(t\)). The upward part climbs,
+    but that \(-\tfrac{1}{2}gt^2\) — gravity — keeps eating it, more and more, until the bird comes back down.
+    Together they draw the parabola. Do a little algebra and the <b>range</b> (how far it lands) works out to:</p>
+  $$\text{range} = \frac{v^2 \sin(2\theta)}{g}$$
+  <p>That \(\sin(2\theta)\) is the whole secret. It's biggest when \(2\theta = 90^\circ\), i.e.
+    \(\theta = 45^\circ\) — the farthest shot. And since \(\sin\) is a mirror around there,
+    \(30^\circ\) and \(60^\circ\) (which add up to \(90^\circ\)) give the <em>exact same</em> range. The math
+    predicts what the slingshot just showed you.</p>
+
+  <!-- 4 PUZZLE -->
+  <h2>4 · 🧩 Puzzle: read the arc</h2>
+  <p>Answer without launching — think it through. Streak of 3 = ⭐, streak of 5 = 🐦 badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Trajectory sense</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls" id="pz-opts"></div>
+    <div class="controls"><button class="btn ghost" id="pz-new">New →</button></div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Prove it in the game.</strong> In Angry Birds (or any throwing game), launch the same bird
+      low-and-flat, then high-and-loopy, so both land on the same target. Which one gets there <em>first</em>?
+      Why?</li>
+    <li><strong>Be the two motions.</strong> Drop a coin off the table and, at the very same instant, flick a
+      second coin sideways off the edge. Listen — do they hit the floor together or one first? What does that
+      tell you about the sideways motion and the falling?</li>
+    <li><strong>Think ahead:</strong> real Angry Birds birds slow down a bit from <b>air resistance</b>, and
+      some (the yellow one!) speed up when you tap. How would each change the neat 45° rule?</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">projectile · trajectory · parabola · velocity (sideways + up) · gravity · launch angle · range · 45° is best</p>
+
+  <div class="lessonnav">
+    <a href="gl04-worlds.html">← Game Lab 4: Random worlds</a>
+    <a href="index.html#games">All Game Lab topics →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=5"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // (site.js auto-renders the KaTeX)
+
+  // ---------- Slingshot launcher (closed-form kinematics = an exact parabola) ----------
+  (function () {
+    var cv = document.getElementById("sling"); if (!cv) return;
+    var ctx = cv.getContext("2d");
+    var W = cv.width, H = cv.height, GY = 262, LX = 44, S = 0.62, g = 0.3;
+    var angEl = document.getElementById("sl-ang"), powEl = document.getElementById("sl-pow");
+    var adeg = document.getElementById("sl-adeg"), pval = document.getElementById("sl-pval");
+    var read = document.getElementById("sl-read");
+    var pigX = 300, trail = [], raf = null, t = 0, flying = false, hitDone = false, gotStar = false;
+    var ang = 45, v = 11;
+
+    function pos(tt) {
+      var th = ang * Math.PI / 180;
+      return { x: LX + v * Math.cos(th) * tt * S, y: GY - (v * Math.sin(th) * tt - 0.5 * g * tt * tt) * S };
+    }
+    function predict() {                       // dotted aim line for the current angle/power
+      var pts = [], th = ang * Math.PI / 180, tt = 0;
+      for (var i = 0; i < 400; i++) {
+        var p = pos(tt); if (p.y > GY && i > 0) break; if (p.x > W + 40) break;
+        pts.push(p); tt += 2.5;
+      }
+      return pts;
+    }
+    function dark() { return window.matchMedia && matchMedia("(prefers-color-scheme:dark)").matches; }
+
+    function draw(bird) {
+      ctx.clearRect(0, 0, W, H);
+      // ground
+      ctx.fillStyle = dark() ? "#2a3a24" : "#c8e6a0";
+      ctx.fillRect(0, GY, W, H - GY);
+      ctx.strokeStyle = dark() ? "#3f5a34" : "#8bc34a"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, GY); ctx.lineTo(W, GY); ctx.stroke();
+      // slingshot (a Y of two sticks)
+      ctx.strokeStyle = "#8a5a2b"; ctx.lineWidth = 5; ctx.lineCap = "round";
+      ctx.beginPath(); ctx.moveTo(LX, GY); ctx.lineTo(LX, GY - 34);
+      ctx.moveTo(LX, GY - 34); ctx.lineTo(LX - 9, GY - 48);
+      ctx.moveTo(LX, GY - 34); ctx.lineTo(LX + 9, GY - 48); ctx.stroke();
+      // pig
+      var pcy = GY - 13;
+      ctx.fillStyle = "#5fbf4f"; ctx.beginPath(); ctx.arc(pigX, pcy, 13, 0, 7); ctx.fill();
+      ctx.fillStyle = "#3f9a33"; ctx.beginPath(); ctx.arc(pigX - 4, pcy, 3, 0, 7); ctx.arc(pigX + 4, pcy, 3, 0, 7); ctx.fill();
+      ctx.fillStyle = "#2b7a22"; ctx.beginPath(); ctx.arc(pigX, pcy + 3, 3, 0, 7); ctx.fill();
+      // aim line when idle
+      if (!flying) {
+        var pts = predict();
+        ctx.strokeStyle = dark() ? "rgba(230,200,120,.7)" : "rgba(180,120,20,.7)";
+        ctx.lineWidth = 2; ctx.setLineDash([2, 6]); ctx.beginPath();
+        pts.forEach(function (p, i) { i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); });
+        ctx.stroke(); ctx.setLineDash([]);
+      }
+      // solid flight trail
+      if (trail.length > 1) {
+        ctx.strokeStyle = "#f59e0b"; ctx.lineWidth = 3; ctx.beginPath();
+        trail.forEach(function (p, i) { i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); });
+        ctx.stroke();
+      }
+      // bird
+      if (bird) {
+        ctx.fillStyle = "#e0483a"; ctx.beginPath(); ctx.arc(bird.x, bird.y, 11, 0, 7); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(bird.x + 3, bird.y - 3, 3.4, 0, 7); ctx.fill();
+        ctx.fillStyle = "#111"; ctx.beginPath(); ctx.arc(bird.x + 4, bird.y - 3, 1.6, 0, 7); ctx.fill();
+        ctx.fillStyle = "#f6a821"; ctx.beginPath();
+        ctx.moveTo(bird.x + 10, bird.y); ctx.lineTo(bird.x + 17, bird.y + 3); ctx.lineTo(bird.x + 10, bird.y + 5); ctx.fill();
+      }
+      ctx.lineWidth = 1;
+    }
+
+    function step() {
+      t += 1.1;
+      var p = pos(t);
+      trail.push(p); if (trail.length > 200) trail.shift();
+      var pcx = pigX, pcy = GY - 13;
+      if (!hitDone && Math.hypot(p.x - pcx, p.y - pcy) < 23) {   // splat!
+        hitDone = true; flying = false; draw(p);
+        read.innerHTML = "🎯 <b>Direct hit!</b> The bird arced right onto the pig.";
+        if (!gotStar && window.DadMath) { gotStar = true; DadMath.star("gl5", 1, "Splatted the pig with a perfect arc!"); }
+        return;
+      }
+      if (p.y >= GY || p.x > W + 20) {                          // landed
+        flying = false;
+        var landX = p.x, miss = Math.round(Math.abs(landX - pigX) / S);
+        draw({ x: Math.min(landX, W - 4), y: GY - 2 });
+        read.innerHTML = landX < pigX
+          ? "💨 Landed <b>short</b> of the pig — add power or angle. (missed by ~" + miss + ")"
+          : "💨 Flew <b>past</b> the pig — ease off a little. (missed by ~" + miss + ")";
+        return;
+      }
+      draw(p);
+      raf = requestAnimationFrame(step);
+    }
+
+    function stop() { if (raf) cancelAnimationFrame(raf); raf = null; }
+    function reset(newPig) {
+      stop(); flying = false; t = 0; trail = []; hitDone = false;
+      if (newPig) pigX = 180 + Math.floor(Math.random() * 251);   // 180..430, always reachable
+      draw();
+    }
+    function launch() {
+      stop(); v = +powEl.value; ang = +angEl.value; t = 0; trail = []; hitDone = false; flying = true;
+      read.textContent = "🚀 Away it goes…"; step();
+    }
+
+    angEl.addEventListener("input", function () { ang = +angEl.value; adeg.textContent = ang; if (!flying) draw(); });
+    powEl.addEventListener("input", function () { v = +powEl.value; pval.textContent = v; if (!flying) draw(); });
+    document.getElementById("sl-go").addEventListener("click", launch);
+    document.getElementById("sl-new").addEventListener("click", function () { reset(true); read.textContent = "New pig! Take aim."; });
+    reset(true);
+  })();
+
+  // ---------- Puzzle: trajectory sense ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), optsEl = document.getElementById("pz-opts"),
+        resEl = document.getElementById("pz-result");
+    var BANK = [
+      { q: "Same power. Which launch angle sends the bird FARTHEST?", opts: ["30°", "45°", "60°"], ans: 1,
+        why: "45° splits the speed evenly between out and up — the longest shot." },
+      { q: "Same power: one bird at 30°, one at 60°. Who lands FARTHER away?", opts: ["30° bird", "60° bird", "They tie!"], ans: 2,
+        why: "Angles that add to 90° always land in the same spot — 30°+60°=90°." },
+      { q: "Same power: one bird at 30°, one at 60°. Who flies HIGHER at the top?", opts: ["30° bird", "60° bird", "Same height"], ans: 1,
+        why: "The steeper 60° launch pours more speed into going up, so it peaks higher." },
+      { q: "After it leaves the slingshot, the bird's SIDEWAYS speed…", opts: ["slows down", "stays the same", "speeds up"], ans: 1,
+        why: "Nothing pushes it sideways, so that speed is steady. Gravity only pulls DOWN." },
+      { q: "What shape is the bird's whole flight path?", opts: ["a straight line", "a circle", "a parabola"], ans: 2,
+        why: "Steady sideways + gravity down = a parabola, the classic arc." },
+      { q: "To just reach a FAR pig with the power you've got, aim…", opts: ["low and flat", "around 45°", "straight up"], ans: 1,
+        why: "45° gives the most distance. Straight up comes back down on your head!" }
+    ];
+    function newQ() {
+      q = BANK[Math.floor(Math.random() * BANK.length)];
+      promptEl.innerHTML = q.q;
+      optsEl.innerHTML = "";
+      q.opts.forEach(function (label, i) {
+        var b = document.createElement("button"); b.className = "btn"; b.textContent = label;
+        b.addEventListener("click", function () { guess(i); });
+        optsEl.appendChild(b);
+      });
+      resEl.className = "result";
+      resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function guess(i) {
+      if (i === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ " + q.why + " &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("gl5", 1, "Trajectory streak " + streak);
+          if (streak >= 5) DadMath.badge("gl-physics");
+        }
+        setTimeout(newQ, 1100);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + " (streak reset)";
+      }
+    }
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    newQ();
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>
