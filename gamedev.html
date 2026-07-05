@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🌳 The Builder's Tree — Build Your Own Game — Math in Half an Hour</title>
+<meta name="description" content="A game-development course as a tech tree: learn a mechanic, pass its principles test, and it gets installed into YOUR game — which grows from a bare heartbeat into a full cave shooter.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+/* ---- tree layout (page-specific) ---- */
+.tree { display: flex; flex-direction: column; gap: 6px; margin: 22px 0; }
+.tier { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.tlink { text-align: center; color: var(--ink-faint); font-weight: 700; font-size: .95rem; line-height: 1; }
+.nodecard {
+  flex: 1 1 240px; max-width: 340px; background: var(--panel); border: 2px solid var(--line);
+  border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); position: relative;
+}
+.nodecard.ready { border-color: var(--accent); }
+.nodecard.done  { border-color: var(--good); }
+.nodecard.locked { opacity: .62; }
+.nodecard .nhead { display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: .04em; }
+.nodecard .nhead .nic { font-size: 1.5rem; }
+.nodecard .nstate { margin-left: auto; font-size: .78rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+.nstate.s-locked { background: var(--panel-2); color: var(--ink-faint); border: 1px solid var(--line); }
+.nstate.s-ready  { background: var(--accent-soft); color: var(--accent); }
+.nstate.s-done   { background: var(--good-soft); color: var(--good); }
+.nodecard .ninstall { color: var(--ink-soft); font-size: .88rem; margin: 7px 0 10px; line-height: 1.45; }
+.nodecard .nneeds { font-size: .75rem; color: var(--ink-faint); font-weight: 700; margin-bottom: 8px; }
+.nodecard .nrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.nodecard .nrow .btn { font-size: .85rem; padding: 7px 12px; }
+.modchips { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 4px; }
+.modchip { font-size: .78rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+  background: var(--good-soft); color: var(--good); border: 1px solid var(--good); }
+.modchip.off { background: var(--panel-2); color: var(--ink-faint); border-color: var(--line); filter: grayscale(1); }
+.testq { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; margin: 10px 0; }
+.mcrow { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.mcrow .btn { text-align: left; font-weight: 600; }
+#gd-status { font-family: var(--mono); font-size: .9rem; }
+.gatebar { font-family: var(--mono); font-size: .85rem; color: var(--ink-soft); text-align: center; margin-top: 6px; }
+.gatebar b.on { color: var(--good); } .gatebar b.offv { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Lab · The Course</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">🌳 The Builder's Tree</h1>
+    <p class="lede">This is a game-development course shaped like a <b>tech tree</b> — the same way
+      Deep Rock upgrades gear and Factorio unlocks research. Every node is one real game-making idea.
+      <b>Learn it</b> in its lesson, <b>pass its 3-question principles test</b>, and that idea gets
+      <em>installed into your game below</em>. Your game starts as nothing and grows, unlock by
+      unlock, into a full cave shooter — and every piece of it is something <b>you</b> understand.</p>
+    <p style="margin-top:14px"><span class="badge">🧪 pass a test → unlock the mechanic</span> &nbsp; <span class="badge amber">🎮 your game grows each time</span> &nbsp; <span class="badge green">🌳 finish the tree for a badge</span></p>
+  </header>
+
+  <!-- ============ THE GAME ============ -->
+  <h2>1 · 🎮 Your game: <em>Crystal Caves</em></h2>
+  <p>This is the game you're building. Right now it only has the mechanics you've unlocked —
+    exactly like a real game mid-development. Collect every 💎 to clear the cave. Don't get bitten.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">⛏️</span> Crystal Caves <span class="qcount" id="gd-build"></span></div>
+    <div class="modchips" id="gd-mods"></div>
+    <p class="phint" id="gd-hint">Move with <b>← ↑ ↓ →</b> / WASD or the pad. Collect all the crystals.</p>
+    <div class="canvaswrap"><canvas id="gd-cv" width="480" height="300" tabindex="0"></canvas></div>
+    <div class="ctrlrow" id="gd-pad">
+      <button class="btn ghost padbtn" data-d="l">◀</button>
+      <button class="btn ghost padbtn" data-d="u">▲</button>
+      <button class="btn ghost padbtn" data-d="d">▼</button>
+      <button class="btn ghost padbtn" data-d="r">▶</button>
+      <button class="btn" id="gd-start">▶ Start</button>
+      <button class="btn ghost" id="gd-nade" style="display:none">💣 Grenade: off</button>
+      <button class="btn ghost" id="gd-turret" style="display:none">🤖 Place sentry</button>
+    </div>
+    <div class="ctrlrow" id="gd-seedrow" style="display:none">
+      <label class="slab">🌱 seed <input id="gd-seed" type="number" style="width:9ch"></label>
+      <button class="btn ghost" id="gd-dig">🎲 Grow this cave</button>
+    </div>
+    <div class="result" id="gd-status">Pass your first node to power the game on.</div>
+    <div class="gatebar" id="gd-gate" style="display:none"></div>
+  </div>
+
+  <div class="note try">
+    <span class="t">This is real:</span> professional engines are built in exactly this order — first
+    a loop that draws, then collision, then physics, then AI, then level generation. You're walking
+    the same road the Deep Rock developers walked, just in miniature.
+  </div>
+
+  <!-- ============ THE TREE ============ -->
+  <h2>2 · 🌳 The research tree</h2>
+  <p>Two branches grow from the loop — the <b>combat branch</b> (hitboxes → arcs) and the
+    <b>world branch</b> (pathfinding → random worlds) — and they join at the sentry, which needs both.
+    A node unlocks for testing when everything it points from is done. <b>Read the lesson first;</b>
+    the test asks <em>why</em>, not just <em>what</em>, and one wrong answer ends the attempt.</p>
+
+  <div class="tree" id="gd-tree"></div>
+
+  <!-- ============ THE TEST ============ -->
+  <div class="panel" id="gd-testpanel" style="display:none">
+    <div class="ptitle"><span class="ic" id="tp-ic">🧪</span> <span id="tp-title">Principles test</span> <span class="qcount" id="tp-count"></span></div>
+    <div class="testq" id="tp-q"></div>
+    <div class="mcrow" id="tp-mc"></div>
+    <div class="controls" id="tp-numrow" style="display:none">
+      <input class="answer" id="tp-in" type="number" inputmode="numeric" placeholder="?" style="width:10ch">
+      <button class="btn" id="tp-go">Check</button>
+    </div>
+    <div class="result" id="tp-res"></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 How this mirrors real game development</h2>
+  <ol class="hw">
+    <li><strong>Engines are trees too.</strong> Unity, Unreal, Godot — all of them are these same six
+      ideas (plus decoration) layered in this same order. Name which node each Deep Rock feature
+      hangs off: bug swarms? sentry turrets? fresh caves every mission?</li>
+    <li><strong>Design your seventh node.</strong> If you could research one more mechanic for
+      Crystal Caves, what would it be — and which existing nodes would it need? (Sound? Saving?
+      Two players? Every one of those is a real branch on a real engine's tree.)</li>
+    <li><strong>Ship it.</strong> Show someone your game <em>before</em> the tree is finished. Real
+      studios do exactly that — it's called a playtest, and half of game design is watching someone
+      else play your unfinished thing.</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">tech tree · dependency · game engine · mechanic · module · principles test · playtest · milestone</p>
+
+  <div class="lessonnav">
+    <a href="index.html#games">← All Game Lab topics</a>
+    <a href="arcade.html">Your badges & rank →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=7"></script>
+<script>
+/* === GD:PURE START === (DOM-free logic; node-tested before deploy) */
+var GD = {};
+GD.TILE = 20; GD.COLS = 24; GD.ROWS = 15;
+GD.FIXED_SEED = 7; GD.FIXED_STEPS = 700;
+
+/* seeded rng — same recipe the Random Worlds lesson uses */
+GD.mulberry32 = function (a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+};
+
+/* random-walk cave digger (GL·4), kept 1 tile inside a solid border */
+GD.digCave = function (cols, rows, steps, rng) {
+  var g = [], r, c;
+  for (r = 0; r < rows; r++) { g.push([]); for (c = 0; c < cols; c++) g[r].push(false); }
+  var x = Math.floor(cols / 2), y = Math.floor(rows / 2);
+  g[y][x] = true;
+  var d = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  for (var i = 0; i < steps; i++) {
+    var m = d[Math.floor(rng() * 4)];
+    x = Math.max(1, Math.min(cols - 2, x + m[0]));
+    y = Math.max(1, Math.min(rows - 2, y + m[1]));
+    g[y][x] = true;
+  }
+  return g;
+};
+
+GD.floorTiles = function (g) {
+  var out = [];
+  for (var r = 0; r < g.length; r++) for (var c = 0; c < g[0].length; c++) if (g[r][c]) out.push({ x: c, y: r });
+  return out;
+};
+
+/* n floor tiles at least minD tiles from (sx,sy); relaxes minD if the cave is small */
+GD.pickSpots = function (g, n, sx, sy, minD, rng) {
+  var tiles = GD.floorTiles(g), out = [], d = minD;
+  while (d >= 0) {
+    var cand = tiles.filter(function (t) {
+      var dx = t.x - sx, dy = t.y - sy;
+      return Math.sqrt(dx * dx + dy * dy) >= d && !(t.x === sx && t.y === sy);
+    });
+    for (var i = cand.length - 1; i > 0; i--) { var j = Math.floor(rng() * (i + 1)); var tmp = cand[i]; cand[i] = cand[j]; cand[j] = tmp; }
+    if (cand.length >= n) return cand.slice(0, n);
+    out = cand; d--;
+  }
+  return out.slice(0, n);
+};
+
+/* breadth-first search on the tile grid (GL·2) → list of steps to walk, or null */
+GD.bfs = function (g, sx, sy, tx, ty) {
+  var rows = g.length, cols = g[0].length;
+  if (sx === tx && sy === ty) return [];
+  if (!g[ty] || !g[ty][tx] || !g[sy] || !g[sy][sx]) return null;
+  var prev = {}, seen = {}, q = [[sx, sy]]; seen[sx + "," + sy] = true;
+  var d = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  while (q.length) {
+    var cur = q.shift();
+    for (var i = 0; i < 4; i++) {
+      var nx = cur[0] + d[i][0], ny = cur[1] + d[i][1], k = nx + "," + ny;
+      if (nx < 0 || ny < 0 || nx >= cols || ny >= rows || !g[ny][nx] || seen[k]) continue;
+      seen[k] = true; prev[k] = cur;
+      if (nx === tx && ny === ty) {
+        var path = [], p = [nx, ny];
+        while (p && !(p[0] === sx && p[1] === sy)) { path.unshift({ x: p[0], y: p[1] }); p = prev[p[0] + "," + p[1]]; }
+        return path;
+      }
+      q.push([nx, ny]);
+    }
+  }
+  return null;
+};
+
+/* can a square body (half-width `half` px) stand centred at pixel (px,py)? */
+GD.canWalk = function (g, px, py, half) {
+  var t = GD.TILE;
+  function solid(x, y) {
+    var cx = Math.floor(x / t), cy = Math.floor(y / t);
+    if (cy < 0 || cy >= g.length || cx < 0 || cx >= g[0].length) return true;
+    return !g[cy][cx];
+  }
+  return !(solid(px - half, py - half) || solid(px + half, py - half) ||
+           solid(px - half, py + half) || solid(px + half, py + half));
+};
+
+/* the GL·6 point-in-circle test */
+GD.circleHit = function (px, py, cx, cy, r) {
+  var dx = px - cx, dy = py - cy;
+  return dx * dx + dy * dy <= r * r;
+};
+
+/* resolve a click at (px,py): weak points beat bodies (checked across all bugs first) */
+GD.shotAt = function (px, py, bugs) {
+  var i;
+  for (i = 0; i < bugs.length; i++) {
+    var b = bugs[i];
+    if (GD.circleHit(px, py, b.x + b.wox, b.y + b.woy, b.wr)) return { i: i, part: "weak" };
+  }
+  for (i = 0; i < bugs.length; i++) {
+    var c = bugs[i];
+    if (GD.circleHit(px, py, c.x, c.y, c.r)) return { i: i, part: "body" };
+  }
+  return null;
+};
+
+/* grenade arc: a parabola in t∈[0,1] that starts at (x0,y0) and lands exactly on (x1,y1) */
+GD.arcPos = function (x0, y0, x1, y1, h, t) {
+  return { x: x0 + (x1 - x0) * t, y: y0 + (y1 - y0) * t - 4 * h * t * (1 - t) };
+};
+
+/* the sentry's brain is literally an AND gate (GL·3) */
+GD.sentryFires = function (inRange, ammo) { return !!inRange && ammo > 0; };
+
+/* ---- the tree ---- */
+GD.NODES = [
+  { id: "gd1", key: "loop",   icon: "🎮", name: "THE LOOP", needs: [],
+    lesson: { href: "gl01-game-loop.html", label: "GL·1 Make a Game from Scratch" },
+    installs: "Powers the game on: the update→draw heartbeat, a movable miner, solid walls, and crystals to collect." },
+  { id: "gd2", key: "aim",    icon: "🎯", name: "HITBOXES", needs: ["gd1"],
+    lesson: { href: "gl06-hitboxes.html", label: "GL·6 Aiming & Hitboxes" },
+    installs: "Bugs invade the caves. Click or tap to shoot — the point-in-circle test decides every hit, and glowing weak points take double damage." },
+  { id: "gd3", key: "arc",    icon: "💣", name: "THE ARC", needs: ["gd2"],
+    lesson: { href: "gl05-projectiles.html", label: "GL·5 Why the Angry Bird Flies in an Arc" },
+    installs: "A grenade that flies in a true parabola and blasts every bug near where it lands." },
+  { id: "gd4", key: "path",   icon: "🧭", name: "PATHFINDING", needs: ["gd1"],
+    lesson: { href: "gl02-pathfinding.html", label: "GL·2 How Units Find Their Way" },
+    installs: "Bugs get a brain: they flood-fill the cave with breadth-first search and hunt you down the shortest route." },
+  { id: "gd5", key: "world",  icon: "🗺️", name: "RANDOM WORLDS", needs: ["gd4"],
+    lesson: { href: "gl04-worlds.html", label: "GL·4 Random Worlds" },
+    installs: "Endless levels: every cleared cave leads to a fresh one grown from a seed — type a friend's seed to play their exact cave." },
+  { id: "gd6", key: "turret", icon: "🤖", name: "THE SENTRY", needs: ["gd3", "gd5"],
+    lesson: { href: "gl03-factory.html", label: "GL·3 Factory Logic" },
+    installs: "An engineer's sentry turret that decides when to fire with a real AND gate: bug-in-range AND ammo-left." }
+];
+GD.TIERS = [["gd1"], ["gd2", "gd4"], ["gd3", "gd5"], ["gd6"]];
+GD.nodeById = function (id) { for (var i = 0; i < GD.NODES.length; i++) if (GD.NODES[i].id === id) return GD.NODES[i]; return null; };
+GD.canTest = function (node, done) { return node.needs.every(function (n) { return !!done[n]; }); };
+GD.allDone = function (done) { return GD.NODES.every(function (n) { return !!done[n.id]; }); };
+
+/* ---- principles tests ----
+   Each generator takes an rng and returns either
+   { q, mc:[choices], ans:index, why }  or  { q, num:true, ans:number, why }. */
+function ri(rng, lo, hi) { return lo + Math.floor(rng() * (hi - lo + 1)); }
+GD.BANKS = {
+  gd1: [
+    function (rng) { var p = ri(rng, 2, 9), v = ri(rng, 2, 6), t = ri(rng, 3, 8);
+      return { q: "A rock is at position " + p + " with velocity " + v + " per tick. Where is it after " + t + " ticks?", num: true, ans: p + v * t,
+               why: p + " + " + v + "×" + t + " = " + (p + v * t) + " — position += velocity, once per tick." }; },
+    function (rng) { var fps = [30, 60][ri(rng, 0, 1)], s = ri(rng, 2, 5);
+      return { q: "A game runs at " + fps + " ticks per second. How many ticks in " + s + " seconds?", num: true, ans: fps * s,
+               why: fps + " × " + s + " = " + (fps * s) + " trips around the loop." }; },
+    function () { return { q: "What's the order of the game loop, every single tick?",
+      mc: ["read controls → update the world → draw everything",
+           "draw everything → then decide what moved",
+           "update only when the player presses a key",
+           "draw the same picture 60 times"], ans: 0,
+      why: "Read → update → draw, then repeat. That heartbeat IS the game." }; },
+    function (rng) { var v = ri(rng, 2, 7);
+      return { q: "A ball moving right at velocity +" + v + " bounces off the right wall. Its new velocity?", num: true, ans: -v,
+               why: "A bounce flips the sign: +" + v + " → −" + v + "." }; },
+    function () { return { q: "Why do the pixels look alive?",
+      mc: ["a slightly-changed world is redrawn ~60× a second and your eye blends it",
+           "the screen physically moves",
+           "each object has a tiny video inside it",
+           "the computer draws only what changed colour"], ans: 0,
+      why: "Games are a flip-book: fresh frame, tiny change, 60 times a second." }; }
+  ],
+  gd2: [
+    function (rng) { var trip = [[3, 4, 5], [6, 8, 10], [5, 12, 13]][ri(rng, 0, 2)];
+      return { q: "Your shot lands " + trip[0] + " across and " + trip[1] + " up from the bug's centre. What is distance² (distance squared)?", num: true, ans: trip[0] * trip[0] + trip[1] * trip[1],
+               why: trip[0] + "² + " + trip[1] + "² = " + (trip[0] * trip[0]) + " + " + (trip[1] * trip[1]) + " = " + (trip[0] * trip[0] + trip[1] * trip[1]) + " — no square root needed to compare!" }; },
+    function (rng) { var r = ri(rng, 4, 9), hit = ri(rng, 0, 1) === 1, d2 = hit ? r * r - ri(rng, 1, r) : r * r + ri(rng, 2, 15);
+      return { q: "Hitbox radius " + r + " (so radius² = " + (r * r) + "). Your shot's distance² from the centre is " + d2 + ". Hit or miss?",
+               mc: ["Hit", "Miss"], ans: hit ? 0 : 1,
+               why: d2 + (hit ? " ≤ " : " > ") + (r * r) + " → " + (hit ? "inside the circle: HIT." : "outside the circle: miss.") }; },
+    function () { return { q: "A hitscan gun vs a projectile gun — what's the difference?",
+      mc: ["hitscan hits the instant you fire; a projectile takes time to fly (and can arc)",
+           "hitscan does more damage",
+           "projectiles never miss",
+           "hitscan only works up close"], ans: 0,
+      why: "Hitscan = instant ray. Projectile = a thing that travels — so gravity can bend it." }; },
+    function () { return { q: "Why is the glowing weak point worth aiming at?",
+      mc: ["same shot, more damage — the game multiplies damage inside that smaller circle",
+           "it's a bigger target",
+           "it slows the bug down",
+           "it gives you ammo back"], ans: 0,
+      why: "It's a second, smaller circle checked first — hit it and the damage is multiplied." }; }
+  ],
+  gd3: [
+    function () { return { q: "Same launch power. Which angle flies FARTHEST?",
+      mc: ["45°", "30°", "60°", "75°"], ans: 0,
+      why: "45° is the perfect split between 'time in the air' and 'sideways speed'." }; },
+    function () { return { q: "Same power, 30° vs 60° — which lands farther?",
+      mc: ["they land in exactly the same spot", "30°", "60°", "depends on the wind"], ans: 0,
+      why: "Angles that add to 90° tie: one flies flat and fast, the other high and long." }; },
+    function () { return { q: "While the grenade flies, gravity changes…",
+      mc: ["only its up-down speed — sideways speed never changes",
+           "only its sideways speed",
+           "both speeds equally",
+           "nothing until it starts falling"], ans: 0,
+      why: "Two independent motions: steady sideways, gravity pulling down. That mix IS the arc." }; },
+    function (rng) { var v = ri(rng, 3, 8), t = ri(rng, 6, 14);
+      return { q: "Sideways speed " + v + " per tick, and the grenade flies for " + t + " ticks. How far sideways does it travel?", num: true, ans: v * t,
+               why: v + " × " + t + " = " + (v * t) + " — gravity never touches the sideways part." }; },
+    function () { return { q: "Which angle reaches the HIGHER top point: 60° or 30°?",
+      mc: ["60°", "30°", "same height", "neither goes up"], ans: 0,
+      why: "Steeper launch = more of the speed spent going up = higher apex (but not farther!)." }; }
+  ],
+  gd4: [
+    function (rng) { var r = ri(rng, 2, 6), d = ri(rng, 2, 6);
+      return { q: "Open field, no walls. The crystal is " + r + " tiles right and " + d + " tiles down. Shortest path length in steps?", num: true, ans: r + d,
+               why: r + " rights + " + d + " downs = " + (r + d) + " steps — no diagonal moves in our grid." }; },
+    function () { return { q: "Why does the flood (breadth-first search) always find the SHORTEST path?",
+      mc: ["it spreads one ring at a time, so whatever ring reaches the goal first is the shortest distance",
+           "it tries every possible path and picks the best",
+           "it walks straight toward the goal",
+           "it's random but lucky"], ans: 0,
+      why: "Ring 1, ring 2, ring 3… the goal is found at exactly its true distance." }; },
+    function () { return { q: "You wall the crystal in completely. What does the flood do?",
+      mc: ["fills everything it can reach and reports: no path exists",
+           "jumps over the wall",
+           "digs through the thinnest wall",
+           "freezes the game"], ans: 0,
+      why: "The flood can only spread through open tiles — sealed off means NO path, and the game must handle that." }; },
+    function (rng) { var k = ri(rng, 3, 9);
+      return { q: "The flood reaches the bug's tile in ring " + k + ". How long is the shortest path to it?", num: true, ans: k,
+               why: "Ring number = distance. That's the whole magic: " + k + " steps." }; }
+  ],
+  gd5: [
+    function (rng) { var s = ri(rng, 0, 15);
+      return { q: "The cave recipe is next = (5 × seed + 3) mod 16. Seed = " + s + ". What comes out?", num: true, ans: (5 * s + 3) % 16,
+               why: "(5×" + s + "+3) = " + (5 * s + 3) + ", remainder after ÷16 = " + ((5 * s + 3) % 16) + "." }; },
+    function () { return { q: "Your friend sends you their seed. You type it in. What do you get?",
+      mc: ["their exact cave, tile for tile",
+           "a cave that's similar but not identical",
+           "a random cave",
+           "their cave, mirrored"], ans: 0,
+      why: "Same seed → same 'random' steps → the identical world. Game randomness is a replayable recipe." }; },
+    function () { return { q: "Why can our drunk-digger caves never have a sealed-off room?",
+      mc: ["the digger only ever steps to a touching square, so everything it digs connects back",
+           "the game checks afterwards and fixes them",
+           "luck",
+           "they can — you just haven't found one"], ans: 0,
+      why: "Connectivity is free: every dug tile touches the one dug before it." }; },
+    function () { return { q: "How many caves does Deep Rock ship with, stored on the disk?",
+      mc: ["zero — it grows each one from a seed when the mission starts",
+           "about a hundred",
+           "one per mission type",
+           "millions, compressed"], ans: 0,
+      why: "Procedural generation: store the recipe, not the worlds. Infinite caves, zero storage." }; }
+  ],
+  gd6: [
+    function () { return { q: "Your sentry must fire only when a bug is in range AND it still has ammo. Which gate is its brain?",
+      mc: ["AND — both inputs must be 1", "OR — either input is enough", "XOR — exactly one input", "NOT — flips the input"], ans: 0,
+      why: "FIRE = inRange AND ammo. One missing → hold fire. You wired this gate in GL·3." }; },
+    function (rng) { var a = ri(rng, 0, 1), b = ri(rng, 0, 1);
+      return { q: "AND gate: bug-in-range = " + a + ", ammo-left = " + b + ". Does it fire? (1 = yes, 0 = no)", num: true, ans: a & b,
+               why: a + " AND " + b + " = " + (a & b) + " — AND only outputs 1 when BOTH are 1." }; },
+    function (rng) { var a = ri(rng, 0, 1), b = ri(rng, 0, 1);
+      return { q: "XOR gate: inputs " + a + " and " + b + ". Output? (1 or 0)", num: true, ans: a ^ b,
+               why: a + " XOR " + b + " = " + (a ^ b) + " — XOR means 'exactly one of them'." }; },
+    function (rng) { var shots = ri(rng, 4, 9);
+      return { q: "Your sentry spends 2 ammo per shot and you load " + (2 * shots) + " ammo. How many shots does it get?", num: true, ans: shots,
+               why: (2 * shots) + " ÷ 2 = " + shots + " — factory ratios keep the turret fed." }; },
+    function (rng) { var a = ri(rng, 0, 1), b = ri(rng, 0, 1);
+      return { q: "OR gate: inputs " + a + " and " + b + ". Output? (1 or 0)", num: true, ans: a | b,
+               why: a + " OR " + b + " = " + (a | b) + " — OR outputs 1 if at least one input is 1." }; }
+  ]
+};
+
+/* build a 3-question test: 3 distinct generators, choices shuffled, all must be right */
+GD.buildTest = function (id, rng) {
+  var bank = GD.BANKS[id], idx = [];
+  for (var i = 0; i < bank.length; i++) idx.push(i);
+  for (i = idx.length - 1; i > 0; i--) { var j = Math.floor(rng() * (i + 1)); var t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+  return idx.slice(0, 3).map(function (k) {
+    var q = bank[k](rng);
+    if (q.mc) {
+      var correct = q.mc[q.ans], arr = q.mc.slice();
+      for (var a = arr.length - 1; a > 0; a--) { var b = Math.floor(rng() * (a + 1)); var tmp = arr[a]; arr[a] = arr[b]; arr[b] = tmp; }
+      q.mc = arr; q.ans = arr.indexOf(correct);
+    }
+    return q;
+  });
+};
+/* === GD:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+  function done() {
+    var d = {};
+    GD.NODES.forEach(function (n) { d[n.id] = window.DadMath ? DadMath.hwDone(n.id) : false; });
+    return d;
+  }
+  function features() {
+    var d = done(), f = {};
+    GD.NODES.forEach(function (n) { f[n.key] = !!d[n.id]; });
+    return f;
+  }
+
+  // ============ the tree ============
+  // 45s cool-down after a failed test: guessing is slower than learning.
+  var COOL_KEY = "dadmath-gd-cool", COOL_MS = 45000, coolTimer = null;
+  function coolLeft(id) {
+    var c; try { c = JSON.parse(localStorage.getItem(COOL_KEY)) || {}; } catch (e) { c = {}; }
+    return Math.max(0, (c[id] || 0) - Date.now());
+  }
+  function setCool(id) {
+    var c; try { c = JSON.parse(localStorage.getItem(COOL_KEY)) || {}; } catch (e) { c = {}; }
+    c[id] = Date.now() + COOL_MS;
+    try { localStorage.setItem(COOL_KEY, JSON.stringify(c)); } catch (e) {}
+  }
+
+  var treeEl = document.getElementById("gd-tree");
+  function renderTree() {
+    var d = done(), anyCooling = false;
+    treeEl.innerHTML = "";
+    GD.TIERS.forEach(function (tier, ti) {
+      if (ti > 0) {
+        var lk = document.createElement("div"); lk.className = "tlink"; lk.textContent = "↓";
+        treeEl.appendChild(lk);
+      }
+      var row = document.createElement("div"); row.className = "tier";
+      tier.forEach(function (id) {
+        var n = GD.nodeById(id), isDone = !!d[id], ready = GD.canTest(n, d);
+        var card = document.createElement("div");
+        card.className = "nodecard " + (isDone ? "done" : ready ? "ready" : "locked");
+        var needTxt = n.needs.length
+          ? "needs " + n.needs.map(function (x) { var m = GD.nodeById(x); return m.icon + " " + m.name; }).join(" + ")
+          : "the root — start here";
+        var cl = coolLeft(id);
+        if (cl > 0 && !isDone) anyCooling = true;
+        var testBtn;
+        if (isDone) {
+          // retakeable so a parent can assign it as fresh homework ("done" = passed after assigned)
+          testBtn = "<button class='btn ghost' data-test='" + n.id + "'>🧪 Retake</button>";
+        } else if (!ready) {
+          testBtn = "<button class='btn' disabled>🧪 Take the test</button>";
+        } else if (cl > 0) {
+          testBtn = "<button class='btn' disabled>⏳ cool-down " + Math.ceil(cl / 1000) + "s</button>";
+        } else {
+          testBtn = "<button class='btn' data-test='" + n.id + "'>🧪 Take the test</button>";
+        }
+        card.innerHTML =
+          "<div class='nhead'><span class='nic'>" + n.icon + "</span> " + n.name +
+          "<span class='nstate " + (isDone ? "s-done'>✅ installed" : ready ? "s-ready'>🧪 test ready" : "s-locked'>🔒 locked") + "</span></div>" +
+          "<div class='nneeds'>" + needTxt + "</div>" +
+          "<div class='ninstall'>" + n.installs + "</div>" +
+          "<div class='nrow'>" +
+          "<a class='btn ghost' style='text-decoration:none' href='" + n.lesson.href + "'>📖 Learn it</a>" +
+          testBtn +
+          "</div>";
+        row.appendChild(card);
+      });
+      treeEl.appendChild(row);
+    });
+    treeEl.querySelectorAll("[data-test]").forEach(function (b) {
+      b.addEventListener("click", function () { startTest(b.getAttribute("data-test")); });
+    });
+    if (coolTimer) { clearTimeout(coolTimer); coolTimer = null; }
+    if (anyCooling) coolTimer = setTimeout(renderTree, 1000);   // tick the countdown
+  }
+
+  // ============ the test ============
+  var tp = document.getElementById("gd-testpanel");
+  var tpIc = document.getElementById("tp-ic"), tpTitle = document.getElementById("tp-title"),
+      tpCount = document.getElementById("tp-count"), tpQ = document.getElementById("tp-q"),
+      tpMc = document.getElementById("tp-mc"), tpNumRow = document.getElementById("tp-numrow"),
+      tpIn = document.getElementById("tp-in"), tpRes = document.getElementById("tp-res");
+  var test = null; // {node, qs, i}
+
+  function startTest(id) {
+    var n = GD.nodeById(id);
+    test = { node: n, qs: GD.buildTest(id, Math.random), i: 0 };
+    tp.style.display = "";
+    tpIc.textContent = n.icon; tpTitle.textContent = n.name + " — principles test";
+    tpRes.className = "result";
+    tpRes.innerHTML = "3 questions on the <b>why</b>. Get all 3 and " + n.icon + " " + n.name + " is installed into your game. One wrong ends the attempt — fresh questions next time.";
+    showQ();
+    tp.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  function showQ() {
+    var q = test.qs[test.i];
+    tpCount.textContent = "question " + (test.i + 1) + " of 3";
+    tpQ.textContent = q.q;
+    tpMc.innerHTML = "";
+    if (q.mc) {
+      tpNumRow.style.display = "none";
+      q.mc.forEach(function (c, ci) {
+        var b = document.createElement("button");
+        b.className = "btn ghost"; b.textContent = String.fromCharCode(65 + ci) + ".  " + c;
+        b.addEventListener("click", function () { answer(ci === q.ans, q); });
+        tpMc.appendChild(b);
+      });
+    } else {
+      tpNumRow.style.display = "";
+      tpIn.value = ""; tpIn.focus();
+    }
+  }
+  function answer(good, q) {
+    if (good) {
+      test.i++;
+      if (test.i >= 3) return passTest();
+      tpRes.className = "result win";
+      tpRes.innerHTML = "✅ " + q.why;
+      showQ();
+    } else {
+      if (!(window.DadMath && DadMath.hwDone(test.node.id))) setCool(test.node.id);  // brake fresh unlocks, not fun retakes
+      tpRes.className = "result miss";
+      tpRes.innerHTML = "❌ Not this time. The idea you need: <b>" + q.why + "</b><br>" +
+        "<a href='" + test.node.lesson.href + "'>📖 Replay " + test.node.lesson.label + "</a> while the test cools down (45 s) — the questions will be new.";
+      tpQ.textContent = ""; tpMc.innerHTML = ""; tpNumRow.style.display = "none";
+      tpCount.textContent = "";
+      test = null;
+      renderTree();
+    }
+  }
+  function passTest() {
+    var n = test.node, fresh = !(window.DadMath && DadMath.hwDone(n.id));
+    tpRes.className = "result win";
+    tpRes.innerHTML = fresh
+      ? "🎉 <b>3 / 3 — " + n.icon + " " + n.name + " is installed!</b> Scroll up: your game just grew."
+      : "🎉 <b>3 / 3 — still got it!</b> " + n.icon + " " + n.name + " re-checked (and stamped for the homework chart).";
+    tpQ.textContent = ""; tpMc.innerHTML = ""; tpNumRow.style.display = "none"; tpCount.textContent = "";
+    if (window.DadMath) {
+      DadMath.hwPass(n.id, n.icon + " " + n.name + (fresh ? " installed into your game!" : " re-checked!"));
+      if (GD.allDone(done())) DadMath.badge("gd-tree");
+    }
+    test = null;
+    renderTree(); renderMods();
+    if (fresh) newGame(true);   // a retake shouldn't restart a game in progress
+  }
+  document.getElementById("tp-go").addEventListener("click", function () {
+    if (!test || tpIn.value === "") return;
+    var q = test.qs[test.i];
+    answer(+tpIn.value === q.ans, q);
+  });
+  tpIn.addEventListener("keydown", function (e) { if (e.key === "Enter") document.getElementById("tp-go").click(); });
+
+  // ============ the game ============
+  var cv = document.getElementById("gd-cv"), ctx = cv.getContext("2d");
+  var W = cv.width, H = cv.height, T = GD.TILE;
+  var statusEl = document.getElementById("gd-status"), gateEl = document.getElementById("gd-gate"),
+      hintEl = document.getElementById("gd-hint"), buildEl = document.getElementById("gd-build"),
+      startBtn = document.getElementById("gd-start"), nadeBtn = document.getElementById("gd-nade"),
+      turretBtn = document.getElementById("gd-turret"), seedRow = document.getElementById("gd-seedrow"),
+      seedIn = document.getElementById("gd-seed");
+  var F = features();
+  var state = "off"; // off | ready | play | clear | dead
+  var grid, player, crystals, bugs, grenades, booms, flashes, turret, score, level, seed, ticks, raf = null;
+  var keys = { l: false, r: false, u: false, d: false }, nadeMode = false;
+  var best = (window.DadMath && DadMath.getBest("gd-game")) || 0;
+
+  function renderMods() {
+    F = features();
+    var el = document.getElementById("gd-mods");
+    el.innerHTML = GD.NODES.map(function (n) {
+      return "<span class='modchip" + (F[n.key] ? "" : " off") + "'>" + n.icon + " " + n.name.toLowerCase() + "</span>";
+    }).join("");
+    var got = GD.NODES.filter(function (n) { return F[n.key]; }).length;
+    buildEl.textContent = "build " + got + " of 6 modules";
+    nadeBtn.style.display = F.arc ? "" : "none";
+    turretBtn.style.display = F.turret ? "" : "none";
+    seedRow.style.display = F.world ? "" : "none";
+    hintEl.innerHTML = !F.loop ? "Your game is dark — pass 🎮 THE LOOP below to power it on."
+      : "Move with <b>← ↑ ↓ →</b> / WASD or the pad. Collect every 💎." +
+        (F.aim ? " <b>Click/tap</b> to shoot the bugs — weak points count double." : "") +
+        (F.arc ? " <b>💣</b> toggles grenades." : "") +
+        (F.turret ? " <b>🤖</b> drops a sentry." : "");
+  }
+
+  function newGame(keepLevel) {
+    F = features();
+    if (!F.loop) { state = "off"; draw(); return; }
+    if (!keepLevel || level === undefined) { level = 1; score = 0; }
+    seed = F.world ? (parseInt(seedIn.value, 10) || Math.floor(Math.random() * 100000)) : GD.FIXED_SEED;
+    if (F.world) seedIn.value = seed;
+    var rng = GD.mulberry32(seed);
+    var steps = F.world ? Math.min(900, 550 + level * 40) : GD.FIXED_STEPS;
+    grid = GD.digCave(GD.COLS, GD.ROWS, steps, rng);
+    var scx = Math.floor(GD.COLS / 2), scy = Math.floor(GD.ROWS / 2);
+    player = { x: (scx + 0.5) * T, y: (scy + 0.5) * T, half: 6, hp: 3, inv: 0 };
+    crystals = GD.pickSpots(grid, 8, scx, scy, 5, rng).map(function (s) { return { x: (s.x + 0.5) * T, y: (s.y + 0.5) * T }; });
+    bugs = [];
+    if (F.aim) {
+      var nb = Math.min(8, 2 + level);
+      GD.pickSpots(grid, nb, scx, scy, 6, rng).forEach(function (s, i) {
+        bugs.push({ x: (s.x + 0.5) * T, y: (s.y + 0.5) * T, r: 8, wox: 0, woy: -4, wr: 3.5,
+                    hp: 2, vx: 0, vy: 0, wt: 0, path: [], pt: 10 + i * 7 });
+      });
+    }
+    grenades = []; booms = []; flashes = []; turret = null; ticks = 0; nadeMode = false;
+    nadeBtn.textContent = "💣 Grenade: off";
+    turretBtn.disabled = false;
+    startBtn.textContent = "▶ Start";
+    state = "ready";
+    draw(); paintStatus();
+  }
+
+  function paintStatus() {
+    var bits = ["score <b>" + score + "</b>", "best <b>" + best + "</b>", "💎 <b>" + crystals.length + "</b> left", "level <b>" + level + "</b>"];
+    if (F.world) bits.push("seed <b>" + seed + "</b>");
+    statusEl.innerHTML = bits.join(" &nbsp;·&nbsp; ");
+    if (F.turret && turret) {
+      var near = nearestBug(turret.x, turret.y, turret.range);
+      var a = !!near, b = turret.ammo > 0;
+      gateEl.style.display = "";
+      gateEl.innerHTML = "🤖 sentry gate: &nbsp; bug in range <b class='" + (a ? "on'>1" : "offv'>0") + "</b> AND ammo(" + turret.ammo + ") <b class='" +
+        (b ? "on'>1" : "offv'>0") + "</b> &nbsp;→&nbsp; <b class='" + (GD.sentryFires(a, turret.ammo) ? "on'>FIRE" : "offv'>hold") + "</b>";
+    } else gateEl.style.display = "none";
+  }
+
+  function nearestBug(x, y, range) {
+    var bestB = null, bd = range || 1e9;
+    bugs.forEach(function (b) {
+      var d = Math.sqrt((b.x - x) * (b.x - x) + (b.y - y) * (b.y - y));
+      if (d < bd) { bd = d; bestB = b; }
+    });
+    return bestB;
+  }
+
+  function tileOf(px) { return Math.floor(px / T); }
+
+  function moveBody(b, nx, ny, half) {
+    if (GD.canWalk(grid, nx, b.y, half)) b.x = nx;
+    if (GD.canWalk(grid, b.x, ny, half)) b.y = ny;
+  }
+
+  function hurtBug(b, dmg, label) {
+    b.hp -= dmg;
+    flashes.push({ x: b.x, y: b.y - 14, txt: label, ttl: 30 });
+    if (b.hp <= 0) {
+      bugs.splice(bugs.indexOf(b), 1);
+      score += 5;
+      booms.push({ x: b.x, y: b.y, r: 12, ttl: 12, kind: "splat" });
+    }
+  }
+
+  function step() {
+    ticks++;
+    // player
+    var sp = 2.4, nx = player.x + (keys.r ? sp : 0) - (keys.l ? sp : 0), ny = player.y + (keys.d ? sp : 0) - (keys.u ? sp : 0);
+    moveBody(player, nx, ny, player.half);
+    if (player.inv > 0) player.inv--;
+    // crystals
+    for (var i = crystals.length - 1; i >= 0; i--) {
+      if (GD.circleHit(player.x, player.y, crystals[i].x, crystals[i].y, 12)) {
+        crystals.splice(i, 1); score += 10;
+      }
+    }
+    // bugs
+    var bs = Math.min(1.5, 0.85 + level * 0.06);
+    bugs.forEach(function (b, bi) {
+      if (F.path) {
+        b.pt--;
+        if (b.pt <= 0 || !b.path.length) {
+          b.path = GD.bfs(grid, tileOf(b.x), tileOf(b.y), tileOf(player.x), tileOf(player.y)) || [];
+          b.pt = 45 + bi * 5;
+        }
+        var tgt = b.path.length ? { x: (b.path[0].x + 0.5) * T, y: (b.path[0].y + 0.5) * T } : { x: player.x, y: player.y };
+        var dx = tgt.x - b.x, dy = tgt.y - b.y, d = Math.sqrt(dx * dx + dy * dy) || 1;
+        if (b.path.length && d < 3) b.path.shift();
+        else moveBody(b, b.x + dx / d * bs, b.y + dy / d * bs, 5);
+      } else {
+        b.wt--;
+        if (b.wt <= 0) { var a = Math.random() * Math.PI * 2; b.vx = Math.cos(a) * bs; b.vy = Math.sin(a) * bs; b.wt = 40 + Math.random() * 60; }
+        var ox = b.x, oy = b.y;
+        moveBody(b, b.x + b.vx, b.y + b.vy, 5);
+        if (b.x === ox) b.vx = -b.vx;
+        if (b.y === oy) b.vy = -b.vy;
+      }
+      // bite
+      if (player.inv <= 0 && GD.circleHit(b.x, b.y, player.x, player.y, b.r + player.half)) {
+        player.hp--; player.inv = 90;
+        var kx = b.x - player.x, ky = b.y - player.y, kd = Math.sqrt(kx * kx + ky * ky) || 1;
+        moveBody(b, b.x + kx / kd * 26, b.y + ky / kd * 26, 5);
+        if (player.hp <= 0) { die(); }
+      }
+    });
+    // grenades
+    for (i = grenades.length - 1; i >= 0; i--) {
+      var g = grenades[i];
+      g.t += 1 / 32;
+      if (g.t >= 1) {
+        grenades.splice(i, 1);
+        booms.push({ x: g.x1, y: g.y1, r: 38, ttl: 15, kind: "boom" });
+        bugs.slice().forEach(function (b) {
+          if (GD.circleHit(b.x, b.y, g.x1, g.y1, 38 + b.r)) hurtBug(b, 2, "💥2");
+        });
+      }
+    }
+    // turret
+    if (turret) {
+      if (turret.cool > 0) turret.cool--;
+      var near = nearestBug(turret.x, turret.y, turret.range);
+      if (turret.cool <= 0 && GD.sentryFires(!!near, turret.ammo)) {
+        turret.ammo--; turret.cool = 25;
+        turret.beam = { x: near.x, y: near.y, ttl: 8 };
+        hurtBug(near, 1, "🤖1");
+      }
+      if (turret.beam && --turret.beam.ttl <= 0) turret.beam = null;
+    }
+    // effects
+    booms = booms.filter(function (b) { return --b.ttl > 0; });
+    flashes = flashes.filter(function (f) { return --f.ttl > 0; });
+    // clear?
+    if (state === "play" && crystals.length === 0) {
+      state = "clear";
+      score += player.hp * 10;
+      if (window.DadMath && DadMath.best("gd-game", score)) {
+        best = score;
+        DadMath.star("gd-game", 1, "Crystal Caves: new record " + score + "!");
+      }
+      startBtn.textContent = F.world ? "▶ Next cave →" : "▶ Play again";
+    }
+    draw(); paintStatus();
+    if (state === "play") raf = requestAnimationFrame(step);
+  }
+
+  function die() {
+    state = "dead";
+    if (window.DadMath && DadMath.best("gd-game", score)) best = score;
+    startBtn.textContent = "▶ Again";
+  }
+
+  // ---- drawing ----
+  function draw() {
+    var dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+      (document.documentElement.getAttribute("data-theme") !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme:dark)").matches);
+    ctx.clearRect(0, 0, W, H);
+    if (state === "off") {
+      ctx.fillStyle = dark ? "#191722" : "#2a2733"; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#9aa"; ctx.font = "bold 17px system-ui,sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("🔒 no power", W / 2, H / 2 - 12);
+      ctx.font = "13px system-ui,sans-serif";
+      ctx.fillText("pass 🎮 THE LOOP in the tree to switch your game on", W / 2, H / 2 + 12);
+      ctx.textAlign = "left";
+      return;
+    }
+    // cave
+    ctx.fillStyle = dark ? "#1e1b16" : "#5b4636"; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = dark ? "#3a3327" : "#d8c3a5";
+    for (var r = 0; r < GD.ROWS; r++) for (var c = 0; c < GD.COLS; c++)
+      if (grid[r][c]) ctx.fillRect(c * T, r * T, T + .5, T + .5);
+    // crystals
+    crystals.forEach(function (cr) {
+      ctx.fillStyle = "#22d3ee";
+      ctx.beginPath();
+      ctx.moveTo(cr.x, cr.y - 7); ctx.lineTo(cr.x + 6, cr.y); ctx.lineTo(cr.x, cr.y + 7); ctx.lineTo(cr.x - 6, cr.y);
+      ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.fillRect(cr.x - 1, cr.y - 4, 2, 3);
+    });
+    // turret
+    if (turret) {
+      ctx.strokeStyle = "rgba(96,165,250,.25)";
+      ctx.beginPath(); ctx.arc(turret.x, turret.y, turret.range, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = "#60a5fa"; ctx.fillRect(turret.x - 6, turret.y - 4, 12, 10);
+      ctx.fillStyle = "#1e3a8a"; ctx.fillRect(turret.x - 2, turret.y - 9, 4, 6);
+      if (turret.beam) {
+        ctx.strokeStyle = "#f87171"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(turret.x, turret.y - 6); ctx.lineTo(turret.beam.x, turret.beam.y); ctx.stroke();
+        ctx.lineWidth = 1;
+      }
+    }
+    // bugs
+    bugs.forEach(function (b) {
+      ctx.strokeStyle = dark ? "#6b5b45" : "#7a5c3f"; ctx.lineWidth = 2;
+      for (var l = -1; l <= 1; l++) {
+        ctx.beginPath(); ctx.moveTo(b.x - b.r, b.y + l * 4); ctx.lineTo(b.x - b.r - 4, b.y + l * 5); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(b.x + b.r, b.y + l * 4); ctx.lineTo(b.x + b.r + 4, b.y + l * 5); ctx.stroke();
+      }
+      ctx.lineWidth = 1;
+      ctx.fillStyle = b.hp > 1 ? "#a3785a" : "#c4917a";
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill();
+      // weak point glow
+      ctx.fillStyle = "#fbbf24";
+      ctx.beginPath(); ctx.arc(b.x + b.wox, b.y + b.woy, b.wr, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "rgba(251,191,36,.5)";
+      ctx.beginPath(); ctx.arc(b.x + b.wox, b.y + b.woy, b.wr + 2, 0, Math.PI * 2); ctx.stroke();
+    });
+    // grenades (+ shadow on the landing spot)
+    grenades.forEach(function (g) {
+      ctx.fillStyle = "rgba(0,0,0,.25)";
+      ctx.beginPath(); ctx.arc(g.x1, g.y1, 4, 0, Math.PI * 2); ctx.fill();
+      var p = GD.arcPos(g.x0, g.y0, g.x1, g.y1, g.h, g.t);
+      ctx.fillStyle = "#334155";
+      ctx.beginPath(); ctx.arc(p.x, p.y, 5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#f59e0b"; ctx.fillRect(p.x - 1, p.y - 8, 2, 4);
+    });
+    // explosions / splats
+    booms.forEach(function (b) {
+      if (b.kind === "boom") {
+        ctx.strokeStyle = "rgba(245,158,11," + (b.ttl / 15) + ")"; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r * (1 - b.ttl / 30), 0, Math.PI * 2); ctx.stroke(); ctx.lineWidth = 1;
+      } else {
+        ctx.fillStyle = "rgba(163,120,90," + (b.ttl / 12) + ")";
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r + (12 - b.ttl), 0, Math.PI * 2); ctx.fill();
+      }
+    });
+    // player (the gl01 dwarf)
+    if (!(player.inv > 0 && Math.floor(ticks / 5) % 2 === 0)) {
+      ctx.fillStyle = "#3b82f6"; ctx.fillRect(player.x - 6, player.y - 6, 12, 12);
+      ctx.fillStyle = "#fde047"; ctx.fillRect(player.x - 2, player.y - 10, 4, 4);
+    }
+    // damage labels
+    ctx.font = "bold 11px system-ui,sans-serif"; ctx.textAlign = "center";
+    flashes.forEach(function (f) {
+      ctx.fillStyle = "rgba(255,255,255," + Math.min(1, f.ttl / 20) + ")";
+      ctx.fillText(f.txt, f.x, f.y - (30 - f.ttl) * 0.4);
+    });
+    // HUD
+    ctx.fillStyle = "rgba(0,0,0,.35)"; ctx.fillRect(0, 0, W, 22);
+    ctx.fillStyle = "#fff"; ctx.font = "bold 13px system-ui,sans-serif"; ctx.textAlign = "left";
+    ctx.fillText("💎 " + crystals.length + "   ⭐ " + score, 8, 16);
+    ctx.textAlign = "right";
+    var hearts = ""; for (var h = 0; h < 3; h++) hearts += h < player.hp ? "❤️" : "🖤";
+    ctx.fillText(hearts + "  lvl " + level, W - 8, 16);
+    ctx.textAlign = "left";
+    if (state === "ready") banner("▶ Start — collect every 💎" + (F.aim ? ", shoot the bugs" : ""));
+    if (state === "clear") banner("✨ Cave cleared! Score " + score + (F.world ? " — next cave awaits" : ""));
+    if (state === "dead") banner("💀 Bitten! Score " + score + " — press Start");
+    if (nadeMode && state === "play") {
+      ctx.fillStyle = "rgba(245,158,11,.9)"; ctx.font = "bold 12px system-ui,sans-serif";
+      ctx.fillText("💣 grenade mode — click to lob", 8, H - 8);
+    }
+  }
+  function banner(txt) {
+    ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.fillRect(0, H / 2 - 22, W, 44);
+    ctx.fillStyle = "#fff"; ctx.font = "bold 16px system-ui,sans-serif";
+    ctx.textAlign = "center"; ctx.fillText(txt, W / 2, H / 2 + 6); ctx.textAlign = "left";
+  }
+
+  // ---- input ----
+  startBtn.addEventListener("click", function () {
+    F = features();
+    if (!F.loop) return;
+    if (state === "clear" && F.world) { level++; seedIn.value = ""; newGame(true); }
+    else if (state === "dead" || state === "clear") { level = 1; score = 0; seedIn.value = ""; newGame(true); }
+    else if (state !== "play") { /* ready → go */ }
+    if (state === "ready") {
+      state = "play"; startBtn.textContent = "⏸ Restart";
+      cv.focus();
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(step);
+    } else if (state === "play") {
+      newGame(false);
+    }
+  });
+  document.getElementById("gd-dig").addEventListener("click", function () { level = 1; score = 0; newGame(true); });
+  nadeBtn.addEventListener("click", function () {
+    nadeMode = !nadeMode; nadeBtn.textContent = "💣 Grenade: " + (nadeMode ? "ON" : "off"); draw();
+  });
+  turretBtn.addEventListener("click", function () {
+    if (state !== "play" || turret) return;
+    turret = { x: player.x, y: player.y, range: 90, ammo: 12, cool: 0, beam: null };
+    turretBtn.disabled = true;
+    paintStatus();
+  });
+  function setKey(e, down) {
+    var k = e.key;
+    if (k === "ArrowLeft" || k === "a") keys.l = down;
+    else if (k === "ArrowRight" || k === "d") keys.r = down;
+    else if (k === "ArrowUp" || k === "w") keys.u = down;
+    else if (k === "ArrowDown" || k === "s") keys.d = down;
+    else if (down && (k === "g" || k === "G") && F.arc) { nadeBtn.click(); return; }
+    else if (down && (k === "t" || k === "T") && F.turret) { turretBtn.click(); return; }
+    else return;
+    if (state === "play") e.preventDefault();
+  }
+  document.addEventListener("keydown", function (e) { if (state === "play") setKey(e, true); });
+  document.addEventListener("keyup", function (e) { setKey(e, false); });
+  document.querySelectorAll("#gd-pad [data-d]").forEach(function (b) {
+    var d = b.getAttribute("data-d");
+    function set(v) { keys[d] = v; }
+    b.addEventListener("mousedown", function () { set(true); });
+    b.addEventListener("mouseup", function () { set(false); });
+    b.addEventListener("mouseleave", function () { set(false); });
+    b.addEventListener("touchstart", function (e) { set(true); e.preventDefault(); }, { passive: false });
+    b.addEventListener("touchend", function (e) { set(false); e.preventDefault(); }, { passive: false });
+  });
+  function canvasPoint(e) {
+    var rect = cv.getBoundingClientRect();
+    var cx = (e.touches && e.touches[0] ? e.touches[0].clientX : e.clientX);
+    var cy = (e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY);
+    return { x: (cx - rect.left) * (W / rect.width), y: (cy - rect.top) * (H / rect.height) };
+  }
+  function fireAt(p) {
+    if (state !== "play" || !F.aim) return;
+    if (nadeMode && F.arc) {
+      grenades.push({ x0: player.x, y0: player.y, x1: p.x, y1: p.y, h: 60, t: 0 });
+      return;
+    }
+    var hit = GD.shotAt(p.x, p.y, bugs);
+    flashes.push({ x: p.x, y: p.y, txt: hit ? (hit.part === "weak" ? "🎯2" : "1") : "·miss", ttl: 22 });
+    if (hit) hurtBug(bugs[hit.i], hit.part === "weak" ? 2 : 1, "");
+  }
+  cv.addEventListener("mousedown", function (e) { fireAt(canvasPoint(e)); });
+  cv.addEventListener("touchstart", function (e) {
+    if (state === "play" && F.aim) { fireAt(canvasPoint(e)); e.preventDefault(); }
+  }, { passive: false });
+
+  // boot
+  renderTree(); renderMods(); newGame(false);
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

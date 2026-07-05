@@ -80,7 +80,8 @@
     "gl-factory":  { icon: "⚙️", name: "Gate Keeper",      desc: "Get a 5 streak in the logic-gate quiz." },
     "gl-world":    { icon: "🗺️", name: "World Builder",    desc: "Get a 5 streak running the seed recipe." },
     "gl-physics":  { icon: "🐦", name: "Arc Angel",        desc: "Get a 5 streak reading the Angry Bird's arc." },
-    "gl-aim":      { icon: "🐛", name: "Bug Buster",       desc: "Pass the Deep Rock aim & hitboxes check." }
+    "gl-aim":      { icon: "🐛", name: "Bug Buster",       desc: "Pass the Deep Rock aim & hitboxes check." },
+    "gd-tree":     { icon: "🌳", name: "Master Builder",   desc: "Research the whole Builder's Tree — every module of your game installed." }
   };
 
   // [starsNeeded, icon, title]
@@ -165,14 +166,15 @@
       return true;
     },
 
-    /* homework checks: mark a lesson's homework as validated */
-    hwPass: function (id) {
+    /* homework checks: mark a lesson's homework as validated.
+       Optional `why` customizes the first-pass toast (the Builder's Tree uses it). */
+    hwPass: function (id, why) {
       var first = !P.hw[id];
       P.hw[id] = true;
       chores.passed[id] = Date.now(); saveChores();   // record WHEN, for the chore chart
       save();
-      if (first) this.star("hw-" + id, 2, "Homework check passed!");
-      else this.toast("✅ Homework re-checked — still got it!");
+      if (first) this.star("hw-" + id, 2, why || "Homework check passed!");
+      else this.toast("✅ " + (why || "Homework re-checked — still got it!"));
       var all = ["l1", "l2", "l3", "l4", "l5"].every(function (k) { return P.hw[k]; });
       if (all) this.badge("hw-all");
     },
