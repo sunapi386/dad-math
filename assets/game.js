@@ -60,7 +60,8 @@
     "gl-loop":     { icon: "🎮", name: "Game Maker",       desc: "Score 25 in Cave Dodge — the game you built." },
     "gl-path":     { icon: "🧭", name: "Pathfinder",       desc: "Get a 5 streak counting shortest paths." },
     "gl-factory":  { icon: "⚙️", name: "Gate Keeper",      desc: "Get a 5 streak in the logic-gate quiz." },
-    "gl-world":    { icon: "🗺️", name: "World Builder",    desc: "Get a 5 streak running the seed recipe." }
+    "gl-world":    { icon: "🗺️", name: "World Builder",    desc: "Get a 5 streak running the seed recipe." },
+    "gl-physics":  { icon: "🐦", name: "Arc Angel",        desc: "Get a 5 streak reading the Angry Bird's arc." }
   };
 
   // [starsNeeded, icon, title]
