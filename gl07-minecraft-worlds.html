@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Lab 7 · Minecraft Worlds — Math in Half an Hour</title>
+<meta name="description" content="Minecraft's world is infinite, different for every seed, and identical every time you walk back. Build the actual trick: smooth noise, in-betweening, chunks and biomes.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Lab · Topic 07</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Minecraft Worlds</h1>
+    <p class="lede">In <b>Random Worlds</b> you grew caves with a drunk digger. But Minecraft's
+      overworld isn't a scribble — it's <em>hills</em>: smooth, rolling, infinite in every
+      direction, dressed in biomes… and if you walk a thousand chunks away and come back,
+      <b>your house is exactly where you left it</b>, even though none of it is saved anywhere.
+      Today we build that actual trick.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">plays well after GL·4</span> &nbsp; <span class="badge green">🧱 you'll walk an infinite world</span></p>
+  </header>
+
+  <!-- 1 THE PROBLEM -->
+  <h2>1 · Why pure randomness makes TV static, not hills</h2>
+  <p>First try the obvious thing: give every column of the world a random height. Look at the left
+    picture below — it's spiky nonsense. No game looks like that. Minecraft's secret is to only roll
+    dice <b>every few columns</b> (at <em>anchor points</em>), and then <b>smoothly fill in the
+    in-between</b>. Same dice, wildly different world:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">📡</span> Static vs hills</div>
+    <p class="phint">Both pictures use the <em>same random numbers</em>. The right one just spends
+      them on a few anchors and glides between them. Slide the anchor spacing and watch the hills
+      stretch.</p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center">
+      <div style="text-align:center"><canvas id="cv-static" width="230" height="140" style="max-width:100%; border:1px solid var(--line); border-radius:10px"></canvas><div class="small muted">dice every column</div></div>
+      <div style="text-align:center"><canvas id="cv-smooth" width="230" height="140" style="max-width:100%; border:1px solid var(--line); border-radius:10px"></canvas><div class="small muted">dice at anchors + in-betweening</div></div>
+    </div>
+    <div class="ctrlrow">
+      <button class="btn" id="ns-roll">🎲 New dice</button>
+      <label class="slab">anchor spacing <input id="ns-gap" type="range" min="4" max="16" step="2" value="8"></label>
+    </div>
+  </div>
+
+  <!-- 2 LERP -->
+  <h2>2 · The in-betweening rule (the one formula today)</h2>
+  <p>Between an anchor of height <b>a</b> and the next of height <b>b</b>, how tall is the ground
+    part-way across? Slide a fraction <b>t</b> from 0 to 1 and mix:</p>
+  $$h \;=\; a + (b - a)\,t$$
+  <p>At <b>t = 0</b> you get <b>a</b>. At <b>t = 1</b> you get <b>b</b>. Halfway (<b>t = ½</b>) you get
+    the average. That's called <b>linear interpolation</b> — “lerp” — and it's everywhere in games:
+    terrain, animation blending, camera moves, colour fades. (Minecraft-style noise adds one extra
+    touch: it eases <b>t</b> along a curve so hilltops come out rounded, not pointy — that's the
+    smoothing we use below.)</p>
+
+  <!-- 3 CHUNKS -->
+  <h2>3 · Infinite world, zero storage: chunks</h2>
+  <p>Here's the beautiful part. The world is sliced into <b>chunks</b> (Minecraft uses 16-block
+    slices). A chunk's terrain is computed by a recipe that eats only two numbers: the world
+    <b>seed</b> and the <b>chunk number</b>. Nothing is stored — chunk 7,203 doesn't exist until you
+    walk toward it, and it's <em>rebuilt from the recipe</em> every single time. Same seed, same
+    chunk number → same answer, forever. That's why your house is always there, and why the world
+    can be bigger than every hard drive on Earth.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧱</span> The infinite world explorer</div>
+    <p class="phint">Type a seed and walk. Watch the chunk numbers — go far right, then walk all the
+      way back: <b>every block is exactly where it was</b>, though none of it was saved. Change the
+      seed for a whole new planet. (Biome colours come from a second recipe — see §4.)</p>
+    <div class="canvaswrap" style="max-width:480px"><canvas id="cv-world" width="480" height="300"></canvas></div>
+    <div class="ctrlrow">
+      <button class="btn ghost padbtn" id="wk-left">◀ walk</button>
+      <button class="btn ghost padbtn" id="wk-right">walk ▶</button>
+      <button class="btn ghost" id="wk-tp">⚡ teleport +100</button>
+      <button class="btn ghost" id="wk-home">🏠 back to spawn</button>
+    </div>
+    <div class="ctrlrow">
+      <label class="slab">🌱 seed <input id="wk-seed" type="number" value="64" style="width:9ch"></label>
+      <button class="btn" id="wk-go">Build this world</button>
+    </div>
+    <div class="result" id="wk-read">…</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Try:</span> teleport +100, note the shape of the land, then hit 🏠 and teleport
+    +100 <em>again</em> — pixel-identical. Now do the same in real Minecraft with the F3 screen open:
+    the chunk coordinates work exactly like the numbers above the picture.
+  </div>
+
+  <!-- 4 BIOMES -->
+  <h2>4 · Biomes: a second recipe on the same seed</h2>
+  <p>Deserts, plains, snow — Minecraft decides them with <b>another</b> noise, a slow temperature
+    wave across the world. It uses the <em>same seed</em> mixed with a different flavour number —
+    exactly the <b>salt</b> trick from the logins lesson! One seed, many independent recipes:
+    one for height, one for temperature, one for ore pockets, one for trees. Cold stretch → ❄️ snow;
+    middle → 🌳 plains with trees; hot → 🌵 desert sand. You can see the bands change as you walk
+    the explorer.</p>
+
+  <!-- 5 PUZZLE -->
+  <h2>5 · 🧩 Puzzle: run the world recipe</h2>
+  <p>Be the terrain engine. Streak of 3 = ⭐, streak of 5 = ⛏️ badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> World recipe</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:8ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Find your seed.</strong> In your Minecraft world, type <code>/seed</code>. Write it
+      down. That number IS your entire world — every mountain, cave and village folds out of it.</li>
+    <li><strong>Prove the recipe.</strong> Create a new world with that same seed. Walk to where your
+      base is in the original — is the terrain identical? (Your buildings won't be there. Why not?
+      What's recipe, and what's <em>saved</em>?)</li>
+    <li><strong>Design a biome rule.</strong> Our recipe uses one temperature wave. Real Minecraft
+      also uses a rainfall wave. Invent the rule: hot + wet = ? hot + dry = ? cold + wet = ?</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">noise · anchor · linear interpolation (lerp) · easing · chunk · seed · biome · heightmap · deterministic</p>
+
+  <div class="lessonnav">
+    <a href="gl06-hitboxes.html">← Game Lab 6: Aiming &amp; hitboxes</a>
+    <a href="index.html#games">All Game Lab topics →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=8"></script>
+<script>
+/* === GL7:PURE START === (DOM-free world recipe; node-tested before deploy) */
+var GL7 = {};
+GL7.ROWS = 30; GL7.WATER = 10; GL7.CHUNK = 16;
+
+GL7.mulberry32 = function (a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+};
+/* one deterministic 0..1 number for an integer coordinate — works for negative i too */
+GL7.rng01 = function (seed, i) {
+  var h = (Math.imul(i | 0, 0x9E3779B1) ^ Math.imul(seed | 0, 0x85EBCA6B)) | 0;
+  return GL7.mulberry32(h)();
+};
+/* anchor heights: dice only every `gap` columns */
+GL7.anchorH = function (seed, i) { return 8 + GL7.rng01(seed, i) * 12; }; // 8..20 rows of ground
+/* ground height at any column: lerp between anchors with cosine easing, plus a pinch of detail */
+GL7.colH = function (seed, x, gap) {
+  gap = gap || 8;
+  var i0 = Math.floor(x / gap), t = (x - i0 * gap) / gap;
+  var a = GL7.anchorH(seed, i0), b = GL7.anchorH(seed, i0 + 1);
+  var te = (1 - Math.cos(Math.PI * t)) / 2;                 // eased t → rounded hilltops
+  var h = a + (b - a) * te + (GL7.rng01(seed ^ 0x5bd1, x) * 2 - 1); // ±1 roughness
+  return Math.max(6, Math.min(22, Math.round(h)));
+};
+/* temperature: a second, slower recipe on the SAME seed with a different salt (the cs03 trick) */
+GL7.temp = function (seed, x) {
+  var gap = 24, i0 = Math.floor(x / gap), t = (x - i0 * gap) / gap;
+  var a = GL7.rng01(seed ^ 0x7fb5, i0), b = GL7.rng01(seed ^ 0x7fb5, i0 + 1);
+  var te = (1 - Math.cos(Math.PI * t)) / 2;
+  return a + (b - a) * te;
+};
+GL7.biomeOf = function (seed, x) {
+  var t = GL7.temp(seed, x);
+  return t < 0.34 ? "snow" : t < 0.67 ? "plains" : "desert";
+};
+GL7.oreAt = function (seed, x, y) { return GL7.rng01(seed ^ 0xabcd, Math.imul(x, 31) + y) < 0.07; };
+GL7.treeAt = function (seed, x) {
+  return GL7.biomeOf(seed, x) === "plains" && GL7.colH(seed, x) > GL7.WATER && GL7.rng01(seed ^ 0x1234, x) < 0.12;
+};
+GL7.chunkOf = function (x) { return Math.floor(x / GL7.CHUNK); };
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+GL7.GENS = [
+  function (rng) { var a = 2 + Math.floor(rng() * 11), b = a + 2 * (1 + Math.floor(rng() * 6));
+    return { text: "Anchors: height " + a + ", then height " + b + ". HALFWAY between them, the lerp rule h = a + (b−a)t gives height…?",
+             ans: (a + b) / 2, why: a + " + (" + b + "−" + a + ")×½ = " + ((a + b) / 2) + " — halfway is just the average" }; },
+  function (rng) { var a = 2 + Math.floor(rng() * 9), b = a + 4 * (1 + Math.floor(rng() * 4));
+    return { text: "Anchors: height " + a + ", then height " + b + ". A QUARTER of the way across (t = ¼), the ground height is…?",
+             ans: a + (b - a) / 4, why: a + " + (" + b + "−" + a + ")×¼ = " + (a + (b - a) / 4) }; },
+  function (rng) { var c = Math.floor(rng() * 21), s = Math.floor(rng() * 51);
+    return { text: "A toy chunk recipe: height = (3 × chunk + seed) mod 10. Chunk " + c + ", seed " + s + " → height…?",
+             ans: (3 * c + s) % 10, why: "(3×" + c + " + " + s + ") = " + (3 * c + s) + ", remainder after ÷10 = " + ((3 * c + s) % 10) }; },
+  function (rng) { var h = 9 + Math.floor(rng() * 9), n = 100 + Math.floor(rng() * 900);
+    return { text: "Seed 55 builds chunk 7 with a mountain " + h + " blocks tall. You walk " + n + " chunks away and come back. How tall is that mountain now?",
+             ans: h, why: "same seed + same chunk number → the recipe rebuilds it identically: still " + h + " — nothing was ever saved" }; }
+];
+/* === GL7:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+  // ---------- static vs smooth ----------
+  (function () {
+    var cs = document.getElementById("cv-static"), cm = document.getElementById("cv-smooth");
+    var gapEl = document.getElementById("ns-gap"), roll = 1;
+    function paint() {
+      var seed = 1000 + roll;
+      [[cs, 1], [cm, +gapEl.value]].forEach(function (pair) {
+        var cv = pair[0], gap = pair[1], ctx = cv.getContext("2d");
+        var Wc = 46, tw = cv.width / Wc, th = cv.height / 28;
+        var dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+          (document.documentElement.getAttribute("data-theme") !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme:dark)").matches);
+        ctx.fillStyle = dark ? "#1c2333" : "#bfe3f7"; ctx.fillRect(0, 0, cv.width, cv.height);
+        for (var x = 0; x < Wc; x++) {
+          var h = gap === 1 ? Math.round(8 + GL7.rng01(seed, x) * 12) : GL7.colH(seed, x, gap);
+          h = Math.round(h * 22 / 22);
+          ctx.fillStyle = "#4ade80"; ctx.fillRect(x * tw, cv.height - h * th, tw + .5, th);
+          ctx.fillStyle = dark ? "#4a3b2a" : "#8a6642"; ctx.fillRect(x * tw, cv.height - (h - 1) * th, tw + .5, (h - 1) * th);
+        }
+      });
+    }
+    document.getElementById("ns-roll").addEventListener("click", function () { roll++; paint(); });
+    gapEl.addEventListener("input", paint);
+    paint();
+  })();
+
+  // ---------- infinite explorer ----------
+  (function () {
+    var cv = document.getElementById("cv-world"), ctx = cv.getContext("2d");
+    var read = document.getElementById("wk-read"), seedIn = document.getElementById("wk-seed");
+    var TS = 10, COLS = cv.width / TS, ROWS = cv.height / TS; // 48 × 30
+    var seed = 64, ox = 0;
+    var COLORS = {
+      grassTop: { plains: "#4ade80", snow: "#f1f5f9", desert: "#facc15" },
+      dirt:     { plains: "#8a6642", snow: "#7a90a8", desert: "#eab308" }
+    };
+    function paint() {
+      var dark = document.documentElement.getAttribute("data-theme") === "dark" ||
+        (document.documentElement.getAttribute("data-theme") !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme:dark)").matches);
+      ctx.fillStyle = dark ? "#141b2d" : "#aadcf5"; ctx.fillRect(0, 0, cv.width, cv.height);
+      for (var c = 0; c < COLS; c++) {
+        var x = ox + c, h = GL7.colH(seed, x), biome = GL7.biomeOf(seed, x);
+        var gy = ROWS - h; // top ground row
+        for (var r = gy; r < ROWS; r++) {
+          var depth = r - gy;
+          if (depth === 0) ctx.fillStyle = COLORS.grassTop[biome];
+          else if (depth <= 3) ctx.fillStyle = COLORS.dirt[biome];
+          else if (r === ROWS - 1) ctx.fillStyle = "#111";
+          else ctx.fillStyle = GL7.oreAt(seed, x, r) ? "#fbbf24" : (dark ? "#3d4451" : "#8d99ae");
+          ctx.fillRect(c * TS, r * TS, TS + .5, TS + .5);
+        }
+        // water fills valleys up to the water line
+        if (h < GL7.WATER) {
+          ctx.fillStyle = "rgba(56,132,244,.75)";
+          ctx.fillRect(c * TS, (ROWS - GL7.WATER) * TS, TS + .5, (GL7.WATER - h) * TS);
+        }
+        // trees on plains
+        if (GL7.treeAt(seed, x)) {
+          var ty = (ROWS - h - 1) * TS;
+          ctx.fillStyle = "#7c4a1e"; ctx.fillRect(c * TS + 3, ty - 8, 4, 10);
+          ctx.fillStyle = "#16a34a"; ctx.fillRect(c * TS - 3, ty - 18, 16, 12);
+        }
+      }
+      // chunk borders + labels
+      ctx.strokeStyle = "rgba(127,127,127,.55)"; ctx.setLineDash([4, 4]);
+      ctx.font = "bold 11px " + "monospace"; ctx.textAlign = "left";
+      for (var wx = Math.ceil(ox / GL7.CHUNK) * GL7.CHUNK; wx < ox + COLS; wx += GL7.CHUNK) {
+        var sx = (wx - ox) * TS;
+        ctx.beginPath(); ctx.moveTo(sx, 0); ctx.lineTo(sx, cv.height); ctx.stroke();
+        ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.fillRect(sx + 2, 2, 74, 16);
+        ctx.fillStyle = "#fff"; ctx.fillText("chunk " + GL7.chunkOf(wx), sx + 6, 14);
+      }
+      ctx.setLineDash([]);
+      var b = GL7.biomeOf(seed, ox + Math.floor(COLS / 2));
+      var bicon = b === "snow" ? "❄️ snow" : b === "plains" ? "🌳 plains" : "🌵 desert";
+      read.innerHTML = "🌱 seed <b>" + seed + "</b> · standing in chunks <b>" + GL7.chunkOf(ox) + "…" + GL7.chunkOf(ox + COLS - 1) +
+        "</b> · biome here: <b>" + bicon + "</b> — nothing on screen is stored; it's all recomputed from the recipe.";
+    }
+    function walk(d) { ox += d; paint(); }
+    document.getElementById("wk-left").addEventListener("click", function () { walk(-6); });
+    document.getElementById("wk-right").addEventListener("click", function () { walk(6); });
+    document.getElementById("wk-tp").addEventListener("click", function () { walk(100 * GL7.CHUNK); });
+    document.getElementById("wk-home").addEventListener("click", function () { ox = 0; paint(); });
+    document.getElementById("wk-go").addEventListener("click", function () {
+      seed = parseInt(seedIn.value, 10) || 0; ox = 0; paint();
+    });
+    paint();
+  })();
+
+  // ---------- puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    function newQ() {
+      q = GL7.GENS[Math.floor(Math.random() * GL7.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ The recipe agrees! &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("gl7", 1, "World-recipe streak " + streak);
+          if (streak >= 5) DadMath.badge("gl-mine");
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

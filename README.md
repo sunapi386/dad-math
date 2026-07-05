@@ -46,6 +46,11 @@ client-side, so this is a trust-and-verify aid for a present parent, not tamper-
   The behind-the-scenes lesson for the account system below. → `cs03-logins.html`
 - **🕸️ G·1 The Seven Bridges** — playable Königsberg + envelope trace + Euler's degree
   rule. → `gt01-bridges.html`
+- **🎲 GT·1 How to Win Every Game (Sometimes)** — game theory: beat a perfect bot at the
+  21-stick game via **backward induction** (cold numbers = multiples of 4; badge for winning),
+  then a **pattern-sniffing rock-paper-scissors bot** (a Markov counter on your habits) that
+  teaches why the only unbeatable plan in a mixing game is a **mixed strategy** — true
+  randomness. → `gm01-winning-games.html`
 - **📖 Story mode: The Cat in the Box** — quantum mechanics as a read-aloud story with a
   collapsing coin, a double-slit toy, and entangled gloves. → `qm01-quantum-story.html`
 
@@ -80,6 +85,11 @@ from scratch — each page derives one building block of how games actually work
   point-in-circle test, hitscan-ray vs. arcing-projectile guns, and glowing weak-points. Its
   homework check is a **skill challenge** (land 5 weak-point hits) so it can't be luck-passed.
   → `gl06-hitboxes.html`
+- **🧱 GL·7 Minecraft Worlds** — beyond GL·4's caves: smooth terrain from **noise** (dice at
+  anchors + linear interpolation with cosine easing), infinite worlds sliced into **chunks**
+  rebuilt on demand from `f(seed, chunk)` (walk away and back — pixel-identical, nothing stored),
+  and **biomes** from a second temperature noise salted off the same seed. Includes a walkable
+  infinite-world explorer. → `gl07-minecraft-worlds.html`
 
 ## 🕹️ The Arcade (gamification)
 

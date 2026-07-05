@@ -81,7 +81,9 @@
     "gl-world":    { icon: "🗺️", name: "World Builder",    desc: "Get a 5 streak running the seed recipe." },
     "gl-physics":  { icon: "🐦", name: "Arc Angel",        desc: "Get a 5 streak reading the Angry Bird's arc." },
     "gl-aim":      { icon: "🐛", name: "Bug Buster",       desc: "Pass the Deep Rock aim & hitboxes check." },
-    "gd-tree":     { icon: "🌳", name: "Master Builder",   desc: "Research the whole Builder's Tree — every module of your game installed." }
+    "gd-tree":     { icon: "🌳", name: "Master Builder",   desc: "Research the whole Builder's Tree — every module of your game installed." },
+    "gl-mine":     { icon: "⛏️", name: "Terraformer",      desc: "Get a 5 streak running the Minecraft world recipe." },
+    "gm-nim":      { icon: "🎲", name: "Grandmaster",      desc: "Beat the perfect stick-game bot at its own game." }
   };
 
   // [starsNeeded, icon, title]
