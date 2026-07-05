@@ -1,0 +1,14 @@
+[Unit]
+Description=dad-math feedback box (SQLite)
+After=network.target
+
+[Service]
+Environment=FEEDBACK_DB=/var/www/jasonsun.org/dad-math-data/feedback.db
+ExecStart=/usr/bin/python3 /var/www/jasonsun.org/dad-math/server/feedback.py 9110
+Restart=always
+RestartSec=5
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target

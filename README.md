@@ -74,9 +74,11 @@ hides itself on browsers that don't support it, e.g. Firefox). Submissions POST 
   `track.py` house style), run by systemd as `dad-math-feedback.service` on
   `127.0.0.1:9110`. Caps body/text size, HTML-escapes untrusted text, and throttles
   repeat posts per-IP.
-- **DB:** `/var/www/jasonsun.org/dad-math-feedback.db` — kept in the *parent* webroot
-  (www-data-writable, outside the git tree, off the public GitHub mirror). Stores each
-  note's text, timestamp, page, IP, user-agent, and an `actioned` flag.
+- **DB:** `/var/www/jasonsun.org/dad-math-data/feedback.db` — its own www-data-owned
+  directory in the *parent* webroot (so SQLite can write the db + journal, it's outside
+  the git tree, and off the public GitHub mirror). Stores each note's text, timestamp,
+  page, IP, user-agent, and an `actioned` flag. Path is set by the service's
+  `FEEDBACK_DB` env var (see `dad-math-feedback.service`).
 - **Admin:** `https://jasonsun.org/feedback/admin` — behind nginx basic-auth
   (`.htpasswd`, user `jason`). Lists every note newest-and-unactioned-first; a
   **✓ Mark actioned** button ticks each one off when the feedback has been implemented.
