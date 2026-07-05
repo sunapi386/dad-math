@@ -32,6 +32,9 @@ stars, and passing all five unlocks the 🎓 Homework Hero badge. Index cards sh
   (one bit of information per answer). → `cs01-binary.html`
 - **💻 CS·2 Secret Codes** — Caesar cipher machine, brute-force code breaker, keyspace.
   → `cs02-secret-codes.html`
+- **💻 CS·3 How Logins Keep Secrets** — hashing as a one-way street (live SHA-256 blender +
+  avalanche), why it's the opposite of a cipher, salt, and why a drawn pattern is guessable.
+  The behind-the-scenes lesson for the account system below. → `cs03-logins.html`
 - **🕸️ G·1 The Seven Bridges** — playable Königsberg + envelope trace + Euler's degree
   rule. → `gt01-bridges.html`
 - **📖 Story mode: The Cat in the Box** — quantum mechanics as a read-aloud story with a
@@ -82,6 +85,32 @@ hides itself on browsers that don't support it, e.g. Firefox). Submissions POST 
 - **Admin:** `https://jasonsun.org/feedback/admin` — behind nginx basic-auth
   (`.htpasswd`, user `jason`). Lists every note newest-and-unactioned-first; a
   **✓ Mark actioned** button ticks each one off when the feedback has been implemented.
+
+## 🔑 Save progress (optional accounts)
+
+Stars and badges live in `localStorage` (below), so by default they're stuck on one
+device. An **optional** login syncs them to the cloud so they follow a kid across
+phone/tablet/laptop. It's opt-in — every game works logged out; signing in only ever
+*merges* (max stars, union of badges — no device can wipe another).
+
+- **Login = a drawn pattern.** Kids pick a nickname and draw a shape on a 3×3 grid
+  (like a phone unlock), so no fast typing needed. `assets/account.js` (self-contained
+  UI + sync glue; injects its own styles, reuses theme tokens). Loaded on every page.
+- **Deliberately low-stakes by design.** A drawn pattern is low-entropy (guessable), so
+  the security comes from *data minimization*: an account stores **only a self-chosen
+  handle + the game counters** (stars/badges/best scores/homework flags). No real name,
+  email, age, or free text — a breach is just "DragonKid has 12 stars".
+- **Backend:** `server/accounts.py` — a single stdlib file (same house style as
+  `feedback.py`/`track.py`), run by systemd as `dad-math-accounts.service` on
+  `127.0.0.1:9120`. Secrets are **pbkdf2-hashed with a per-user salt** (never stored in
+  plain text); wrong-secret and unknown-handle return byte-identical errors (no
+  enumeration); repeated wrong tries briefly lock the handle; bodies and progress blobs
+  are size-capped and shape-sanitized.
+- **DB:** `/var/www/jasonsun.org/dad-math-data/accounts.db` (same www-data-owned dir as
+  the feedback DB; off the public GitHub mirror). Path set by the service's `ACCOUNTS_DB`
+  env var (see `dad-math-accounts.service`).
+- **How it works** is itself a lesson: **`cs03-logins.html`** teaches the hashing/salt
+  behind it (and honestly warns kids never to reuse a real password on a toy login).
 
 ## 📈 Analytics
 
