@@ -95,7 +95,7 @@
     "background:var(--primary-soft,#eee);color:var(--ink,#222);border-radius:16px;padding:4px 10px;cursor:pointer}" +
     "#acct-handle{width:100%;font:inherit;padding:9px 11px;border:1px solid var(--line,#ccc);" +
     "border-radius:10px;background:var(--bg,#fff);color:var(--ink,#222);margin:0 0 6px}" +
-    "#acct-pad{touch-action:none;display:block;margin:6px auto 4px;width:220px;height:220px;max-width:100%}" +
+    "#acct-pad{touch-action:none;display:block;margin:6px auto 4px;width:220px;max-width:100%;aspect-ratio:1/1}" +
     "#acct-pad line.link{stroke:var(--primary,#7c6cff);stroke-width:6;stroke-linecap:round}" +
     "#acct-pad circle.dot{fill:var(--line,#bbb)}" +
     "#acct-pad circle.on{fill:var(--primary,#7c6cff)}" +
