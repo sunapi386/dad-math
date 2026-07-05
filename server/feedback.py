@@ -119,8 +119,12 @@ class Handler(BaseHTTPRequestHandler):
             data = json.loads(body or b"{}")
         except Exception:
             data = {}
-        text = (data.get("text") or "").strip()[:MAX_TEXT]
-        page = (data.get("page") or "")[:MAX_PAGE]
+        if not isinstance(data, dict):
+            data = {}
+        text = data.get("text")
+        text = text.strip()[:MAX_TEXT] if isinstance(text, str) else ""
+        page = data.get("page")
+        page = page[:MAX_PAGE] if isinstance(page, str) else ""
         if not text:
             self._json(400, {"ok": False, "error": "empty"})
             return
