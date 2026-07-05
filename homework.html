@@ -61,7 +61,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js?v=6"></script>
+<script defer src="assets/game.js?v=7"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   function ri(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
@@ -127,6 +127,11 @@ document.addEventListener("DOMContentLoaded", function () {
     return { id: L.id, icon: L.icon, label: L.title.replace(/^Lesson\s*\d+\s*·\s*/, ""), href: L.href, here: true };
   });
   ASSIGNABLE.push({ id: "gl6", icon: "🐛", label: "Deep Rock · Aim & Hitboxes", href: "gl06-hitboxes.html", here: false });
+  // Builder's Tree nodes (gamedev.html) — assignable like any homework
+  [["gd1", "🎮", "The Loop"], ["gd2", "🎯", "Hitboxes"], ["gd3", "💣", "The Arc"],
+   ["gd4", "🧭", "Pathfinding"], ["gd5", "🗺️", "Random Worlds"], ["gd6", "🤖", "The Sentry"]].forEach(function (n) {
+    ASSIGNABLE.push({ id: n[0], icon: n[1], label: "Builder's Tree · " + n[2], href: "gamedev.html", here: false });
+  });
 
   function fmtTime(ms) {
     if (!ms) return "";

@@ -54,6 +54,16 @@ client-side, so this is a trust-and-verify aid for a present parent, not tamper-
 The games the kid already loves (Factorio, StarCraft, Deep Rock Galactic), taken apart and rebuilt
 from scratch — each page derives one building block of how games actually work.
 
+- **🌳 The Builder's Tree** — the Game Lab as a **game-development course shaped like a tech tree**
+  (`gamedev.html`). Six nodes (loop → hitboxes → arcs; loop → pathfinding → random worlds; both
+  branches → the sentry), each gated by a **3-question principles test** (all correct to pass, fresh
+  randomized questions per attempt, one wrong ends the attempt). Passing a node **installs that
+  mechanic into a real game on the page** — *Crystal Caves*, which grows from a bare movable miner
+  into a cave shooter with weak-point hitboxes, parabolic grenades, BFS-hunting bugs, seeded
+  procedural levels, and an AND-gate sentry turret. Unlocks are stored as homework flags
+  (`gd1`–`gd6`), so they cloud-sync with accounts and are parent-assignable; finishing the whole
+  tree awards the 🌳 Master Builder badge.
+
 - **🎮 GL·1 Make a Game from Scratch** — the game loop (update→draw→repeat), position + velocity,
   collision, and a state machine, ending in a real playable *Cave Dodge*. → `gl01-game-loop.html`
 - **🧭 GL·2 How Units Find Their Way** — pathfinding by breadth-first search: build walls and watch
