@@ -51,6 +51,14 @@ client-side, so this is a trust-and-verify aid for a present parent, not tamper-
   persistent level ladder and the 📚 Shelf Master badge), **Merge Master** (be the merge step,
   combo scoring), and **The Mind Reader's Revenge** (find its number in ≤10 guesses, then it
   finds yours — always). → `cs04-sorting.html`
+- **💻 CS·5 Qubits: How Quantum Computers Count** (quantum series, part 1) — the qubit as an
+  arrow on a circle: superposition as lean, **probability = amplitude²** (Lesson 2's squares;
+  Pythagoras keeps P(0)+P(1)=100%), measurement collapse with live tallies, X/H gates, and the
+  showstopper: **H,H un-flips the coin** (interference — with the X,H "same chances, different
+  arrow" mystery). Games: **Circuit Par** (steer onto targets in the fewest gates — par computed
+  by BFS, up to 6; 🌀 Qubit Wrangler badge for 3 pars in a row) and **Spy Qubit** (identify a
+  mystery lean from up to 15 one-bit measurements — statistics, the way real quantum computers
+  are read out). Ends honestly: what 2ⁿ superposition does and doesn't mean. → `cs05-qubits.html`
 - **🕸️ G·1 The Seven Bridges** — playable Königsberg + envelope trace + Euler's degree
   rule. → `gt01-bridges.html`
 - **🎲 GT·1 How to Win Every Game (Sometimes)** — game theory: beat a perfect bot at the
