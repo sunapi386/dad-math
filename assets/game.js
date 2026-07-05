@@ -34,6 +34,24 @@
     });
   }
 
+  // ---- chore chart: parent-assigned homework + a parent PIN + when each was passed ----
+  // Stored at a FIXED device key, NOT the per-account namespace, so assignments survive the
+  // kid logging in/out to save badges. (Designed for one kid per device.)
+  var CHORE_KEY = "dadmath-chores";
+  var chores = (function () {
+    var c; try { c = JSON.parse(localStorage.getItem(CHORE_KEY)) || {}; } catch (e) { c = {}; }
+    c.assign = c.assign || {};   // { id: assignedAtMs }
+    c.passed = c.passed || {};   // { id: lastPassMs } — updated on every homework pass
+    c.pin = c.pin || null;       // { salt, hash } hashed 4-digit parent PIN (not plain text)
+    return c;
+  })();
+  function saveChores() { try { localStorage.setItem(CHORE_KEY, JSON.stringify(chores)); } catch (e) {} }
+  function pinHash(pin, salt) {
+    var h = (0x811c9dc5 ^ salt) >>> 0, s = salt + ":" + pin;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return h >>> 0;
+  }
+
   var P = load();
 
   var BADGES = {
@@ -61,7 +79,8 @@
     "gl-path":     { icon: "🧭", name: "Pathfinder",       desc: "Get a 5 streak counting shortest paths." },
     "gl-factory":  { icon: "⚙️", name: "Gate Keeper",      desc: "Get a 5 streak in the logic-gate quiz." },
     "gl-world":    { icon: "🗺️", name: "World Builder",    desc: "Get a 5 streak running the seed recipe." },
-    "gl-physics":  { icon: "🐦", name: "Arc Angel",        desc: "Get a 5 streak reading the Angry Bird's arc." }
+    "gl-physics":  { icon: "🐦", name: "Arc Angel",        desc: "Get a 5 streak reading the Angry Bird's arc." },
+    "gl-aim":      { icon: "🐛", name: "Bug Buster",       desc: "Pass the Deep Rock aim & hitboxes check." }
   };
 
   // [starsNeeded, icon, title]
@@ -149,13 +168,37 @@
     /* homework checks: mark a lesson's homework as validated */
     hwPass: function (id) {
       var first = !P.hw[id];
-      P.hw[id] = true; save();
+      P.hw[id] = true;
+      chores.passed[id] = Date.now(); saveChores();   // record WHEN, for the chore chart
+      save();
       if (first) this.star("hw-" + id, 2, "Homework check passed!");
       else this.toast("✅ Homework re-checked — still got it!");
       var all = ["l1", "l2", "l3", "l4", "l5"].every(function (k) { return P.hw[k]; });
       if (all) this.badge("hw-all");
     },
     hwDone: function (id) { return !!P.hw[id]; },
+
+    // ---- homework assignments / parent chore chart (device-scoped) ----
+    hwPassedAt: function (id) { return chores.passed[id] || 0; },
+    parentPinSet: function () { return !!chores.pin; },
+    setParentPin: function (pin) {
+      var salt = 1 + Math.floor(Math.random() * 2000000000);
+      chores.pin = { salt: salt, hash: pinHash(String(pin), salt) }; saveChores();
+    },
+    parentPinOk: function (pin) {
+      return !!chores.pin && pinHash(String(pin), chores.pin.salt) === chores.pin.hash;
+    },
+    setAssigned: function (id, on) {
+      if (on) chores.assign[id] = Date.now(); else delete chores.assign[id];
+      saveChores();
+    },
+    isAssigned: function (id) { return !!chores.assign[id]; },
+    assignedAt: function (id) { return chores.assign[id] || 0; },
+    assignedIds: function () { return Object.keys(chores.assign); },
+    /* an assignment is "done" only if it was PASSED AFTER it was assigned (real work, not old credit) */
+    assignmentDone: function (id) {
+      return !!chores.assign[id] && (chores.passed[id] || 0) >= chores.assign[id];
+    },
 
     /* record a best score; returns true if it's a new record */
     best: function (game, score) {

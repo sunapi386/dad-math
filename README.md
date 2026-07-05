@@ -20,11 +20,20 @@ can play with in the browser.
 - **05 — Fibonacci & the Golden Ratio.** The rabbit puzzle, ratio convergence to φ, and a
   spiral builder with tangent-continuous quarter arcs. → `05-fib.html`
 
-## 📓 Homework checks
+## 📓 Homework checks & parent assignments
 
 `homework.html` validates each math lesson: 5 randomized questions (fresh numbers every
 attempt), pass with 4+. Passing marks the lesson ✅ (persisted in localStorage), awards
 stars, and passing all five unlocks the 🎓 Homework Hero badge. Index cards show ticks.
+
+**Assign → verify → game time.** A grown-up can assign specific homework (the 5 math
+lessons + the GL·6 Deep Rock check) behind a 4-digit **Parent PIN** (🔒 Parents button).
+An assignment counts as *done* only if it was **passed after it was assigned** — so old
+credit doesn't count and the kid has to do today's work — and each completion shows a
+timestamp. The chore chart (PIN + assignments + pass-times) is stored at a **fixed device
+key** in `game.js` (not the per-account namespace) so it survives the kid logging in/out
+to sync badges; it's designed for one kid per device. Note: the timestamps are
+client-side, so this is a trust-and-verify aid for a present parent, not tamper-proof.
 
 ## Beyond math
 
@@ -57,6 +66,10 @@ from scratch — each page derives one building block of how games actually work
 - **🐦 GL·5 Why the Angry Bird Flies in an Arc** — projectile motion: an aim-and-launch slingshot
   (exact closed-form parabola), the two independent motions, and why 45° maximizes range while
   30°/60° tie. → `gl05-projectiles.html`
+- **🐛 GL·6 Aiming & Hitboxes (Deep Rock)** — hit detection: circular hitboxes + the
+  point-in-circle test, hitscan-ray vs. arcing-projectile guns, and glowing weak-points. Its
+  homework check is a **skill challenge** (land 5 weak-point hits) so it can't be luck-passed.
+  → `gl06-hitboxes.html`
 
 ## 🕹️ The Arcade (gamification)
 

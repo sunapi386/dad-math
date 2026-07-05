@@ -32,13 +32,19 @@
       the questions are always new, so there's nothing to memorize.</p>
   </header>
 
-  <div class="hwstatus" id="hwstatus"></div>
+  <div class="panel" id="asgPanel">
+    <div class="ptitle"><span class="ic">📋</span> Your assignments</div>
+    <div id="asgBody"></div>
+  </div>
 
   <div class="note try">
-    <span class="t">For grown-ups:</span> this is the “validation” step — the paper homework builds the
-    skill, this confirms it. If a check fails twice, go back and replay the lesson's widgets together
-    rather than retrying immediately.
+    <span class="t">For grown-ups:</span> assign the week's homework and check it off here before game time.
+    Assigning an item resets it to “to do” — your kid has to pass it again, stamped with the time, so you're
+    verifying <em>today's</em> work. <button class="btn ghost" id="parentBtn" style="margin-left:4px">🔒 Parents</button>
+    <div id="parentPanel" style="display:none; margin-top:12px"></div>
   </div>
+
+  <div class="hwstatus" id="hwstatus"></div>
 
   <div id="checks"></div>
 
@@ -55,7 +61,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js?v=5"></script>
+<script defer src="assets/game.js?v=6"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   function ri(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
@@ -116,6 +122,93 @@ document.addEventListener("DOMContentLoaded", function () {
   }
   paintStatus();
 
+  // ---------- Assignments + Parent chore chart ----------
+  var ASSIGNABLE = LESSONS.map(function (L) {
+    return { id: L.id, icon: L.icon, label: L.title.replace(/^Lesson\s*\d+\s*·\s*/, ""), href: L.href, here: true };
+  });
+  ASSIGNABLE.push({ id: "gl6", icon: "🐛", label: "Deep Rock · Aim & Hitboxes", href: "gl06-hitboxes.html", here: false });
+
+  function fmtTime(ms) {
+    if (!ms) return "";
+    var d = new Date(ms), now = new Date();
+    var t = d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    if (d.toDateString() === now.toDateString()) return "today " + t;
+    if (d.toDateString() === new Date(now - 86400000).toDateString()) return "yesterday " + t;
+    return d.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + t;
+  }
+
+  var asgBody = document.getElementById("asgBody");
+  function renderAssignments() {
+    var ids = DadMath.assignedIds();
+    if (!ids.length) {
+      asgBody.innerHTML = "<p class='muted' style='margin:0'>No homework assigned yet. A grown-up can assign some with the <b>🔒 Parents</b> button below.</p>";
+      return;
+    }
+    var rows = ASSIGNABLE.filter(function (a) { return DadMath.isAssigned(a.id); }).map(function (a) {
+      var done = DadMath.assignmentDone(a.id);
+      var status = done
+        ? "<span class='hwchip pass'>✅ done " + fmtTime(DadMath.hwPassedAt(a.id)) + "</span>"
+        : "<span class='hwchip'>◻︎ to do</span> <a href='" + a.href + "'>" + (a.here ? "start check →" : "go do it →") + "</a>";
+      return "<div style='display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0'><b>" +
+             a.icon + " " + a.label + "</b> " + status + "</div>";
+    }).join("");
+    var doneN = ids.filter(function (id) { return DadMath.assignmentDone(id); }).length;
+    var summary = doneN === ids.length
+      ? "<p style='margin:0 0 6px'>🎉 <b>All done!</b> " + doneN + " of " + ids.length + " — ready for game time.</p>"
+      : "<p class='muted' style='margin:0 0 6px'><b>" + doneN + " of " + ids.length + "</b> done — " + (ids.length - doneN) + " to go.</p>";
+    asgBody.innerHTML = summary + rows;
+  }
+
+  var parentUnlocked = false, parentPanel = document.getElementById("parentPanel");
+  function renderParent() {
+    if (!parentUnlocked) {
+      var setNew = !DadMath.parentPinSet();
+      parentPanel.innerHTML =
+        "<p class='phint' style='margin:0 0 6px'>" + (setNew
+          ? "Set a 4-digit <b>Parent PIN</b> (so your kid can't change assignments)."
+          : "Enter your <b>Parent PIN</b> to change assignments.") + "</p>" +
+        "<input class='answer' id='pinIn' type='password' inputmode='numeric' maxlength='4' placeholder='••••' style='width:8ch'> " +
+        "<button class='btn' id='pinGo'>" + (setNew ? "Set PIN" : "Unlock") + "</button> " +
+        "<span id='pinMsg' class='muted small'></span>";
+      var inp = parentPanel.querySelector("#pinIn"), msg = parentPanel.querySelector("#pinMsg");
+      function submit() {
+        var v = (inp.value || "").trim();
+        if (!/^\d{4}$/.test(v)) { msg.textContent = "4 digits, please."; return; }
+        if (setNew) { DadMath.setParentPin(v); parentUnlocked = true; renderParent(); }
+        else if (DadMath.parentPinOk(v)) { parentUnlocked = true; renderParent(); }
+        else { msg.textContent = "Nope — try again."; inp.value = ""; }
+      }
+      parentPanel.querySelector("#pinGo").addEventListener("click", submit);
+      inp.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+      return;
+    }
+    var rows = ASSIGNABLE.map(function (a) {
+      var passed = DadMath.hwPassedAt(a.id);
+      var last = passed ? "last passed " + fmtTime(passed) : "never passed";
+      return "<label style='display:flex;align-items:center;gap:8px;margin:6px 0;cursor:pointer'>" +
+             "<input type='checkbox' data-asg='" + a.id + "' " + (DadMath.isAssigned(a.id) ? "checked" : "") + "> <b>" +
+             a.icon + " " + a.label + "</b> <span class='muted small'>" + last + "</span></label>";
+    }).join("");
+    parentPanel.innerHTML =
+      "<p class='phint' style='margin:0 0 8px'>Tick the homework you're assigning. Assigning resets it to " +
+      "<b>“to do”</b> — your kid must pass it again to check it off.</p>" + rows +
+      "<div style='margin-top:8px'><button class='btn' id='pinLock'>✓ Done</button> " +
+      "<button class='btn ghost' id='pinClear'>Clear all</button></div>";
+    parentPanel.querySelectorAll("[data-asg]").forEach(function (cb) {
+      cb.addEventListener("change", function () { DadMath.setAssigned(cb.getAttribute("data-asg"), cb.checked); renderAssignments(); });
+    });
+    parentPanel.querySelector("#pinLock").addEventListener("click", function () { parentUnlocked = false; parentPanel.style.display = "none"; renderParent(); });
+    parentPanel.querySelector("#pinClear").addEventListener("click", function () {
+      ASSIGNABLE.forEach(function (a) { DadMath.setAssigned(a.id, false); }); renderAssignments(); renderParent();
+    });
+  }
+  document.getElementById("parentBtn").addEventListener("click", function () {
+    var show = parentPanel.style.display === "none";
+    parentPanel.style.display = show ? "block" : "none";
+    if (show) renderParent();
+  });
+  renderAssignments();
+
   var root = document.getElementById("checks");
   LESSONS.forEach(function (L) {
     var panel = document.createElement("div");
@@ -155,6 +248,7 @@ document.addEventListener("DOMContentLoaded", function () {
         passBadge.style.display = "inline-flex";
         goBtn.textContent = "▶ Retake";
         paintStatus();
+        renderAssignments();
       } else {
         res.className = "result miss";
         res.innerHTML = "📖 <b>" + right + "/" + COUNT + "</b> — not yet. Replay the lesson's widgets, then try again (new questions).";

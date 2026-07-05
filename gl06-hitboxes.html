@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Lab 6 · Aiming &amp; Hitboxes (Deep Rock) — Math in Half an Hour</title>
+<meta name="description" content="How does Deep Rock Galactic know your bullet hit the bug — and hit its glowing weak spot? Invisible shapes called hitboxes and one line of math. Shoot the range, then pass the weak-point challenge.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Lab · Topic 06</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Aiming &amp; Hitboxes</h1>
+    <p class="lede">In Deep Rock Galactic you shoot a glyphid swarming out of the dark and — <em>ping!</em> —
+      an orange number pops off its glowing back. How does the game know your bullet hit the bug at all,
+      and how does it know you nailed the <b>weak spot</b>? The whole trick is an invisible shape and one
+      line of math you already have.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">friends with 🐦 GL·5 arcs</span></p>
+  </header>
+
+  <!-- 1 THE IDEA -->
+  <h2>1 · The bug you see vs. the shape the game checks</h2>
+  <p>The glyphid on screen is a gorgeous mess of legs, spikes and mandibles — <em>way</em> too complicated
+    to ask "did the bullet touch any pixel of that?" a hundred times a second. So games cheat with a
+    <strong>hitbox</strong>: a simple invisible shape — usually just a <b>circle</b> or a box — that stands in
+    for the monster. You never see it, but the game only ever checks the <em>shape</em>.</p>
+  <p>Deep Rock adds a second, smaller shape over the squishy bits — the glowing <strong>weak point</strong>.
+    Land your shot inside that little circle and it counts for <b>extra damage</b>. Two circles, that's the
+    whole secret: a big one for "hit the bug", a small one for "hit the weak spot".</p>
+
+  <!-- 2 RANGE -->
+  <h2>2 · The shooting range</h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎯</span> Practice range</div>
+    <p class="phint">Move your aim over the bug and <b>click / tap to shoot</b>. Flip <b>Show hitboxes</b> to
+      reveal the invisible circles the game is really testing. The glowing spot is the weak point — worth 3×.</p>
+    <div class="canvaswrap"><canvas id="range" width="480" height="300"></canvas></div>
+    <div class="ctrlrow">
+      <button class="btn ghost" id="rg-boxes">👁 Show hitboxes</button>
+      <button class="btn ghost" id="rg-reset">↺ Reset score</button>
+    </div>
+    <div class="result" id="rg-read">Total damage: <b>0</b> — aim for the glowing weak spot!</div>
+  </div>
+
+  <!-- 3 THE MATH -->
+  <h2>3 · One line of math: is the shot inside?</h2>
+  <p>A round hitbox is just a centre \((c_x, c_y)\) and a radius \(r\). Your shot lands at some point
+    \((x, y)\). "Did I hit?" is exactly "is my point closer to the centre than the radius?" — the
+    <a href="gl02-pathfinding.html">distance</a> idea again:</p>
+  $$(x - c_x)^2 + (y - c_y)^2 \;\le\; r^2 \quad\Rightarrow\quad \textbf{hit!}$$
+  <p>The game checks the <b>small weak-point circle first</b> (bonus damage), then the big body circle, then
+    calls it a miss. That's all "hit detection" is. (We square both sides so the computer never has to do a
+    slow square root — a neat speed trick.)</p>
+  <div class="note try">
+    <span class="t">Two kinds of gun:</span> the range above is <b>hitscan</b> — the shot is an
+    <em>instant</em> ray, so where you click is where it checks, right now (Scout's rifle, the Minigun). Other
+    weapons fire a <b>projectile</b> that <em>travels and arcs</em> — the grenade launcher, the PGL — and those
+    follow the exact parabola from <a href="gl05-projectiles.html">GL·5</a>. Same hitbox test, but you must lead
+    the target and mind the drop.
+  </div>
+
+  <!-- 4 HOMEWORK CHECK -->
+  <h2>4 · 📓 Homework check: weak-point challenge</h2>
+  <p>This is the check a grown-up can assign. No lucky guessing — you have to <b>actually aim</b>: land
+    <b>5 weak-point hits</b> on the moving bug. Passing marks this lesson ✅ (worth ⭐⭐) and earns the
+    🐛 <b>Bug Buster</b> badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🐛</span> Weak-point trial</div>
+    <p class="phint">Hitboxes are hidden now — read the glow. Only <b>weak-point</b> hits count. Body hits
+      still hurt the bug but don't tick the counter.</p>
+    <div class="canvaswrap"><canvas id="hwrange" width="480" height="300"></canvas></div>
+    <div class="ctrlrow">
+      <button class="btn" id="hw-go">▶ Start challenge</button>
+      <button class="btn ghost" id="hw-reset">↺ Restart</button>
+    </div>
+    <div class="result" id="hw-read">Press start, then land 5 weak-point hits.</div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework (on paper / out loud)</h2>
+  <ol class="hw">
+    <li><strong>Spot the hitbox.</strong> Next time you play, aim <em>just past</em> the edge of a bug and
+      shoot. Sometimes it still hits, sometimes it whiffs on a leg. Where do you think the invisible circle
+      really sits — tight on the body, or a bit bigger?</li>
+    <li><strong>Be the computer.</strong> A bug's body circle is at centre (5, 5) with radius 3. You shoot at
+      (7, 6). Work out \((7-5)^2 + (6-5)^2\) and compare to \(3^2 = 9\). Hit or miss?</li>
+    <li><strong>Hitscan or projectile?</strong> List two Deep Rock weapons that hit instantly and two that
+      lob a travelling shot. Which kind needs you to aim <em>ahead</em> of a running bug, and why?</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">hitbox · weak point · hit detection · distance test · squared distance · hitscan vs projectile · lead the target</p>
+
+  <div class="lessonnav">
+    <a href="gl05-projectiles.html">← Game Lab 5: The arc</a>
+    <a href="index.html#games">All Game Lab topics →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=6"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // (site.js auto-renders the KaTeX)
+  var BODY_R = 38, WP_R = 12, WOFF_X = 18, WOFF_Y = -10;   // weak-point offset from body centre
+
+  function dark() { return window.matchMedia && matchMedia("(prefers-color-scheme:dark)").matches; }
+  function ptr(cv, e) {
+    var r = cv.getBoundingClientRect(), t = (e.touches && e.touches[0]) || e;
+    return { x: (t.clientX - r.left) * (cv.width / r.width), y: (t.clientY - r.top) * (cv.height / r.height) };
+  }
+  // the entire hit model
+  function shoot(px, py, bug) {
+    if (Math.hypot(px - (bug.cx + WOFF_X), py - (bug.cy + WOFF_Y)) <= WP_R) return { kind: "weak", dmg: 30 };
+    if (Math.hypot(px - bug.cx, py - bug.cy) <= BODY_R) return { kind: "body", dmg: 10 };
+    return { kind: "miss", dmg: 0 };
+  }
+  function drawBug(ctx, bug, showBoxes) {
+    var wx = bug.cx + WOFF_X, wy = bug.cy + WOFF_Y;
+    // legs
+    ctx.strokeStyle = dark() ? "#6b7280" : "#5b6472"; ctx.lineWidth = 3; ctx.lineCap = "round";
+    for (var i = -2; i <= 2; i++) {
+      if (i === 0) continue;
+      ctx.beginPath(); ctx.moveTo(bug.cx + i * 9, bug.cy + 6);
+      ctx.lineTo(bug.cx + i * 20, bug.cy + 30); ctx.stroke();
+    }
+    // body
+    ctx.fillStyle = "#7c4a52";
+    ctx.beginPath(); ctx.ellipse(bug.cx, bug.cy, BODY_R, BODY_R * 0.82, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = "#5f3841";
+    ctx.beginPath(); ctx.ellipse(bug.cx - 22, bug.cy + 2, 15, 13, 0, 0, 7); ctx.fill();   // head
+    // mandibles
+    ctx.strokeStyle = "#caa24a"; ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(bug.cx - 34, bug.cy - 4); ctx.lineTo(bug.cx - 44, bug.cy - 10);
+    ctx.moveTo(bug.cx - 34, bug.cy + 6); ctx.lineTo(bug.cx - 44, bug.cy + 12); ctx.stroke();
+    // eyes
+    ctx.fillStyle = "#f4d03f";
+    ctx.beginPath(); ctx.arc(bug.cx - 26, bug.cy - 2, 2.4, 0, 7); ctx.arc(bug.cx - 20, bug.cy - 3, 2.4, 0, 7); ctx.fill();
+    // glowing weak point
+    var g = ctx.createRadialGradient(wx, wy, 1, wx, wy, WP_R + 5);
+    g.addColorStop(0, "#fff3b0"); g.addColorStop(0.5, "#ffb020"); g.addColorStop(1, "rgba(255,150,0,0)");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(wx, wy, WP_R + 5, 0, 7); ctx.fill();
+    ctx.fillStyle = "#ff9500"; ctx.beginPath(); ctx.arc(wx, wy, WP_R - 4, 0, 7); ctx.fill();
+    // hitbox overlay
+    if (showBoxes) {
+      ctx.setLineDash([5, 4]); ctx.lineWidth = 2;
+      ctx.strokeStyle = "#38bdf8"; ctx.beginPath(); ctx.arc(bug.cx, bug.cy, BODY_R, 0, 7); ctx.stroke();
+      ctx.strokeStyle = "#f59e0b"; ctx.beginPath(); ctx.arc(wx, wy, WP_R, 0, 7); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#38bdf8"; ctx.font = "12px system-ui,sans-serif";
+      ctx.fillText("body r=" + BODY_R, bug.cx - BODY_R, bug.cy - BODY_R - 4);
+      ctx.fillStyle = "#f59e0b"; ctx.fillText("weak r=" + WP_R, wx + WP_R + 2, wy - WP_R);
+    }
+  }
+  function drawCross(ctx, p) {
+    if (!p) return;
+    ctx.strokeStyle = dark() ? "#e5e7eb" : "#111827"; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 9, 0, 7);
+    ctx.moveTo(p.x - 14, p.y); ctx.lineTo(p.x - 4, p.y); ctx.moveTo(p.x + 4, p.y); ctx.lineTo(p.x + 14, p.y);
+    ctx.moveTo(p.x, p.y - 14); ctx.lineTo(p.x, p.y - 4); ctx.moveTo(p.x, p.y + 4); ctx.lineTo(p.x, p.y + 14);
+    ctx.stroke();
+  }
+  function bg(ctx, W, H) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = dark() ? "#161b22" : "#eef1f5"; ctx.fillRect(0, 0, W, H);
+  }
+
+  // ---------- Practice range ----------
+  (function () {
+    var cv = document.getElementById("range"); if (!cv) return;
+    var ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+    var bug = { cx: 240, cy: 150, dir: 1 }, aim = null, pops = [], showBoxes = false;
+    var total = 0, read = document.getElementById("rg-read"), raf;
+    function frame() {
+      bug.cx += bug.dir * 0.9; if (bug.cx > 400 || bug.cx < 90) bug.dir *= -1;
+      bug.cy = 150 + Math.sin(bug.cx / 40) * 18;
+      bg(ctx, W, H); drawBug(ctx, bug, showBoxes);
+      pops = pops.filter(function (p) { return p.life > 0; });
+      pops.forEach(function (p) {
+        p.y -= 0.7; p.life -= 1; ctx.globalAlpha = Math.max(0, p.life / 40);
+        ctx.fillStyle = p.color; ctx.font = "bold 18px system-ui,sans-serif"; ctx.textAlign = "center";
+        ctx.fillText(p.text, p.x, p.y); ctx.globalAlpha = 1; ctx.textAlign = "left";
+      });
+      drawCross(ctx, aim);
+      raf = requestAnimationFrame(frame);
+    }
+    cv.addEventListener("mousemove", function (e) { aim = ptr(cv, e); });
+    function fire(e) {
+      var p = ptr(cv, e), r = shoot(p.x, p.y, bug); aim = p;
+      if (r.kind === "weak") { total += r.dmg; pops.push({ x: p.x, y: p.y, text: "WEAK! " + r.dmg, color: "#f59e0b", life: 40 }); }
+      else if (r.kind === "body") { total += r.dmg; pops.push({ x: p.x, y: p.y, text: "" + r.dmg, color: "#ef4444", life: 40 }); }
+      else { pops.push({ x: p.x, y: p.y, text: "miss", color: "#9ca3af", life: 30 }); }
+      read.innerHTML = "Total damage: <b>" + total + "</b>" + (r.kind === "weak" ? " — 🎯 weak-point, triple!" : r.kind === "body" ? " — hit." : " — missed, lead the glow.");
+      e.preventDefault();
+    }
+    cv.addEventListener("mousedown", fire);
+    cv.addEventListener("touchstart", function (e) { aim = ptr(cv, e); fire(e); }, { passive: false });
+    document.getElementById("rg-boxes").addEventListener("click", function () {
+      showBoxes = !showBoxes; this.textContent = showBoxes ? "🙈 Hide hitboxes" : "👁 Show hitboxes";
+    });
+    document.getElementById("rg-reset").addEventListener("click", function () { total = 0; pops = []; read.innerHTML = "Total damage: <b>0</b> — aim for the glowing weak spot!"; });
+    frame();
+  })();
+
+  // ---------- Homework challenge: 5 weak-point hits ----------
+  (function () {
+    var cv = document.getElementById("hwrange"); if (!cv) return;
+    var ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+    var bug = { cx: 240, cy: 150, dir: 1 }, aim = null, pops = [], raf = null;
+    var need = 5, wp = 0, live = false, passed = false;
+    var read = document.getElementById("hw-read");
+    function frame() {
+      bug.cx += bug.dir * 1.7; if (bug.cx > 405 || bug.cx < 80) bug.dir *= -1;   // faster: real aim needed
+      bug.cy = 150 + Math.sin(bug.cx / 30) * 30;
+      bg(ctx, W, H); drawBug(ctx, bug, false);
+      pops = pops.filter(function (p) { return p.life > 0; });
+      pops.forEach(function (p) {
+        p.y -= 0.7; p.life -= 1; ctx.globalAlpha = Math.max(0, p.life / 40);
+        ctx.fillStyle = p.color; ctx.font = "bold 18px system-ui,sans-serif"; ctx.textAlign = "center";
+        ctx.fillText(p.text, p.x, p.y); ctx.globalAlpha = 1; ctx.textAlign = "left";
+      });
+      drawCross(ctx, aim);
+      raf = requestAnimationFrame(frame);
+    }
+    function paint() { read.innerHTML = "Weak-point hits: <b>" + wp + " / " + need + "</b>" + (live ? " — keep tracking the glow!" : ""); }
+    function start() {
+      if (raf) cancelAnimationFrame(raf);
+      wp = 0; pops = []; live = true; passed = false; read.className = "result";
+      paint(); frame();
+    }
+    function fire(e) {
+      if (!live) { e.preventDefault(); return; }
+      var p = ptr(cv, e), r = shoot(p.x, p.y, bug); aim = p;
+      if (r.kind === "weak") { wp++; pops.push({ x: p.x, y: p.y, text: "WEAK! ✔", color: "#f59e0b", life: 40 }); }
+      else if (r.kind === "body") pops.push({ x: p.x, y: p.y, text: "body", color: "#ef4444", life: 30 });
+      else pops.push({ x: p.x, y: p.y, text: "miss", color: "#9ca3af", life: 26 });
+      if (wp >= need && !passed) {
+        passed = true; live = false;
+        read.className = "result win";
+        read.innerHTML = "🎉 <b>Passed!</b> 5 weak-point hits — Deep Rock homework checked off. ✅";
+        if (window.DadMath) { DadMath.hwPass("gl6"); DadMath.badge("gl-aim"); }
+      } else paint();
+      e.preventDefault();
+    }
+    cv.addEventListener("mousemove", function (e) { aim = ptr(cv, e); });
+    cv.addEventListener("mousedown", fire);
+    cv.addEventListener("touchstart", function (e) { aim = ptr(cv, e); fire(e); }, { passive: false });
+    document.getElementById("hw-go").addEventListener("click", start);
+    document.getElementById("hw-reset").addEventListener("click", start);
+    // idle draw
+    bg(ctx, W, H); drawBug(ctx, bug, false);
+    if (window.DadMath && DadMath.hwDone && DadMath.hwDone("gl6")) {
+      read.className = "result"; read.innerHTML = "✅ Already passed once — press start to prove it again.";
+    }
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>
