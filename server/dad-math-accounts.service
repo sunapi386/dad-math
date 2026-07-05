@@ -1,0 +1,14 @@
+[Unit]
+Description=Dad-Math kid accounts (cloud save for stars/badges)
+After=network.target
+
+[Service]
+Environment=ACCOUNTS_DB=/var/www/jasonsun.org/dad-math-data/accounts.db
+ExecStart=/usr/bin/python3 /var/www/jasonsun.org/dad-math/server/accounts.py 9120
+Restart=always
+RestartSec=5
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target

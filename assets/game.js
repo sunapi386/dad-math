@@ -1,17 +1,40 @@
 /* Shared gamification: stars, badges, ranks, toasts. Progress lives in localStorage. */
 (function () {
   var KEY = "dadmath-progress";
+  var activeUser = null;     // null = anonymous / this-device only; a handle when logged in
+  var subs = [];             // save() subscribers (the account sync glue registers here)
 
-  function load() {
-    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; }
+  function keyFor(u) { return u ? KEY + ":" + u : KEY; }
+  function normalize(p) {
+    p = p || {};
+    p.stars = p.stars || {};   // { sourceId: starCount }
+    p.badges = p.badges || {}; // { badgeId: true }
+    p.best = p.best || {};     // { gameId: bestScore }
+    p.hw = p.hw || {};         // { lessonId: true } — homework checks passed
+    return p;
   }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(P)); } catch (e) {} }
+  function load() {
+    try { return normalize(JSON.parse(localStorage.getItem(keyFor(activeUser)))); }
+    catch (e) { return normalize({}); }
+  }
+  function persist() { try { localStorage.setItem(keyFor(activeUser), JSON.stringify(P)); } catch (e) {} }
+  function save() { persist(); for (var i = 0; i < subs.length; i++) { try { subs[i](P); } catch (e) {} } }
+
+  // merge a remote/other snapshot into P: counters take the MAX, flags UNION —
+  // monotonic, so syncing from two devices never loses a badge or a best score.
+  function mergeInto(remote) {
+    if (!remote) return;
+    ["stars", "best"].forEach(function (key) {
+      var m = remote[key] || {};
+      for (var k in m) if (typeof m[k] === "number" && m[k] > (P[key][k] || 0)) P[key][k] = m[k];
+    });
+    ["badges", "hw"].forEach(function (key) {
+      var m = remote[key] || {};
+      for (var k in m) if (m[k]) P[key][k] = true;
+    });
+  }
 
   var P = load();
-  P.stars = P.stars || {};   // { sourceId: starCount }
-  P.badges = P.badges || {}; // { badgeId: true }
-  P.best = P.best || {};     // { gameId: bestScore }
-  P.hw = P.hw || {};         // { lessonId: true } — homework checks passed
 
   var BADGES = {
     "first-star":  { icon: "⭐", name: "First Star",       desc: "Earn your very first star." },
@@ -31,6 +54,7 @@
     "hw-all":      { icon: "🎓", name: "Homework Hero",    desc: "Pass the homework check for all five math lessons." },
     "cs-bin":      { icon: "💡", name: "Bit Flipper",      desc: "Get a 5 streak in the binary puzzle." },
     "cs-crypto":   { icon: "🕵️", name: "Code Cracker",     desc: "Get a 5 streak decoding secret messages." },
+    "cs-login":    { icon: "🔑", name: "Key Keeper",       desc: "Get a 5 streak in the login-safety quiz." },
     "gt-euler":    { icon: "🌉", name: "Bridge Master",    desc: "Get a 5 streak in the Euler path puzzle." },
     "qm-story":    { icon: "🐱", name: "Cat Whisperer",    desc: "Finish the quantum story to the very end." },
     "gl-loop":     { icon: "🎮", name: "Game Maker",       desc: "Score 25 in Cave Dodge — the game you built." },
@@ -144,6 +168,16 @@
       P = { stars: {}, badges: {}, best: {}, hw: {} };
       save(); location.reload();
     },
+
+    // ---- account sync glue (used by account.js; no-ops if that isn't loaded) ----
+    /* register a callback fired after every progress change (debounced sync lives there) */
+    onSave: function (fn) { if (typeof fn === "function") subs.push(fn); },
+    /* fold a server/other-device snapshot in (max/union), persist WITHOUT re-firing sync */
+    mergeRemote: function (remote) { mergeInto(remote); persist(); chipUpdate(); return P; },
+    /* switch the active localStorage namespace (handle when logged in, null when not) */
+    setUser: function (u) { activeUser = u || null; P = load(); chipUpdate(); return P; },
+    user: function () { return activeUser; },
+    refresh: chipUpdate,
 
     toast: toast
   };

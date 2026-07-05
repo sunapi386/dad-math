@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS 3 · How Logins Keep Secrets — Math in Half an Hour</title>
+<meta name="description" content="When you log in with a drawn pattern, the website never actually stores it. Meet the one-way street called hashing — the opposite of Caesar's reversible cipher — plus salt, and why a pattern is guessable.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Computer Science · Topic 03</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">How Logins Keep Secrets</h1>
+    <p class="lede">You just made a login to save your badges — you drew a secret shape. Here's the
+      surprising part: the website <em>never keeps your shape</em>. It can't even see it. So how does it
+      know it's really you next time? The answer is a beautiful one-way street called <b>hashing</b> —
+      the exact opposite of Caesar's cipher from last time.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">sequel to CS 2 · Secret Codes</span></p>
+  </header>
+
+  <!-- 1 THE PROBLEM -->
+  <h2>1 · The problem: don't keep the secret</h2>
+  <p>Imagine the website kept a notebook: <em>“DragonKid's pattern is ↘↓↙”</em>. Handy — until a thief
+    steals the notebook and now knows <b>everyone's</b> secret. Real websites get their notebooks stolen
+    all the time. So the trick is: <strong>check the secret without ever storing it.</strong> Sounds
+    impossible, right?</p>
+
+  <!-- 2 HASHING -->
+  <h2>2 · The one-way street: hashing</h2>
+  <p>A <strong>hash</strong> is a math blender. Feed it anything — a word, a pattern, a whole book — and it
+    spits out a fixed-size scramble of gibberish. Two rules make it magic:</p>
+  <ul>
+    <li><b>Same in → same out.</b> The blender is not random; the same secret always makes the same hash.</li>
+    <li><b>You can't un-blend.</b> Given the gibberish, there's no way back to the secret. (You can't
+      un-smoothie a smoothie.)</li>
+  </ul>
+  <p>So the website stores only the <em>hash</em> of your pattern. Next time you draw it, it blends your
+    drawing and checks: does this gibberish match the gibberish I saved? If yes — welcome back. The real
+    secret was never written down anywhere.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🥤</span> The hash blender (real SHA-256)</div>
+    <p class="phint">Type anything and watch the blender. Then change <b>one tiny thing</b> and watch the
+      whole hash explode into something totally different — that's the <b>avalanche effect</b>.</p>
+    <div class="controls">
+      <input class="answer" id="hx-text" type="text" placeholder="type a secret" style="width:min(30ch,70vw)" value="DragonKid">
+    </div>
+    <div class="result" id="hx-out" style="word-break:break-all"></div>
+    <div class="pairsum" id="hx-ava"></div>
+  </div>
+
+  <!-- 3 NOT A CIPHER -->
+  <h2>3 · Why not just use Caesar's cipher?</h2>
+  <p>Last lesson you encrypted with a <a href="cs02-secret-codes.html">cipher</a> — and then you
+    <em>decrypted</em> it. That's the whole point of a cipher: it goes <b>both ways</b>. But that's exactly
+    what we <em>don't</em> want here. If the website could unscramble your stored secret, so could a thief.</p>
+  $$\text{cipher: } \texttt{CAT}\;\underset{\text{decrypt}}{\overset{\text{encrypt}}{\rightleftarrows}}\;\texttt{FDW}
+    \qquad\qquad \text{hash: } \texttt{CAT}\;\xrightarrow{\ \text{blend}\ }\;\texttt{77af…9c2}\ \ \not\rightarrow$$
+  <p>A cipher is a <b>locked box</b> (open it with the key). A hash is a <b>paper shredder</b> (no putting
+    it back). For passwords, you want the shredder.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧠</span> Quick check: can it be reversed?</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <button class="btn" id="pz-rev">🔓 Can be reversed</button>
+      <button class="btn" id="pz-one">🔒 One-way, can't</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <!-- 4 SALT -->
+  <h2>4 · Twins and salt</h2>
+  <p>Here's a leak. If two kids both pick the pattern <b>↘↓↙</b>, their hashes come out <em>identical</em> —
+    and a thief who steals the notebook instantly spots the twins and knows they share a secret. Fix: before
+    blending, the website sprinkles in a few random letters unique to each account, called a <strong>salt</strong>.
+    Now the same pattern makes two totally different hashes.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧂</span> Salt the twins</div>
+    <p class="phint">Two kids, the <b>same</b> secret pattern. Watch what salt does.</p>
+    <div class="controls"><button class="btn" id="sl-toggle">Add salt 🧂</button></div>
+    <div class="result" id="sl-out" style="word-break:break-all"></div>
+  </div>
+
+  <div class="note try">
+    <span class="t">The honest bit:</span> a drawn pattern only has a few thousand shapes — like Caesar's 25
+    keys, a computer could <b>brute-force</b> them (try them all) pretty fast. So this login is <em>fun, not
+    Fort Knox</em>. That's exactly why it saves only your nickname and your badges — nothing precious — and
+    why you should <b>never reuse a real password</b> (a bank one!) on a toy like this. Same lesson as CS 2:
+    a secret is only as strong as how many guesses it takes.
+  </div>
+
+  <!-- 5 THE RIDE -->
+  <h2>5 · How your badges ride along</h2>
+  <p>Once the website knows it's you, your stars and badges get to travel. When you log in on a new tablet,
+    your device sends up its collection, the server <b>merges</b> it with what's saved — keeping the
+    <em>biggest</em> star count and the <em>union</em> of all badges — and sends the whole thing back. So no
+    device ever wipes another: play on the phone <em>and</em> the laptop, and everything lands in one pile. 🎒</p>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Be the blender.</strong> Type your name into the hasher above, screenshot the gibberish.
+      Now add one letter and hash again. How much of it changed — a little, or almost all?</li>
+    <li><strong>Why can't you un-hash?</strong> A blender turns fruit into smoothie. Explain in one sentence
+      why you can't turn the smoothie back into fruit — and what that has to do with passwords.</li>
+    <li><strong>Count the shapes.</strong> On the 9-dot grid, a 4-dot pattern with no repeats has
+      \(9\times 8\times 7\times 6\) choices. Work it out. Is that more or fewer than Caesar's 25 keys? Which
+      is safer, and why?</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">hash · one-way function · avalanche effect · reversible vs one-way · salt · brute force · keyspace</p>
+
+  <div class="lessonnav">
+    <a href="cs02-secret-codes.html">← CS 2: Secret Codes</a>
+    <a href="index.html#cs">All CS topics →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=4"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // (site.js auto-renders the KaTeX $$…$$ / \(…\) on load)
+  function caesar(s, k) {
+    return s.toUpperCase().replace(/[A-Z]/g, function (ch) {
+      return String.fromCharCode((ch.charCodeAt(0) - 65 + k + 26) % 26 + 65);
+    });
+  }
+  // real SHA-256 where available (https/localhost), else a small deterministic fallback
+  function hashHex(s) {
+    if (window.crypto && crypto.subtle && crypto.subtle.digest) {
+      return crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)).then(function (buf) {
+        return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+          return ("0" + b.toString(16)).slice(-2);
+        }).join("");
+      });
+    }
+    var seeds = [7, 131, 977, 7919, 104729, 1299709, 15485863, 179424673], out = "";
+    for (var j = 0; j < seeds.length; j++) {
+      var h = (0x811c9dc5 ^ seeds[j]) >>> 0;
+      for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+      out += ("00000000" + h.toString(16)).slice(-8);
+    }
+    return Promise.resolve(out);
+  }
+  function pctDiff(a, b) {
+    var n = Math.min(a.length, b.length), d = 0;
+    for (var i = 0; i < n; i++) if (a[i] !== b[i]) d++;
+    return Math.round(d / n * 100);
+  }
+
+  // ---------- Hash blender ----------
+  (function () {
+    var txt = document.getElementById("hx-text"), out = document.getElementById("hx-out"), ava = document.getElementById("hx-ava");
+    function bump(s) { return s.length ? s.slice(0, -1) + String.fromCharCode(s.charCodeAt(s.length - 1) + 1) : "a"; }
+    function upd() {
+      var s = txt.value || " ", s2 = bump(s);
+      Promise.all([hashHex(s), hashHex(s2)]).then(function (r) {
+        out.innerHTML = "🔒 <b style='color:var(--primary);font-family:var(--mono)'>" + r[0].slice(0, 48) + "…</b>";
+        ava.innerHTML = "one tiny change (<code>" + s.slice(-1) + "</code>→<code>" + s2.slice(-1) +
+          "</code>) → <b style='font-family:var(--mono)'>" + r[1].slice(0, 48) +
+          "…</b><br><b>" + pctDiff(r[0], r[1]) + "%</b> of it flipped — totally different secret. 🌊";
+      });
+    }
+    txt.addEventListener("input", upd); upd();
+  })();
+
+  // ---------- Salt demo ----------
+  (function () {
+    var salted = false, out = document.getElementById("sl-out"), btn = document.getElementById("sl-toggle");
+    var PAT = "0-1-2-5-8";   // both kids draw the same shape
+    function upd() {
+      var aIn = PAT + (salted ? "|salt:9fA2" : ""), bIn = PAT + (salted ? "|salt:Kp7x" : "");
+      Promise.all([hashHex(aIn), hashHex(bIn)]).then(function (r) {
+        var same = r[0] === r[1];
+        out.innerHTML =
+          "<div>👧 Ava &nbsp;<b style='font-family:var(--mono)'>" + r[0].slice(0, 40) + "…</b></div>" +
+          "<div>👦 Ben &nbsp;<b style='font-family:var(--mono)'>" + r[1].slice(0, 40) + "…</b></div>" +
+          "<div style='margin-top:8px'>" + (same
+            ? "😱 <b>Identical!</b> A thief sees they share a secret."
+            : "😎 <b>Different!</b> Salt hid that they drew the same shape.") + "</div>";
+      });
+      btn.textContent = salted ? "Remove salt" : "Add salt 🧂";
+    }
+    btn.addEventListener("click", function () { salted = !salted; upd(); });
+    upd();
+  })();
+
+  // ---------- Puzzle: reversible or one-way? ----------
+  (function () {
+    var WORDS = ["CAT", "RABBIT", "PIZZA", "SECRET", "DRAGON", "GAUSS", "ROBOT", "PUZZLE"];
+    var streak = 0, best = 0, answer = "";
+    var promptEl = document.getElementById("pz-prompt"), resEl = document.getElementById("pz-result");
+    function newQ() {
+      var w = WORDS[Math.floor(Math.random() * WORDS.length)];
+      if (Math.random() < 0.5) {
+        var k = 1 + Math.floor(Math.random() * 25);
+        answer = "reverse";
+        promptEl.innerHTML = "🔐 <b>Caesar cipher (key " + k + "):</b> <span style='font-family:var(--mono)'>" +
+          w + " → " + caesar(w, k) + "</span><br>Can you get <b>" + w + "</b> back from it?";
+        finish();
+      } else {
+        answer = "oneway";
+        hashHex(w).then(function (h) {
+          promptEl.innerHTML = "🥤 <b>Hash (SHA-256):</b> <span style='font-family:var(--mono)'>" +
+            w + " → " + h.slice(0, 16) + "…</span><br>Can you get <b>" + w + "</b> back from it?";
+          finish();
+        });
+      }
+    }
+    function finish() {
+      resEl.className = "result";
+      resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function guess(g) {
+      if (g === answer) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Right! " + (answer === "reverse"
+          ? "A cipher goes both ways." : "A hash is a one-way shredder.") +
+          " &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("cs3", 1, "Login-safety streak " + streak);
+          if (streak >= 5) DadMath.badge("cs-login");
+        }
+        setTimeout(newQ, 900);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + (answer === "reverse"
+          ? "This one's a cipher — decrypt with the key and it comes right back."
+          : "This one's a hash — there's no way back. (streak reset)");
+      }
+    }
+    document.getElementById("pz-rev").addEventListener("click", function () { guess("reverse"); });
+    document.getElementById("pz-one").addEventListener("click", function () { guess("oneway"); });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    newQ();
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=1"></script>
+</body>
+</html>
