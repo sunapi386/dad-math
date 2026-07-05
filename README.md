@@ -60,6 +60,27 @@ lesson-puzzle streaks earn ⭐ stars; stars climb a rank ladder (🐣 Rookie →
 Gauss); feats unlock badges. Progress persists in `localStorage` on the device —
 no accounts, no server, nothing leaves the browser (`assets/game.js`).
 
+## 💬 Feedback box
+
+Every page has a little **💬 Feedback** tab on the left edge. It opens a slide-in
+drawer where a visitor can type — or, since these are kids who don't type fast,
+press a big **🎤 mic** button and just talk (Web Speech API voice-to-text; the mic
+hides itself on browsers that don't support it, e.g. Firefox). Submissions POST to
+`/feedback/submit` and land in a SQLite DB.
+
+- **Frontend:** `assets/feedback.js` (self-contained; injects its own styles, reuses
+  the site's theme tokens so light/dark just works). Loaded on every page.
+- **Backend:** `server/feedback.py` — a single stdlib file (mirrors the analytics
+  `track.py` house style), run by systemd as `dad-math-feedback.service` on
+  `127.0.0.1:9110`. Caps body/text size, HTML-escapes untrusted text, and throttles
+  repeat posts per-IP.
+- **DB:** `/var/www/jasonsun.org/dad-math-feedback.db` — kept in the *parent* webroot
+  (www-data-writable, outside the git tree, off the public GitHub mirror). Stores each
+  note's text, timestamp, page, IP, user-agent, and an `actioned` flag.
+- **Admin:** `https://jasonsun.org/feedback/admin` — behind nginx basic-auth
+  (`.htpasswd`, user `jason`). Lists every note newest-and-unactioned-first; a
+  **✓ Mark actioned** button ticks each one off when the feedback has been implemented.
+
 ## Structure
 
 ```
