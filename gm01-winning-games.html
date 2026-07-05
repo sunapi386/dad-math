@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Theory 1 · How to Win Every Game (Sometimes) — Math in Half an Hour</title>
+<meta name="description" content="Game theory for kids: beat a perfect robot at the 21-stick game by thinking backwards, then learn why champions play rock-paper-scissors randomly — from a bot that sniffs out your patterns.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.stickbox { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 14px 0; min-height: 58px; }
+.stick { width: 10px; height: 52px; border-radius: 5px; background: linear-gradient(180deg, var(--accent), #a05a10);
+  box-shadow: var(--shadow); transition: transform .2s ease, opacity .25s ease; }
+.stick.gone { opacity: 0; transform: translateY(18px) rotate(24deg); }
+.coldstrip { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+.coldchip { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
+  font-family: var(--mono); font-weight: 700; border: 2px solid var(--line); background: var(--panel-2); }
+.coldchip.cold { background: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
+:root[data-theme="dark"] .coldchip.cold { background: #172554; color: #93c5fd; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .coldchip.cold { background: #172554; color: #93c5fd; } }
+.rpsrow { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.rpsbtn { font-size: 2rem; width: 74px; height: 74px; border-radius: 16px; border: 2px solid var(--line);
+  background: var(--panel-2); cursor: pointer; transition: transform .1s ease, border-color .1s ease; }
+.rpsbtn:hover { transform: translateY(-3px); border-color: var(--primary); }
+.rpsscore { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Theory · Topic 01</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">How to Win Every Game (Sometimes)</h1>
+    <p class="lede"><b>Game theory</b> is the math of out-thinking an opponent who is busy
+      out-thinking you. It runs chess engines, auctions, penalty kicks, even how animals share
+      territory. Today: a game you can learn to win <em>every single time</em> — and a game where
+      the only unbeatable move is to stop thinking entirely.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">no math track needed</span> &nbsp; <span class="badge green">🎲 beat a perfect robot</span></p>
+  </header>
+
+  <!-- 1 THE GAME -->
+  <h2>1 · The 21-stick game</h2>
+  <p>Rules: 21 sticks. You and the robot take turns removing <b>1, 2 or 3</b> sticks.
+    <b>Whoever takes the last stick wins.</b> The robot plays <em>perfectly</em> — but this game has
+    a secret, and once you find it, the robot never stands a chance. Play a few rounds first and
+    watch what numbers it always leaves you…</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🥢</span> You vs Dad-bot <span class="qcount" id="nm-count"></span></div>
+    <p class="phint">You go first. Take the LAST stick to win. Beat the bot for the 🎲 badge.</p>
+    <div class="stickbox" id="nm-sticks"></div>
+    <div class="ctrlrow">
+      <button class="btn" id="nm-1">take 1</button>
+      <button class="btn" id="nm-2">take 2</button>
+      <button class="btn" id="nm-3">take 3</button>
+      <button class="btn ghost" id="nm-new">↻ New game</button>
+    </div>
+    <div class="result" id="nm-read">21 sticks. Your move.</div>
+  </div>
+
+  <!-- 2 BACKWARDS -->
+  <h2>2 · The secret: think <em>backwards</em></h2>
+  <p>Don't start from 21 — start from the <b>end</b> and walk back:</p>
+  <p>If it's your turn and <b>1, 2 or 3</b> sticks remain — you just take them all. You win. Those
+    are <b>hot</b> numbers.<br>
+    If <b>4</b> remain — take 1, 2 or 3, and your opponent faces a hot number. <em>You lose.</em>
+    4 is <b>cold</b>.<br>
+    If <b>5, 6 or 7</b> remain — take just enough to hand your opponent exactly 4. Hot again!<br>
+    If <b>8</b> remain — anything you do hands them a hot number. Cold.</p>
+  <p>See it? The cold numbers are the multiples of 4:</p>
+  <div class="coldstrip" id="coldstrip"></div>
+  <p>That walk-from-the-end trick is called <b>backward induction</b>, and it's how computers crack
+    games. The winning rule falls right out: <b>always leave your opponent a multiple of 4</b> —
+    take $n \bmod 4$ sticks (the remainder of $n \div 4$). From 21, the remainder is 1: take one
+    stick, then copy — whatever the bot takes, take enough to total 4 together. It can never
+    escape the cold ladder: 20, 16, 12, 8, 4… 0. Checkmate from move one.</p>
+
+  <div class="note try">
+    <span class="t">Big idea:</span> in games with no luck and no secrets (chess, checkers,
+    tic-tac-toe, this one), <em>somebody</em> has a perfect strategy — the game is decided before it
+    starts, if you can think backwards far enough. Checkers was fully cracked this way in 2007:
+    perfect play by both sides is always a draw.
+  </div>
+
+  <!-- 3 PUZZLE -->
+  <h2>3 · 🧩 Puzzle: play the cold numbers</h2>
+  <p>Fresh positions, fast decisions. Streak of 3 = ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Cold reading</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:8ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <!-- 4 RPS -->
+  <h2>4 · When the only good plan is <em>no</em> plan</h2>
+  <p>The stick game rewards pure logic. Rock-paper-scissors is the opposite: there is no clever
+    move, because every move loses to something. Here the enemy isn't the rules — it's <b>your own
+    patterns</b>. Humans are terrible at being random: we avoid repeats, we chase what just beat us.
+    This bot exploits exactly that. It remembers what you tend to throw after each move… and plays
+    the counter.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🤖</span> The pattern sniffer</div>
+    <p class="phint">Play at least 15 rounds. If the bot pulls ahead — it has learned your habits.
+      The <em>only</em> strategy it can't beat is true randomness (game theory calls this a
+      <b>mixed strategy</b>). Try playing with a mental coin-flip and watch it lose its edge.</p>
+    <div class="rpsrow">
+      <button class="rpsbtn" data-m="r" title="rock">🪨</button>
+      <button class="rpsbtn" data-m="p" title="paper">📄</button>
+      <button class="rpsbtn" data-m="s" title="scissors">✂️</button>
+    </div>
+    <div class="rpsscore"><span>you <b id="rps-you">0</b></span><span>bot <b id="rps-bot">0</b></span><span>ties <b id="rps-tie">0</b></span><span class="muted" id="rps-n">0 rounds</span></div>
+    <div class="result" id="rps-read">Throw your first move.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Real-world:</span> penalty kicks and tennis serves are studied with this exact
+    math — pros really do randomize their aim, in almost exactly the proportions game theory
+    predicts. Being predictable is the only way to lose at random games… and the only way to win at
+    thinking games is the cold-number ladder. Knowing <em>which kind of game you're in</em> is game
+    theory's first lesson.
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Hustle a grown-up.</strong> Set up 21 real sticks (toothpicks, LEGO, spoons) and win
+      three times in a row. Then — this is the hard part — teach them the cold numbers and let them
+      beat you back.</li>
+    <li><strong>Change the rules, find the new colds.</strong> If you may take 1–<b>4</b> sticks,
+      which numbers are cold now? (Think backwards from 0. What's the pattern for take 1–k?)</li>
+    <li><strong>Spot the game type.</strong> Sort these into “thinking game — someone has a perfect
+      strategy” vs “mixing game — you must be unpredictable”: tic-tac-toe · hide-and-seek ·
+      Connect 4 · poker bluffing · checkers.</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">game theory · strategy · backward induction · cold / losing position · perfect play · solved game · mixed strategy · unpredictability</p>
+
+  <div class="lessonnav">
+    <a href="index.html#gametheory">← All game theory topics</a>
+    <a href="gt01-bridges.html">Graph theory: The Seven Bridges →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=8"></script>
+<script>
+/* === GM:PURE START === (DOM-free strategy logic; node-tested before deploy) */
+var GM = {};
+/* the player TO MOVE loses iff the pile is a multiple of 4 (take 1-3, last stick wins) */
+GM.cold = function (n) { return n % 4 === 0; };
+/* perfect move: leave a multiple of 4; returns 0 when doomed (caller improvises) */
+GM.bestTake = function (n) { return n % 4; };
+GM.aiMove = function (n, rng) {
+  var b = GM.bestTake(n);
+  if (b > 0) return b;
+  return 1 + Math.floor(rng() * Math.min(3, n));   // doomed: stall and hope
+};
+/* rock-paper-scissors pattern sniffer: counts what the human throws AFTER each of their moves,
+   predicts the most likely next throw, and plays its counter. Ties broken randomly. */
+GM.BEATS = { r: "p", p: "s", s: "r" };             // what beats the key
+GM.rpsCounter = function (counts, last, rng) {
+  var moves = ["r", "p", "s"];
+  if (!last || !counts[last]) return moves[Math.floor(rng() * 3)];
+  var row = counts[last], mx = Math.max(row.r, row.p, row.s);
+  if (mx === 0) return moves[Math.floor(rng() * 3)];
+  var top = moves.filter(function (m) { return row[m] === mx; });
+  var predicted = top[Math.floor(rng() * top.length)];
+  return GM.BEATS[predicted];
+};
+GM.rpsResult = function (you, bot) {              // 1 you win, -1 bot wins, 0 tie
+  if (you === bot) return 0;
+  return GM.BEATS[bot] === you ? 1 : -1;
+};
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+GM.GENS = [
+  function (rng) { var n; do { n = 5 + Math.floor(rng() * 26); } while (n % 4 === 0);
+    return { text: "Your move, " + n + " sticks on the table (take 1–3, last stick wins). How many do you take?",
+             ans: n % 4, why: n + " mod 4 = " + (n % 4) + " — take it and leave the cold number " + (n - n % 4) }; },
+  function (rng) { var n = 4 + Math.floor(rng() * 37);
+    return { text: "It's your move with " + n + " sticks. Is this position winning for you? (1 = yes, 0 = no)",
+             ans: n % 4 === 0 ? 0 : 1, why: n % 4 === 0 ? (n + " is a multiple of 4 — cold. Perfect play beats you") : (n + " mod 4 = " + (n % 4) + " — take " + (n % 4) + " and you own the ladder") }; },
+  function (rng) { var n = 6 + Math.floor(rng() * 35);
+    return { text: "What is the biggest COLD number that is not more than " + n + "?",
+             ans: Math.floor(n / 4) * 4, why: "cold numbers are multiples of 4: " + Math.floor(n / 4) + "×4 = " + (Math.floor(n / 4) * 4) }; }
+];
+/* === GM:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+  // ---------- 21-stick game ----------
+  (function () {
+    var n = 21, busy = false, over = true;
+    var box = document.getElementById("nm-sticks"), read = document.getElementById("nm-read"),
+        count = document.getElementById("nm-count");
+    var btns = [1, 2, 3].map(function (k) { return document.getElementById("nm-" + k); });
+    function paint() {
+      box.innerHTML = "";
+      for (var i = 0; i < n; i++) { var s = document.createElement("div"); s.className = "stick"; box.appendChild(s); }
+      count.textContent = n + " left";
+      btns.forEach(function (b, i) { b.disabled = busy || over || (i + 1) > n; });
+    }
+    function fall(k, cb) {   // animate k sticks falling, then continue
+      var sticks = box.querySelectorAll(".stick:not(.gone)");
+      for (var i = 0; i < k && i < sticks.length; i++) sticks[sticks.length - 1 - i].classList.add("gone");
+      setTimeout(cb, 420);
+    }
+    function youTake(k) {
+      if (busy || over || k > n) return;
+      busy = true;
+      read.className = "result";
+      read.innerHTML = "You take " + k + "…";
+      fall(k, function () {
+        n -= k;
+        if (n === 0) {
+          over = true; busy = false;
+          read.className = "result win";
+          read.innerHTML = "🏆 <b>You took the last stick — you beat perfect play!</b> That's only possible because you never let go of the cold ladder.";
+          if (window.DadMath) { DadMath.badge("gm-nim"); DadMath.star("gm1", 2, "Beat the perfect stick bot!"); }
+          paint(); return;
+        }
+        paint();
+        var ai = GM.aiMove(n, Math.random);
+        setTimeout(function () {
+          read.innerHTML = "🤖 Dad-bot takes <b>" + ai + "</b>" + (GM.cold(n - ai) ? " — and leaves you <b>" + (n - ai) + "</b>. Hmm, that number again…" : ".");
+          fall(ai, function () {
+            n -= ai;
+            busy = false;
+            if (n === 0) {
+              over = true;
+              read.className = "result miss";
+              read.innerHTML = "💀 Dad-bot took the last stick. Look at the numbers it kept leaving you: 16, 12, 8, 4… find the pattern in §2 and come back.";
+            }
+            paint();
+          });
+        }, 500);
+      });
+    }
+    btns.forEach(function (b, i) { b.addEventListener("click", function () { youTake(i + 1); }); });
+    document.getElementById("nm-new").addEventListener("click", function () {
+      n = 21; over = false; busy = false;
+      read.className = "result"; read.innerHTML = "21 sticks. Your move.";
+      paint();
+    });
+    over = false; paint();
+  })();
+
+  // ---------- cold strip ----------
+  (function () {
+    var strip = document.getElementById("coldstrip");
+    for (var i = 0; i <= 21; i++) {
+      var c = document.createElement("div");
+      c.className = "coldchip" + (i % 4 === 0 ? " cold" : "");
+      c.textContent = i;
+      c.title = i % 4 === 0 ? "cold — whoever must move from here loses" : "hot — take " + (i % 4) + " to leave a cold number";
+      strip.appendChild(c);
+    }
+  })();
+
+  // ---------- puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    function newQ() {
+      q = GM.GENS[Math.floor(Math.random() * GM.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Cold as ice. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath && streak % 3 === 0) DadMath.star("gm1", 1, "Cold-number streak " + streak);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+
+  // ---------- RPS pattern sniffer ----------
+  (function () {
+    var counts = { r: { r: 0, p: 0, s: 0 }, p: { r: 0, p: 0, s: 0 }, s: { r: 0, p: 0, s: 0 } };
+    var last = null, you = 0, bot = 0, tie = 0, rounds = 0;
+    var ICON = { r: "🪨", p: "📄", s: "✂️" };
+    var read = document.getElementById("rps-read");
+    function play(m) {
+      var b = GM.rpsCounter(counts, last, Math.random);
+      var r = GM.rpsResult(m, b);
+      rounds++;
+      if (r === 1) you++; else if (r === -1) bot++; else tie++;
+      if (last) counts[last][m]++;      // learn: after `last`, the human threw `m`
+      last = m;
+      document.getElementById("rps-you").textContent = you;
+      document.getElementById("rps-bot").textContent = bot;
+      document.getElementById("rps-tie").textContent = tie;
+      document.getElementById("rps-n").textContent = rounds + " rounds";
+      var msg = "You " + ICON[m] + " vs " + ICON[b] + " bot — " + (r === 1 ? "you win the round" : r === -1 ? "bot wins the round" : "tie") + ".";
+      if (rounds >= 15 && bot - you >= 4) {
+        read.className = "result miss";
+        read.innerHTML = msg + " 🤖 <b>It found your pattern.</b> It's literally counting what you throw after each move. Go full coin-flip random and take your edge back.";
+      } else if (rounds >= 15 && you - bot >= 4) {
+        read.className = "result win";
+        read.innerHTML = msg + " 🏆 <b>You're out-guessing the guesser</b> — either you're wonderfully random, or you've realized it chases YOUR habits and you're feeding it lies. Both are game theory.";
+      } else {
+        read.className = "result";
+        read.innerHTML = msg;
+      }
+    }
+    document.querySelectorAll(".rpsbtn").forEach(function (b) {
+      b.addEventListener("click", function () { play(b.getAttribute("data-m")); });
+    });
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>
