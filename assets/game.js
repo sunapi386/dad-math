@@ -83,7 +83,8 @@
     "gl-aim":      { icon: "🐛", name: "Bug Buster",       desc: "Pass the Deep Rock aim & hitboxes check." },
     "gd-tree":     { icon: "🌳", name: "Master Builder",   desc: "Research the whole Builder's Tree — every module of your game installed." },
     "gl-mine":     { icon: "⛏️", name: "Terraformer",      desc: "Get a 5 streak running the Minecraft world recipe." },
-    "gm-nim":      { icon: "🎲", name: "Grandmaster",      desc: "Beat the perfect stick-game bot at its own game." }
+    "gm-nim":      { icon: "🎲", name: "Grandmaster",      desc: "Beat the perfect stick-game bot at its own game." },
+    "gm-coop":     { icon: "🤝", name: "Peacemaker",       desc: "Get rich together — finish the repeated deal with 40+ coins for BOTH players." }
   };
 
   // [starsNeeded, icon, title]

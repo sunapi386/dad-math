@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game Theory 2 · The Prisoner's Dilemma — Math in Half an Hour</title>
+<meta name="description" content="The Prisoner's Dilemma for kids: why cheating is 'logical' in a one-round world, how repetition changes everything, and an evolution simulator where the cheaters boom — then go extinct.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.paytable { border-collapse: collapse; margin: 14px auto; font-family: var(--mono); font-size: .95rem; }
+.paytable th, .paytable td { border: 2px solid var(--line); padding: 8px 12px; text-align: center; }
+.paytable th { background: var(--panel-2); font-weight: 700; }
+.paytable td b { font-size: 1.05rem; }
+.movebtn { font-size: 1.02rem; padding: 10px 20px; border-radius: 14px; border: 2px solid var(--line);
+  background: var(--panel-2); cursor: pointer; font-weight: 700; transition: transform .1s ease, border-color .1s ease; }
+.movebtn:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--primary); }
+.movebtn:disabled { opacity: .45; cursor: default; }
+.coinrow { display: flex; gap: 20px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 10px 0; }
+.hist { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; margin: 10px 0; min-height: 46px; }
+.hist .pair { display: grid; place-items: center; gap: 1px; font-size: .95rem; padding: 3px 4px;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--panel-2); line-height: 1.1; }
+.botcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 14px 0; }
+.botcard { border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--panel-2); }
+.botcard .bic { font-size: 1.5rem; }
+.botcard .bname { font-weight: 800; }
+.botcard p { margin: 4px 0 0; font-size: .88rem; color: var(--muted); }
+.evorow { display: flex; align-items: center; gap: 10px; margin: 7px 0; }
+.evorow .elabel { width: 110px; font-weight: 700; font-family: var(--mono); flex: none; }
+.evorow .etrack { flex: 1; background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px; height: 24px; overflow: hidden; }
+.evorow .ebar { height: 100%; border-radius: 6px 0 0 6px; transition: width .45s ease; }
+.evorow .ecount { width: 3ch; font-family: var(--mono); font-weight: 700; flex: none; text-align: right; }
+.tourbars .ebar { transition: width .6s ease; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Game Theory · Topic 02</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">The Prisoner's Dilemma</h1>
+    <p class="lede">The most famous game in all of game theory. Two players, two buttons, and a
+      trap: the move that is <em>always</em> smarter for you makes <em>everyone</em> poorer. It
+      explains littering, arms races, and why your team's group project fell apart — and the escape
+      hatch is one simple idea: <b>play again tomorrow</b>.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">plays great after GT·1</span> &nbsp; <span class="badge green">🤝 get rich together</span></p>
+  </header>
+
+  <!-- 1 THE DEAL -->
+  <h2>1 · The deal</h2>
+  <p>You and a partner each stand at a machine with two buttons, choosing <b>secretly and at the
+    same time</b>:</p>
+  <p>🤝 <b>SHARE</b> — put a coin in. The machine doubles it and pays it <em>to the other player</em>.<br>
+     😈 <b>CHEAT</b> — put nothing in, but still grab whatever comes out of your slot.</p>
+  <table class="paytable">
+    <tr><th></th><th>partner 🤝 shares</th><th>partner 😈 cheats</th></tr>
+    <tr><th>you 🤝 share</th><td>you <b>+3</b> · them <b>+3</b></td><td>you <b>+0</b> · them <b>+5</b></td></tr>
+    <tr><th>you 😈 cheat</th><td>you <b>+5</b> · them <b>+0</b></td><td>you <b>+1</b> · them <b>+1</b></td></tr>
+  </table>
+  <p>The whole dilemma is hiding in one line of inequalities: $5 > 3 > 1 > 0$. Cheating a sharer
+    pays best (5), sharing together is good (3), cheating together is bad (1), and being the only
+    sharer — the <em>sucker</em> — pays nothing.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎰</span> Try the machine</div>
+    <p class="phint">Pick a move for each player and see the coins fall. Find the outcome that is best for the two of you <em>combined</em> — and the one each player secretly wants.</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <span style="align-self:center;font-weight:700">you:</span>
+      <button class="movebtn" id="m1-yc">🤝 share</button>
+      <button class="movebtn" id="m1-yd">😈 cheat</button>
+      <span style="align-self:center;font-weight:700;margin-left:10px">partner:</span>
+      <button class="movebtn" id="m1-tc">🤝 share</button>
+      <button class="movebtn" id="m1-td">😈 cheat</button>
+    </div>
+    <div class="result" id="m1-read">Choose one button in each pair.</div>
+  </div>
+
+  <!-- 2 THE TRAP -->
+  <h2>2 · The trap: cheating is <em>always</em> smarter</h2>
+  <p>Here's the poisonous logic. You don't know what your partner will do — but you don't need to:</p>
+  <p>If they <b>share</b>: cheat pays you 5, share pays you 3. <b>Cheat wins.</b><br>
+     If they <b>cheat</b>: cheat pays you 1, share pays you 0. <b>Cheat wins again.</b></p>
+  <p>A move that beats every possible reply is called a <b>dominant strategy</b>. Play five rounds
+    against five different strangers and watch the <em>regret meter</em> — the other choice would
+    never have paid you more than cheating:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎲</span> Five strangers <span class="qcount" id="st-count"></span></div>
+    <p class="phint">One round each against five strangers you'll never meet again. After every round the meter shows what your <em>other</em> choice would have earned.</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="movebtn" id="st-c">🤝 share</button>
+      <button class="movebtn" id="st-d">😈 cheat</button>
+      <button class="movebtn" id="st-new" style="display:none">↻ five more strangers</button>
+    </div>
+    <div class="coinrow"><span>your coins <b id="st-you">0</b></span></div>
+    <div class="result" id="st-read">Stranger 1 of 5 is waiting.</div>
+  </div>
+
+  <p>So two perfectly “logical” players both cheat… and walk away with <b>1 coin each</b>, staring
+    at the 3-and-3 they could have had. That both-cheat outcome — where neither player can do
+    better by changing <em>only their own</em> move — is called a <b>Nash equilibrium</b>, and the
+    heartbreaking gap between it and both-share is the dilemma. It's not a party trick: countries
+    stockpiling weapons, kids leaving the group project to the others, everyone littering “just
+    one” wrapper — same game, same trap.</p>
+
+  <!-- 3 REPEAT -->
+  <h2>3 · The escape hatch: play it <em>again</em></h2>
+  <p>Everything above assumed one round against a stranger. But most of life isn't strangers — it's
+    the same classmates, teammates and siblings, over and over. When the game <b>repeats</b>,
+    today's cheat becomes tomorrow's reputation. Play <b>15 rounds against the same mystery
+    partner</b> and see if you can both get rich:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🤝</span> The long deal <span class="qcount" id="lg-count"></span></div>
+    <p class="phint">Same partner, 15 rounds. Finish with <b>40+ coins for BOTH of you</b> to earn the 🤝 Peacemaker badge. (Top row = you, bottom = partner.)</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="movebtn" id="lg-c">🤝 share</button>
+      <button class="movebtn" id="lg-d">😈 cheat</button>
+      <button class="movebtn" id="lg-new">↻ New partner</button>
+    </div>
+    <div class="hist" id="lg-hist"></div>
+    <div class="coinrow"><span>you <b id="lg-you">0</b></span><span>partner <b id="lg-bot">0</b></span></div>
+    <div class="result" id="lg-read">Round 1 of 15. Your move.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Spoiler (after you play):</span> your partner was 🪞 <b>Copycat</b> — it starts
+    friendly, then simply plays <em>your last move back at you</em>. Game theorists call it
+    <b>tit-for-tat</b>. Notice what it does to the trap: against Copycat, cheating still grabs you
+    5 coins <em>today</em> — but it costs you 3 coins <em>every round after</em>, because your own
+    cheat comes bouncing back. In a repeated game, the "dominant" move stops being dominant, and
+    kindness-with-a-memory becomes the money-maker.
+  </div>
+
+  <!-- 4 LINEUP -->
+  <h2>4 · Know your opponent</h2>
+  <p>Different people play repeated games very differently. Meet the five classic personalities:</p>
+  <div class="botcards">
+    <div class="botcard"><span class="bic">😇</span> <span class="bname">Angel</span><p>Always shares. No matter what.</p></div>
+    <div class="botcard"><span class="bic">😈</span> <span class="bname">Devil</span><p>Always cheats. No matter what.</p></div>
+    <div class="botcard"><span class="bic">🪞</span> <span class="bname">Copycat</span><p>Shares first, then plays your last move back at you.</p></div>
+    <div class="botcard"><span class="bic">😡</span> <span class="bname">Grudger</span><p>Shares — until you cheat <em>once</em>. Then cheats forever.</p></div>
+    <div class="botcard"><span class="bic">🪙</span> <span class="bname">Coinflip</span><p>Flips a coin every round. Pure chaos.</p></div>
+  </div>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🕵️</span> Guess who <span class="qcount" id="gw-count"></span></div>
+    <p class="phint">Play 8 rounds against a mystery partner, then name them. Detective tip: everyone looks like an Angel while you're sharing — <b>cheat once and watch what comes back</b>. Streak of 3 correct = ⭐.</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="movebtn" id="gw-c">🤝 share</button>
+      <button class="movebtn" id="gw-d">😈 cheat</button>
+      <button class="movebtn" id="gw-new" style="display:none">↻ New mystery</button>
+    </div>
+    <div class="hist" id="gw-hist"></div>
+    <div class="ctrlrow" id="gw-guesses" style="justify-content:center;display:none"></div>
+    <div class="result" id="gw-read">Round 1 of 8 against ??? — your move.</div>
+  </div>
+
+  <!-- 5 TOURNAMENT + EVOLUTION -->
+  <h2>5 · The tournament — and the twist</h2>
+  <p>In 1980, professor Robert Axelrod held exactly this contest: strategies from around the world,
+    round-robin, most coins wins. Run ours — every personality plays every other for 10 rounds:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🏆</span> Round-robin tournament</div>
+    <p class="phint">Everyone plays everyone. Who ends up richest?</p>
+    <div class="ctrlrow" style="justify-content:center"><button class="movebtn" id="tr-run">🏆 Run the tournament</button></div>
+    <div class="tourbars" id="tr-bars"></div>
+    <div class="result" id="tr-read">Place your bet first. Then run it.</div>
+  </div>
+
+  <p>😈 wins — almost every run (if 🪙's lucky coin sneaks someone past him, run it again). Robbing
+    Angels pays better than any friendship. So cheating is the best strategy after all…? Here's the
+    twist that made this game famous. A tournament is one season —
+    but life goes on. Suppose after each season the <b>worst-scoring players quit, and the winners'
+    strategy gets copied</b> by newcomers (that's evolution — in playgrounds as much as jungles).
+    Watch a town of 24 players, mostly trusting Angels with a few Devils and Copycats mixed in:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧬</span> Evolution: 24 players, many seasons</div>
+    <p class="phint">Each season: everyone plays everyone (10 rounds), the 4 poorest players quit, and 4 newcomers copy the richest strategy.</p>
+    <div id="ev-rows"></div>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="movebtn" id="ev-step">▶ Next season</button>
+      <button class="movebtn" id="ev-run">⏩ Run to the end</button>
+      <button class="movebtn" id="ev-reset">↻ Restart</button>
+    </div>
+    <div class="result" id="ev-read">Season 0 — a trusting town with a few bad apples. Press ▶.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">The big idea:</span> the Devils <em>boom</em> while there are Angels to rob —
+    then run out of victims and starve on 1-coin handshakes with each other, and the town ends up
+    all Copycats: everyone sharing, everyone rich, but nobody exploitable. Axelrod's real
+    tournaments were won by exactly that strategy — tit-for-tat — and his famous recipe for winning
+    repeated games reads like playground advice: <b>be nice</b> (never cheat first), <b>hit back</b>
+    (don't be a sucker twice), <b>forgive</b> (one punch back, then let it go), and <b>be clear</b>
+    (let people learn they can trust you). That's why repeated life is mostly cooperative even
+    though every single day contains this trap.
+  </div>
+
+  <!-- 6 PUZZLE -->
+  <h2>6 · 🧩 Puzzle: read the game</h2>
+  <p>Fresh questions about coins, rounds and Copycat. Streak of 3 = ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Dilemma drills</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:8ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Play it for real.</strong> Ten rounds against someone in your family, with real
+      candy or coins and the payout table above (write moves secretly, reveal together). Then swap:
+      you <em>be</em> Copycat and see if they figure you out.</li>
+    <li><strong>Spot the dilemma.</strong> Which of these are prisoner's dilemmas — where cheating
+      is tempting but everyone-cheats is worst? Littering · doing your share of a group project ·
+      two shops both promising "lowest prices" · taking the last cookie.</li>
+    <li><strong>Break Copycat.</strong> Copycat has one weakness: if BOTH players are Copycats and
+      one cheats <em>once by accident</em>, what happens for the rest of the game? (Play it out on
+      paper.) What one-word fix repairs it? (Hint: it's in Axelrod's recipe.)</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">prisoner's dilemma · payoff · dominant strategy · Nash equilibrium · repeated game · tit-for-tat · reputation · evolution of cooperation</p>
+
+  <div class="lessonnav">
+    <a href="gm01-winning-games.html">← GT·1: How to Win Every Game</a>
+    <a href="gt01-bridges.html">Graph theory: The Seven Bridges →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=9"></script>
+<script>
+/* === GM2:PURE START === (DOM-free game logic; node-tested before deploy) */
+var GM2 = {};
+/* payoffs: [your coins, their coins]. share+share 3/3, cheat a sharer 5/0, both cheat 1/1 */
+GM2.pay = function (a, b) {
+  if (a === "c" && b === "c") return [3, 3];
+  if (a === "c" && b === "d") return [0, 5];
+  if (a === "d" && b === "c") return [5, 0];
+  return [1, 1];
+};
+GM2.other = function (m) { return m === "c" ? "d" : "c"; };
+GM2.mulberry32 = function (a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+/* each bot: move(myHistory, theirHistory, rng) -> "c" | "d" */
+GM2.BOTS = {
+  angel:   { icon: "😇", name: "Angel",    move: function (me, you, rng) { return "c"; } },
+  devil:   { icon: "😈", name: "Devil",    move: function (me, you, rng) { return "d"; } },
+  copycat: { icon: "🪞", name: "Copycat",  move: function (me, you, rng) { return you.length ? you[you.length - 1] : "c"; } },
+  grudge:  { icon: "😡", name: "Grudger",  move: function (me, you, rng) { return you.indexOf("d") >= 0 ? "d" : "c"; } },
+  flip:    { icon: "🪙", name: "Coinflip", move: function (me, you, rng) { return rng() < 0.5 ? "c" : "d"; } }
+};
+GM2.BOTNAMES = ["angel", "devil", "copycat", "grudge", "flip"];
+/* bot-vs-bot match over n rounds -> [scoreA, scoreB] */
+GM2.match = function (a, b, rounds, rng) {
+  var ha = [], hb = [], sa = 0, sb = 0;
+  for (var i = 0; i < rounds; i++) {
+    var ma = GM2.BOTS[a].move(ha, hb, rng), mb = GM2.BOTS[b].move(hb, ha, rng);
+    var p = GM2.pay(ma, mb);
+    sa += p[0]; sb += p[1];
+    ha.push(ma); hb.push(mb);
+  }
+  return [sa, sb];
+};
+/* round-robin: every pair plays once -> {name: totalCoins} */
+GM2.tournament = function (names, rounds, rng) {
+  var tot = {};
+  names.forEach(function (n) { tot[n] = 0; });
+  for (var i = 0; i < names.length; i++)
+    for (var j = i + 1; j < names.length; j++) {
+      var r = GM2.match(names[i], names[j], rounds, rng);
+      tot[names[i]] += r[0]; tot[names[j]] += r[1];
+    }
+  return tot;
+};
+/* evolution over the three deterministic archetypes (no rng -> fully reproducible) */
+GM2.EVO = ["angel", "devil", "copycat"];
+GM2.EVO_START = { angel: 16, devil: 4, copycat: 4 };   // 24 players
+GM2.EVO_K = 4;                                          // quit/copy 4 per season
+GM2.EVO_ROUNDS = 10;
+GM2.expTable = function (rounds) {                      // deterministic per-match score table
+  var t = {};
+  GM2.EVO.forEach(function (a) {
+    t[a] = {};
+    GM2.EVO.forEach(function (b) { t[a][b] = GM2.match(a, b, rounds, null)[0]; });
+  });
+  return t;
+};
+/* one season: everyone plays everyone once; k poorest quit, k newcomers copy the richest type */
+GM2.evolveStep = function (pop, exp, k) {
+  var score = {};
+  GM2.EVO.forEach(function (x) {
+    if (!pop[x]) return;
+    var s = 0;
+    GM2.EVO.forEach(function (y) {
+      var n = pop[y] - (x === y ? 1 : 0);
+      if (n > 0) s += n * exp[x][y];
+    });
+    score[x] = s;
+  });
+  var next = {};
+  GM2.EVO.forEach(function (x) { next[x] = pop[x]; });
+  for (var i = 0; i < k; i++) {
+    var worst = null, best = null;
+    GM2.EVO.forEach(function (x) {
+      if (next[x] > 0) {
+        if (worst === null || score[x] < score[worst]) worst = x;
+        if (best === null || score[x] > score[best]) best = x;
+      }
+    });
+    next[worst]--; next[best]++;
+  }
+  return next;
+};
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+GM2.MOVE_WORD = { c: "SHARE 🤝", d: "CHEAT 😈" };
+GM2.GENS = [
+  function (rng) {   // read the payoff table
+    var y = rng() < 0.5 ? "c" : "d", t = rng() < 0.5 ? "c" : "d";
+    var p = GM2.pay(y, t);
+    return { text: "One round. You play " + GM2.MOVE_WORD[y] + " and your partner plays " + GM2.MOVE_WORD[t] + ". How many coins do YOU get?",
+             ans: p[0], why: "🤝+🤝 → 3 each, 😈 vs 🤝 → 5/0, 😈+😈 → 1 each. You get " + p[0] };
+  },
+  function (rng) {   // totals over n rounds
+    var n = 5 + Math.floor(rng() * 16), both = rng() < 0.5;
+    return both
+      ? { text: "You and your partner BOTH share every round for " + n + " rounds. How many coins does EACH of you end with?",
+          ans: 3 * n, why: "3 coins a round × " + n + " rounds = " + (3 * n) }
+      : { text: "You and your partner BOTH cheat every round for " + n + " rounds. How many coins does EACH of you end with?",
+          ans: n, why: "1 measly coin a round × " + n + " rounds = " + n };
+  },
+  function (rng) {   // predict Copycat
+    var k = 3 + Math.floor(rng() * 3), seq = [];
+    for (var i = 0; i < k; i++) seq.push(rng() < 0.5 ? "c" : "d");
+    var icons = seq.map(function (m) { return m === "c" ? "🤝" : "😈"; }).join(" ");
+    return { text: "Against 🪞 Copycat your moves so far (oldest first) were: " + icons + " . What does Copycat play NEXT round? (1 = share, 0 = cheat)",
+             ans: seq[k - 1] === "c" ? 1 : 0,
+             why: "Copycat always returns your LAST move — you just played " + (seq[k - 1] === "c" ? "🤝, so it shares (1)" : "😈, so it cheats (0)") };
+  }
+];
+/* === GM2:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+  var ICON = { c: "🤝", d: "😈" };
+
+  // ---------- §1 try the machine ----------
+  (function () {
+    var mine = null, theirs = null;
+    var read = document.getElementById("m1-read");
+    var btns = { yc: "c", yd: "d", tc: "c", td: "d" };
+    function paint() {
+      Object.keys(btns).forEach(function (k) {
+        var el = document.getElementById("m1-" + k);
+        var sel = (k[0] === "y" ? mine : theirs) === btns[k];
+        el.style.borderColor = sel ? "var(--primary)" : "var(--line)";
+        el.style.transform = sel ? "translateY(-2px)" : "";
+      });
+      if (mine && theirs) {
+        var p = GM2.pay(mine, theirs);
+        var msg = "You " + ICON[mine] + " · partner " + ICON[theirs] + " → you get <b>" + p[0] + "</b>, they get <b>" + p[1] + "</b>. " +
+          (mine === "c" && theirs === "c" ? "Best <em>combined</em>: 6 coins between you." :
+           mine === "d" && theirs === "d" ? "The trap: 2 coins between you — the worst total on the table." :
+           "Biggest personal haul… paid for entirely by the sucker.");
+        read.className = "result"; read.innerHTML = msg;
+      }
+    }
+    Object.keys(btns).forEach(function (k) {
+      document.getElementById("m1-" + k).addEventListener("click", function () {
+        if (k[0] === "y") mine = btns[k]; else theirs = btns[k];
+        paint();
+      });
+    });
+  })();
+
+  // ---------- §2 five strangers ----------
+  (function () {
+    var round = 0, coins = 0;
+    var read = document.getElementById("st-read"), you = document.getElementById("st-you"),
+        count = document.getElementById("st-count"), fresh = document.getElementById("st-new");
+    var cheatAlwaysWon = true;
+    function play(m) {
+      if (round >= 5) return;
+      round++;
+      var s = Math.random() < 0.5 ? "c" : "d";                 // a stranger: could do anything
+      var p = GM2.pay(m, s), alt = GM2.pay(GM2.other(m), s);
+      coins += p[0];
+      you.textContent = coins;
+      count.textContent = round + "/5";
+      if (alt[0] > p[0]) cheatAlwaysWon = false;               // only possible when m === "c"
+      var regret = alt[0] > p[0]
+        ? "😖 Regret: cheating would have paid <b>" + alt[0] + "</b> instead of " + p[0] + "."
+        : "😌 No regrets: the other choice would have paid only <b>" + alt[0] + "</b>.";
+      var msg = "Stranger " + round + " played " + ICON[s] + ". You " + ICON[m] + " → <b>+" + p[0] + "</b>. " + regret;
+      if (round === 5) {
+        msg += cheatAlwaysWon
+          ? " <br>🎓 Five rounds, and the choice that never lost was <b>cheat</b>. That's a dominant strategy — now read on for why it ruins everything."
+          : " <br>🎓 Notice every regret happened when you <b>shared</b>: cheat pays more no matter what they do. That's a dominant strategy — now read on for why it ruins everything.";
+        fresh.style.display = "";
+      }
+      read.className = "result"; read.innerHTML = msg;
+    }
+    document.getElementById("st-c").addEventListener("click", function () { play("c"); });
+    document.getElementById("st-d").addEventListener("click", function () { play("d"); });
+    fresh.addEventListener("click", function () {
+      round = 0; coins = 0; cheatAlwaysWon = true;
+      you.textContent = 0; count.textContent = ""; fresh.style.display = "none";
+      read.className = "result"; read.innerHTML = "Stranger 1 of 5 is waiting.";
+    });
+  })();
+
+  // ---------- §3 the long deal (vs Copycat) ----------
+  (function () {
+    var ROUNDS = 15, me = [], bot = [], my = 0, its = 0, over = false;
+    var hist = document.getElementById("lg-hist"), read = document.getElementById("lg-read"),
+        youEl = document.getElementById("lg-you"), botEl = document.getElementById("lg-bot"),
+        count = document.getElementById("lg-count");
+    function play(m) {
+      if (over) return;
+      var b = GM2.BOTS.copycat.move(bot, me, Math.random);
+      var p = GM2.pay(m, b);
+      my += p[0]; its += p[1];
+      me.push(m); bot.push(b);
+      var pair = document.createElement("div");
+      pair.className = "pair"; pair.innerHTML = ICON[m] + "<br>" + ICON[b];
+      hist.appendChild(pair);
+      youEl.textContent = my; botEl.textContent = its;
+      count.textContent = me.length + "/" + ROUNDS;
+      if (me.length === ROUNDS) {
+        over = true;
+        var both40 = my >= 40 && its >= 40;
+        if (both40) {
+          read.className = "result win";
+          read.innerHTML = "🏆 <b>You both got rich: " + my + " and " + its + ".</b> Your partner was 🪞 <b>Copycat</b> — it only ever did what you did. In a repeated game, trust literally pays. 🤝 Peacemaker earned!";
+          if (window.DadMath) { DadMath.badge("gm-coop"); DadMath.star("gm2", 2, "Got rich together — " + my + " and " + its + " coins"); }
+        } else {
+          read.className = "result miss";
+          read.innerHTML = "Final: you <b>" + my + "</b>, partner <b>" + its + "</b>. It was 🪞 <b>Copycat</b> — every cheat you sent came straight back next round. Pure sharing pays 45 <em>each</em>. New partner, new reputation?";
+        }
+        return;
+      }
+      read.className = "result";
+      read.innerHTML = "You " + ICON[m] + " · partner " + ICON[b] + " → +" + p[0] + " / +" + p[1] + ". Round " + (me.length + 1) + " of " + ROUNDS + ".";
+    }
+    document.getElementById("lg-c").addEventListener("click", function () { play("c"); });
+    document.getElementById("lg-d").addEventListener("click", function () { play("d"); });
+    document.getElementById("lg-new").addEventListener("click", function () {
+      me = []; bot = []; my = 0; its = 0; over = false;
+      hist.innerHTML = ""; youEl.textContent = 0; botEl.textContent = 0; count.textContent = "";
+      read.className = "result"; read.innerHTML = "Round 1 of 15. Your move.";
+    });
+  })();
+
+  // ---------- §4 guess who ----------
+  (function () {
+    var ROUNDS = 8, secret = null, me = [], bot = [], phase = "play", streak = 0, best = 0;
+    var hist = document.getElementById("gw-hist"), read = document.getElementById("gw-read"),
+        guesses = document.getElementById("gw-guesses"), count = document.getElementById("gw-count"),
+        fresh = document.getElementById("gw-new");
+    function newMystery() {
+      secret = GM2.BOTNAMES[Math.floor(Math.random() * GM2.BOTNAMES.length)];
+      me = []; bot = []; phase = "play";
+      hist.innerHTML = ""; guesses.style.display = "none"; fresh.style.display = "none";
+      count.textContent = "streak " + streak;
+      read.className = "result"; read.innerHTML = "Round 1 of " + ROUNDS + " against ??? — your move.";
+    }
+    function play(m) {
+      if (phase !== "play") return;
+      var b = GM2.BOTS[secret].move(bot, me, Math.random);
+      me.push(m); bot.push(b);
+      var pair = document.createElement("div");
+      pair.className = "pair"; pair.innerHTML = ICON[m] + "<br>" + ICON[b];
+      hist.appendChild(pair);
+      if (me.length === ROUNDS) {
+        phase = "guess";
+        guesses.style.display = "";
+        read.className = "result"; read.innerHTML = "8 rounds played. Who was it?";
+        return;
+      }
+      read.className = "result";
+      read.innerHTML = "It played " + ICON[b] + ". Round " + (me.length + 1) + " of " + ROUNDS + ".";
+    }
+    GM2.BOTNAMES.forEach(function (n) {
+      var b = document.createElement("button");
+      b.className = "movebtn";
+      b.innerHTML = GM2.BOTS[n].icon + " " + GM2.BOTS[n].name;
+      b.addEventListener("click", function () {
+        if (phase !== "guess") return;
+        phase = "done"; fresh.style.display = "";
+        if (n === secret) {
+          streak++; best = Math.max(best, streak);
+          read.className = "result win";
+          read.innerHTML = "🕵️ <b>Got it — " + GM2.BOTS[secret].icon + " " + GM2.BOTS[secret].name + "!</b> Streak " + streak + (streak % 3 === 0 ? " ⭐" : "") + ".";
+          if (window.DadMath && streak % 3 === 0) DadMath.star("gm2", 1, "Bot detective — streak " + streak);
+        } else {
+          streak = 0;
+          read.className = "result miss";
+          read.innerHTML = "It was " + GM2.BOTS[secret].icon + " <b>" + GM2.BOTS[secret].name + "</b>. (Did you poke it with a cheat? That's how you tell them apart.) Streak reset.";
+        }
+        count.textContent = "streak " + streak;
+      });
+      guesses.appendChild(b);
+    });
+    document.getElementById("gw-c").addEventListener("click", function () { play("c"); });
+    document.getElementById("gw-d").addEventListener("click", function () { play("d"); });
+    fresh.addEventListener("click", newMystery);
+    newMystery();
+  })();
+
+  // ---------- §5a tournament ----------
+  (function () {
+    var COLORS = { angel: "#fbbf24", devil: "#ef4444", copycat: "#3b82f6", grudge: "#a855f7", flip: "#10b981" };
+    var bars = document.getElementById("tr-bars"), read = document.getElementById("tr-read");
+    document.getElementById("tr-run").addEventListener("click", function () {
+      var tot = GM2.tournament(GM2.BOTNAMES, 10, Math.random);
+      var order = GM2.BOTNAMES.slice().sort(function (a, b) { return tot[b] - tot[a]; });
+      var max = tot[order[0]];
+      bars.innerHTML = "";
+      order.forEach(function (n) {
+        var row = document.createElement("div");
+        row.className = "evorow";
+        row.innerHTML = "<span class='elabel'>" + GM2.BOTS[n].icon + " " + GM2.BOTS[n].name + "</span>" +
+          "<div class='etrack'><div class='ebar' style='width:0;background:" + COLORS[n] + "'></div></div>" +
+          "<span class='ecount'>" + tot[n] + "</span>";
+        bars.appendChild(row);
+        var bar = row.querySelector(".ebar");
+        setTimeout(function () { bar.style.width = (tot[n] / max * 100) + "%"; }, 30);
+      });
+      var w = order[0];
+      read.className = "result";
+      read.innerHTML = w === "devil"
+        ? "🏆 <b>😈 Devil wins.</b> Every Angel it met was free money. In a one-season world, nasty pays — hold that thought."
+        : "🏆 <b>" + GM2.BOTS[w].icon + " " + GM2.BOTS[w].name + " wins this run</b> — the 🪙 coin flips were kind. Run it a few more times and watch who usually comes out on top.";
+    });
+  })();
+
+  // ---------- §5b evolution ----------
+  (function () {
+    var COLORS = { angel: "#fbbf24", devil: "#ef4444", copycat: "#3b82f6" };
+    var exp = GM2.expTable(GM2.EVO_ROUNDS);
+    var pop, season, devilPeak, rows = document.getElementById("ev-rows"), read = document.getElementById("ev-read");
+    function reset() {
+      pop = { angel: GM2.EVO_START.angel, devil: GM2.EVO_START.devil, copycat: GM2.EVO_START.copycat };
+      season = 0; devilPeak = pop.devil;
+      paint("Season 0 — a trusting town with a few bad apples. Press ▶.", "result");
+    }
+    function paint(msg, cls) {
+      rows.innerHTML = "";
+      GM2.EVO.forEach(function (n) {
+        var row = document.createElement("div");
+        row.className = "evorow";
+        row.innerHTML = "<span class='elabel'>" + GM2.BOTS[n].icon + " " + GM2.BOTS[n].name + "</span>" +
+          "<div class='etrack'><div class='ebar' style='width:" + (pop[n] / 24 * 100) + "%;background:" + COLORS[n] + "'></div></div>" +
+          "<span class='ecount'>" + pop[n] + "</span>";
+        rows.appendChild(row);
+      });
+      read.className = cls || "result"; read.innerHTML = msg;
+    }
+    function step() {
+      if (pop.copycat === 24) return false;
+      var prev = { angel: pop.angel, devil: pop.devil, copycat: pop.copycat };
+      pop = GM2.evolveStep(pop, exp, GM2.EVO_K);
+      season++;
+      devilPeak = Math.max(devilPeak, pop.devil);
+      var msg = "Season " + season + ".";
+      if (prev.angel > 0 && pop.angel === 0) msg += " 😇 The last Angel quits — the Devils' feast is over. Now who do they rob?";
+      else if (prev.devil > pop.devil && pop.devil > 0) msg += " 😈 Devils are starving on 1-coin handshakes with each other…";
+      else if (prev.devil > 0 && pop.devil === 0) msg += " 😈 Extinct. The cheaters won the battle and lost the war.";
+      else if (pop.devil > prev.devil) msg += " 😈 Devils are booming — Angels are easy pickings.";
+      if (pop.copycat === 24) msg = "Season " + season + " — 🪞 <b>a whole town of Copycats.</b> Everyone shares, everyone earns 3 a round, and a lone Devil arriving now would starve. Nice-with-a-memory didn't just survive — it took over.";
+      paint(msg, pop.copycat === 24 ? "result win" : "result");
+      return true;
+    }
+    document.getElementById("ev-step").addEventListener("click", step);
+    document.getElementById("ev-run").addEventListener("click", function run() {
+      if (step()) setTimeout(run, 650);
+    });
+    document.getElementById("ev-reset").addEventListener("click", reset);
+    reset();
+  })();
+
+  // ---------- §6 puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    function newQ() {
+      q = GM2.GENS[Math.floor(Math.random() * GM2.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Deal read correctly. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath && streak % 3 === 0) DadMath.star("gm2", 1, "Dilemma drills — streak " + streak);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

@@ -51,6 +51,11 @@ client-side, so this is a trust-and-verify aid for a present parent, not tamper-
   then a **pattern-sniffing rock-paper-scissors bot** (a Markov counter on your habits) that
   teaches why the only unbeatable plan in a mixing game is a **mixed strategy** — true
   randomness. → `gm01-winning-games.html`
+- **🎲 GT·2 The Prisoner's Dilemma** — the most famous game in game theory: why cheating is a
+  **dominant strategy** yet everyone-cheats is the worst outcome (Nash equilibrium), the escape
+  hatch of **repeated games** (play 15 rounds vs a tit-for-tat bot; get rich *together* for a
+  badge), a guess-the-personality detective game, and an Axelrod-style tournament + **evolution
+  simulator** where the cheaters boom, starve, and go extinct. → `gm02-prisoners-dilemma.html`
 - **📖 Story mode: The Cat in the Box** — quantum mechanics as a read-aloud story with a
   collapsing coin, a double-slit toy, and entangled gloves. → `qm01-quantum-story.html`
 
