@@ -83,6 +83,17 @@ hides itself on browsers that don't support it, e.g. Firefox). Submissions POST 
   (`.htpasswd`, user `jason`). Lists every note newest-and-unactioned-first; a
   **✓ Mark actioned** button ticks each one off when the feedback has been implemented.
 
+## 📈 Analytics
+
+Every page loads a lightweight [Umami](https://umami.is) tracking snippet (in
+`<head>`) pointing at the self-hosted instance at **https://analytics.jasonsun.org**.
+Umami is cookieless and privacy-friendly (no personal data, no cross-site tracking —
+appropriate for a kids' site) and records pageviews, sessions, referrers,
+device/browser/OS/country, and **visit duration** (time on page). dad-math is its own
+website entry in the dashboard (`data-website-id`), separate from the other sites on
+that instance. `data-domains="jasonsun.org,www.jasonsun.org"` keeps the public GitHub
+Pages mirror and localhost from polluting the stats.
+
 ## Structure
 
 ```
