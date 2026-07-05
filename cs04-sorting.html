@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS 4 · How to Sort a Messy Bookshelf — Math in Half an Hour</title>
+<meta name="description" content="Sorting algorithms for kids: derive bubble sort, discover its handshake-problem cost, beat par in the Sort Sprint game, learn the divide-and-conquer trick, and let a mind-reading bot find your number in 10 guesses.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.barbox { display: flex; align-items: flex-end; justify-content: center; gap: 5px; height: 130px; margin: 14px 0; }
+.sbar { width: 30px; border-radius: 6px 6px 0 0; background: var(--primary); opacity: .75;
+  display: grid; place-items: end center; color: #fff; font-family: var(--mono); font-weight: 700; font-size: .8rem;
+  padding-bottom: 3px; transition: height .18s ease; }
+.sbar.cmp { background: var(--accent); opacity: 1; }
+.sbar.done { background: #16a34a; opacity: 1; }
+.tilerow { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 14px 0; min-height: 54px; }
+.tile { width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center;
+  font-family: var(--mono); font-weight: 800; font-size: 1.15rem; border: 2px solid var(--line);
+  background: var(--panel-2); cursor: pointer; transition: transform .12s ease, border-color .12s ease, background .2s ease; }
+.tile:hover { transform: translateY(-3px); border-color: var(--primary); }
+.tile.home { background: #dcfce7; border-color: #16a34a; color: #14532d; }
+:root[data-theme="dark"] .tile.home { background: #14532d; color: #bbf7d0; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tile.home { background: #14532d; color: #bbf7d0; } }
+.tile.locked { cursor: default; opacity: .6; }
+.tile.locked:hover { transform: none; border-color: var(--line); }
+.mrow { display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 8px 0; }
+.mlabel { font-weight: 700; width: 70px; text-align: right; flex: none; }
+.card2 { min-width: 40px; height: 48px; border-radius: 10px; display: grid; place-items: center; padding: 0 8px;
+  font-family: var(--mono); font-weight: 800; border: 2px solid var(--line); background: var(--panel-2); }
+.card2.front { border-color: var(--primary); cursor: pointer; }
+.card2.front:hover { transform: translateY(-3px); }
+.card2.out { border-color: #16a34a; }
+.card2.bad { animation: shake .3s; border-color: #dc2626; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+.racerow { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.racerow .rlabel { width: 130px; font-weight: 700; font-family: var(--mono); flex: none; font-size: .9rem; }
+.racerow .rtrack { flex: 1; background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px; height: 24px; overflow: hidden; }
+.racerow .rbar { height: 100%; border-radius: 6px 0 0 6px; }
+.racerow .rcount { width: 11ch; font-family: var(--mono); font-size: .85rem; flex: none; text-align: right; }
+.statrow { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Computer Science · Topic 04</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">How to Sort a Messy Bookshelf</h1>
+    <p class="lede">Every leaderboard, every inventory screen, every photo app quietly does the same
+      chore billions of times a day: <b>putting things in order</b>. Today you'll invent a sorting
+      machine, discover it hides a formula you already derived, find the one trick that makes it
+      thousands of times faster — and learn what sorted order <em>buys</em> you: mind-reading.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">uses Lesson 3's handshake trick</span> &nbsp; <span class="badge green">📚 beat par, climb levels</span></p>
+  </header>
+
+  <!-- 1 THE RULES -->
+  <h2>1 · The robot librarian's rules</h2>
+  <p>You're a robot with a messy shelf. You can't “just see” where everything goes — a computer
+    never can. You get exactly two moves, repeated as many times as you like:</p>
+  <p>🔍 <b>Compare</b> two books — which one comes first?<br>
+     🔄 <b>Swap</b> two books that are next to each other.</p>
+  <p>That's it. Every sorting method ever invented — and your phone runs one every time you open
+    it — is just a <b>plan</b> for which compares and swaps to do in which order. A precise plan
+    like that is called an <b>algorithm</b>. Let's invent the most obvious one.</p>
+
+  <!-- 2 BUBBLE -->
+  <h2>2 · The obvious plan: bubble sort</h2>
+  <p>Walk down the shelf. Whenever two neighbours are out of order, swap them. Reach the end?
+    Walk it again. Stop when a whole walk needs no swaps. Watch it go — big books “bubble” to the
+    end of the shelf, one walk at a time:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🫧</span> Bubble sort, live</div>
+    <p class="phint">Orange = the pair being compared right now. Green = finished.</p>
+    <div class="barbox" id="sv-bars"></div>
+    <div class="ctrlrow">
+      <button class="btn" id="sv-step">Step</button>
+      <button class="btn" id="sv-play">▶ Play</button>
+      <button class="btn ghost" id="sv-new">🔀 New shuffle</button>
+    </div>
+    <div class="result" id="sv-read">Press Step to run one compare.</div>
+  </div>
+
+  <!-- 3 COST -->
+  <h2>3 · What does it cost? (You already know this formula)</h2>
+  <p>Count the work in the worst case. The first walk down a shelf of $n$ books makes $n-1$
+    compares. And you might need a walk for every book. Add it up…</p>
+  <p>$$(n-1) + (n-2) + \dots + 2 + 1 = \frac{n(n-1)}{2}$$</p>
+  <p>Wait. That's the <b>handshake formula from Lesson 3</b>! Bubble sort's worst case is every
+    book “shaking hands” with every other book. And that formula has a nasty habit: <b>double the
+    books, quadruple the work.</b></p>
+  <p>10 books → 45 compares. Fine. &nbsp;100 books → 4,950. Hmm. &nbsp;A million books (one music
+    app's song list) → about <b>500 billion</b> compares. Even at a billion compares per second,
+    that's over 8 minutes of pure sorting. Your phone would feel broken. Hold that thought — first,
+    let's see how good <em>you</em> are with swaps.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🏁</span> GAME · Sort Sprint <span class="qcount" id="sp-count"></span></div>
+    <p class="phint">Tap a tile to swap it with its right-hand neighbour. Sort the shelf in the
+      <b>fewest possible swaps</b> — hit par exactly and you level up to a bigger shelf (your level
+      is saved). First perfect sort earns the 📚 Shelf Master badge.</p>
+    <div class="tilerow" id="sp-tiles"></div>
+    <div class="statrow"><span>swaps <b id="sp-moves">0</b></span><span>par <b id="sp-par">?</b></span><span>level <b id="sp-level">1</b></span></div>
+    <div class="ctrlrow">
+      <button class="btn ghost" id="sp-new">🔀 New shuffle</button>
+    </div>
+    <div class="result" id="sp-read">Green tiles are home. Get them all green.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Secret of par:</span> count the pairs of tiles that are out of order (a big
+    number sitting anywhere before a smaller one). Each neighbour-swap can fix <em>exactly one</em>
+    such pair, no more — so that count is the true minimum. Computer scientists call those pairs
+    <b>inversions</b>. Now you know why wild shuffles have a bigger par.
+  </div>
+
+  <!-- 4 MERGE -->
+  <h2>4 · The trick that makes it fast: split, sort, merge</h2>
+  <p>Here's the insight that changed everything. Suppose your shelf is somehow already in
+    <b>two sorted halves</b>. Gluing them into one sorted shelf is <em>easy</em>: look at the two
+    front books, take the smaller, repeat. One compare per book you place. No walking back and
+    forth.</p>
+  <p>So: split the shelf in half. Split the halves in half. Keep going until every “pile” is a
+    single book — a single book is already sorted! Then <b>merge</b> your way back up. That's
+    <b>merge sort</b>, and its plan is called <b>divide and conquer</b>.</p>
+  <p>The cost: each level of merging touches all $n$ books once, and halving $n$ down to 1 takes
+    $\log_2 n$ levels (that's the “how many times can I cut it in half” number — for a million
+    it's just 20, because $2^{20}$ is about a million). Total:</p>
+  <p>$$n \log_2 n \quad\text{instead of}\quad \frac{n(n-1)}{2}$$</p>
+  <p>A million books: <b>~20 million</b> compares instead of ~500 billion — about
+    <b>25,000&times; faster</b>. Same shelf, same rules, better plan. That's what “algorithm”
+    really means: the plan <em>is</em> the speed.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🃏</span> GAME · Merge Master <span class="qcount" id="mg-count"></span></div>
+    <p class="phint">You are the merge step. Two sorted piles — always tap the <b>smaller front
+      card</b>. A perfect merge (no mistakes) builds your combo; every 3 in a row = ⭐ and the
+      piles grow. One wrong tap resets the combo.</p>
+    <div class="mrow"><span class="mlabel">pile A</span><span id="mg-a" style="display:flex;gap:5px;flex-wrap:wrap"></span></div>
+    <div class="mrow"><span class="mlabel">pile B</span><span id="mg-b" style="display:flex;gap:5px;flex-wrap:wrap"></span></div>
+    <div class="mrow"><span class="mlabel">sorted</span><span id="mg-out" style="display:flex;gap:5px;flex-wrap:wrap"></span></div>
+    <div class="statrow"><span>combo <b id="mg-combo">0</b></span><span>best <b id="mg-best">0</b></span></div>
+    <div class="ctrlrow"><button class="btn ghost" id="mg-new">🃏 Deal again</button></div>
+    <div class="result" id="mg-read">Tap the smaller of the two front cards.</div>
+  </div>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🏎️</span> The race: one shelf, two plans</div>
+    <p class="phint">Same shuffled shelf, both plans compare at the same speed. Pick a size and
+      watch the gap grow — then double the size and watch it <em>explode</em>.</p>
+    <div class="ctrlrow">
+      <button class="btn" id="rc-16">16 books</button>
+      <button class="btn" id="rc-64">64</button>
+      <button class="btn" id="rc-256">256</button>
+      <button class="btn" id="rc-1024">1,024</button>
+    </div>
+    <div class="racerow"><span class="rlabel">🫧 bubble</span><div class="rtrack"><div class="rbar" id="rc-bbar" style="width:0;background:var(--accent)"></div></div><span class="rcount" id="rc-bn">–</span></div>
+    <div class="racerow"><span class="rlabel">🃏 merge</span><div class="rtrack"><div class="rbar" id="rc-mbar" style="width:0;background:#16a34a"></div></div><span class="rcount" id="rc-mn">–</span></div>
+    <div class="result" id="rc-read">Pick a shelf size to start the race.</div>
+  </div>
+
+  <!-- 5 WHY SORT -->
+  <h2>5 · What sorted order buys you: mind-reading</h2>
+  <p>Why do phones bother keeping everything sorted? Because <b>finding things in sorted order is
+    absurdly fast</b>. Guess a number from 1 to 1000: each guess, you're told higher or lower —
+    so guess the <em>middle</em> and half the possibilities vanish. 1000 → 500 → 250 → 125 → … →
+    1. Ten guesses, <em>guaranteed</em>, every time. (Remember the CS·1 mind reader? Same magic:
+    each answer is one bit.) This halving game is called <b>binary search</b>, and it's the payoff
+    for every sort your phone ever ran.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🔮</span> GAME · The Mind Reader's Revenge <span class="qcount" id="bs-count"></span></div>
+    <p class="phint"><b>Seek:</b> find my number (1–1000) in 10 guesses — the window shows what's
+      still possible. Win 3 in a row for ⭐. Then press <b>you hide</b>: think of a number and answer
+      honestly — I will <em>never</em> need more than 10.</p>
+    <div class="ctrlrow">
+      <button class="btn" id="bs-seek">🔍 I hide, you seek</button>
+      <button class="btn" id="bs-hide">🙈 You hide, I seek</button>
+    </div>
+    <div class="statrow"><span>window <b id="bs-window">1 – 1000</b></span><span>guesses <b id="bs-n">0</b>/10</span></div>
+    <div class="ctrlrow" id="bs-seekrow" style="display:none">
+      <input class="answer" id="bs-input" type="text" inputmode="numeric" placeholder="your guess" aria-label="your guess" style="width:12ch">
+      <button class="btn" id="bs-go">Guess</button>
+    </div>
+    <div class="ctrlrow" id="bs-hiderow" style="display:none">
+      <button class="btn" id="bs-higher">⬆️ higher</button>
+      <button class="btn" id="bs-lower">⬇️ lower</button>
+      <button class="btn" id="bs-yes">🎯 that's it!</button>
+    </div>
+    <div class="result" id="bs-read">Pick a mode.</div>
+  </div>
+
+  <!-- 6 PUZZLE -->
+  <h2>6 · 🧩 Puzzle: think like the librarian</h2>
+  <p>Costs, cuts and pars. Streak of 3 = ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Shelf drills</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:8ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Family Sort Sprint.</strong> Deal ten playing cards face-up in a row. Sorting rule:
+      only neighbour-swaps, and every swap counts. Count the out-of-order pairs first to predict
+      par — then challenge a grown-up to beat your swap count.</li>
+    <li><strong>Be the merge sort.</strong> Split half a deck into two piles, sort each pile, then
+      merge them using only look-at-the-two-front-cards. Time it against sorting the whole pile
+      bubble-style. Which felt faster? Which needed fewer looks?</li>
+    <li><strong>Dictionary mind-reader.</strong> Have someone pick any word in a real dictionary.
+      Find its page only by opening to the middle of the remaining pages and asking “before or
+      after?”. Count your cuts — for a 1000-page dictionary, how many should you need at most?</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">algorithm · bubble sort · comparison · swap · inversion · worst case · divide and conquer · merge sort · binary search · logarithm (log₂)</p>
+
+  <div class="lessonnav">
+    <a href="cs03-logins.html">← CS 3: How Logins Keep Secrets</a>
+    <a href="index.html#cs">All CS topics →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=10"></script>
+<script>
+/* === CS4:PURE START === (DOM-free sorting logic; node-tested before deploy) */
+var CS4 = {};
+CS4.mulberry32 = function (a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+CS4.isSorted = function (a) {
+  for (var i = 1; i < a.length; i++) if (a[i - 1] > a[i]) return false;
+  return true;
+};
+/* a shuffled 1..n that is never already sorted (so par is never 0) */
+CS4.shuffled = function (n, rng) {
+  var a;
+  do {
+    a = [];
+    for (var i = 1; i <= n; i++) a.push(i);
+    for (var j = n - 1; j > 0; j--) {
+      var k = Math.floor(rng() * (j + 1));
+      var t = a[j]; a[j] = a[k]; a[k] = t;
+    }
+  } while (CS4.isSorted(a));
+  return a;
+};
+/* inversions = out-of-order pairs = the true minimum number of neighbour swaps (the game's par) */
+CS4.inversions = function (a) {
+  var inv = 0;
+  for (var i = 0; i < a.length; i++)
+    for (var j = i + 1; j < a.length; j++)
+      if (a[i] > a[j]) inv++;
+  return inv;
+};
+/* bubble sort with early exit; records every compare for the visualizer */
+CS4.bubbleRun = function (arr) {
+  var a = arr.slice(), steps = [], compares = 0, swaps = 0;
+  for (var pass = 0; pass < a.length - 1; pass++) {
+    var swapped = false;
+    for (var i = 0; i < a.length - 1 - pass; i++) {
+      compares++;
+      var doSwap = a[i] > a[i + 1];
+      steps.push({ i: i, swap: doSwap });
+      if (doSwap) {
+        var t = a[i]; a[i] = a[i + 1]; a[i + 1] = t;
+        swaps++; swapped = true;
+      }
+    }
+    if (!swapped) break;
+  }
+  return { out: a, steps: steps, compares: compares, swaps: swaps };
+};
+/* count-only bubble (for the big race sizes — no step recording) */
+CS4.bubbleCount = function (arr) {
+  var r = CS4.bubbleRun(arr);
+  return { compares: r.compares, swaps: r.swaps };
+};
+/* merge sort, counting one compare per front-vs-front look */
+CS4.mergeRun = function (arr) {
+  var compares = 0;
+  function ms(a) {
+    if (a.length <= 1) return a;
+    var mid = a.length >> 1;
+    var L = ms(a.slice(0, mid)), R = ms(a.slice(mid));
+    var out = [], i = 0, j = 0;
+    while (i < L.length && j < R.length) {
+      compares++;
+      if (L[i] <= R[j]) out.push(L[i++]); else out.push(R[j++]);
+    }
+    while (i < L.length) out.push(L[i++]);
+    while (j < R.length) out.push(R[j++]);
+    return out;
+  }
+  var out = ms(arr.slice());
+  return { out: out, compares: compares };
+};
+CS4.pairCost = function (n) { return n * (n - 1) / 2; };
+/* the merge game's rule: which front card is the correct pick? */
+CS4.correctPick = function (frontA, frontB) {
+  if (frontA === null) return "b";
+  if (frontB === null) return "a";
+  return frontA <= frontB ? "a" : "b";
+};
+/* binary search: the perfect guess, and how many guesses a target costs in 1..n */
+CS4.midGuess = function (lo, hi) { return Math.floor((lo + hi) / 2); };
+CS4.seekSteps = function (n, target) {
+  var lo = 1, hi = n, g = 0;
+  while (lo <= hi) {
+    g++;
+    var mid = CS4.midGuess(lo, hi);
+    if (mid === target) return g;
+    if (mid < target) lo = mid + 1; else hi = mid - 1;
+  }
+  return -1;   // impossible if 1 <= target <= n
+};
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+CS4.GENS = [
+  function (rng) {   // check-every-pair cost = handshake formula
+    var n = 4 + Math.floor(rng() * 9);
+    return { text: "A slow robot compares EVERY pair on a shelf of " + n + " books. How many comparisons is that?",
+             ans: CS4.pairCost(n),
+             why: "same as the handshake problem: " + n + "×" + (n - 1) + "÷2 = " + CS4.pairCost(n) };
+  },
+  function (rng) {   // halvings to 1
+    var k = 3 + Math.floor(rng() * 8), n = Math.pow(2, k);
+    return { text: "A sorted pile of " + n + " cards. Each cut keeps only half. How many cuts until just 1 card is left?",
+             ans: k,
+             why: n + " → " + (n / 2) + " → … → 1 takes " + k + " cuts, because 2^" + k + " = " + n };
+  },
+  function (rng) {   // the perfect next guess
+    var lo = 1 + Math.floor(rng() * 400);
+    var hi = lo + 2 * (10 + Math.floor(rng() * 200));
+    return { text: "The secret number is between " + lo + " and " + hi + " (inclusive). Playing the halving game, what is your next guess?",
+             ans: (lo + hi) / 2,
+             why: "always the middle: (" + lo + "+" + hi + ")÷2 = " + ((lo + hi) / 2) };
+  },
+  function (rng) {   // par = inversions on a tiny shelf
+    var n = 3 + Math.floor(rng() * 2);
+    var a = CS4.shuffled(n, rng);
+    return { text: "What is the FEWEST neighbour-swaps to sort [" + a.join(", ") + "]?",
+             ans: CS4.inversions(a),
+             why: "count the out-of-order pairs (inversions): " + CS4.inversions(a) + " — each swap fixes exactly one" };
+  }
+];
+/* === CS4:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ---------- §2 bubble visualizer ----------
+  (function () {
+    var N = 8, arr, run, pos, playing = null;
+    var box = document.getElementById("sv-bars"), read = document.getElementById("sv-read");
+    function deal() {
+      stop();
+      arr = CS4.shuffled(N, Math.random);
+      run = CS4.bubbleRun(arr);
+      pos = 0;
+      paint(-1);
+      read.className = "result";
+      read.innerHTML = "Press Step to run one compare — or ▶ Play.";
+    }
+    function paint(cmpI) {
+      box.innerHTML = "";
+      var done = pos >= run.steps.length;
+      arr.forEach(function (v, i) {
+        var b = document.createElement("div");
+        b.className = "sbar" + (done ? " done" : (i === cmpI || i === cmpI + 1) ? " cmp" : "");
+        b.style.height = (20 + v * 13) + "px";
+        b.textContent = v;
+        box.appendChild(b);
+      });
+    }
+    function step() {
+      if (pos >= run.steps.length) { stop(); return; }
+      var s = run.steps[pos++];
+      if (s.swap) { var t = arr[s.i]; arr[s.i] = arr[s.i + 1]; arr[s.i + 1] = t; }
+      paint(s.i);
+      if (pos >= run.steps.length) {
+        stop(); paint(-1);
+        read.className = "result win";
+        read.innerHTML = "✅ Sorted — <b>" + run.compares + " compares</b>, " + run.swaps + " swaps. (A shelf of " + N + " can cost up to " + CS4.pairCost(N) + ".)";
+      } else {
+        read.className = "result";
+        read.innerHTML = "Compare #" + pos + ": positions " + (s.i + 1) + " & " + (s.i + 2) + " — " + (s.swap ? "out of order, <b>swap!</b>" : "fine, move on.");
+      }
+    }
+    function stop() {
+      if (playing) { clearInterval(playing); playing = null; document.getElementById("sv-play").textContent = "▶ Play"; }
+    }
+    document.getElementById("sv-step").addEventListener("click", function () { stop(); step(); });
+    document.getElementById("sv-play").addEventListener("click", function () {
+      if (playing) { stop(); return; }
+      if (pos >= run.steps.length) deal();
+      this.textContent = "⏸ Pause";
+      playing = setInterval(step, 170);
+    });
+    document.getElementById("sv-new").addEventListener("click", deal);
+    deal();
+  })();
+
+  // ---------- §3 GAME: Sort Sprint ----------
+  (function () {
+    var MIN = 5, MAX = 12;
+    var level = 1, arr, par, moves, solved;
+    var tiles = document.getElementById("sp-tiles"), read = document.getElementById("sp-read"),
+        movesEl = document.getElementById("sp-moves"), parEl = document.getElementById("sp-par"),
+        levelEl = document.getElementById("sp-level"), count = document.getElementById("sp-count");
+    function size() { return Math.min(MAX, MIN + level - 1); }
+    function deal() {
+      arr = CS4.shuffled(size(), Math.random);
+      par = CS4.inversions(arr);
+      moves = 0; solved = false;
+      paint();
+      read.className = "result";
+      read.innerHTML = "Level " + level + ": a shelf of " + size() + ". Par is <b>" + par + "</b> swaps.";
+    }
+    function paint() {
+      tiles.innerHTML = "";
+      arr.forEach(function (v, i) {
+        var t = document.createElement("div");
+        t.className = "tile" + (v === i + 1 ? " home" : "") + (i === arr.length - 1 ? " locked" : "");
+        t.textContent = v;
+        if (i < arr.length - 1) t.addEventListener("click", function () { swap(i); });
+        tiles.appendChild(t);
+      });
+      movesEl.textContent = moves; parEl.textContent = par; levelEl.textContent = level;
+      count.textContent = size() + " tiles";
+    }
+    function swap(i) {
+      if (solved) return;
+      var t = arr[i]; arr[i] = arr[i + 1]; arr[i + 1] = t;
+      moves++;
+      paint();
+      if (CS4.isSorted(arr)) {
+        solved = true;
+        if (moves === par) {
+          var lvlUp = level < (MAX - MIN + 1);
+          if (lvlUp) level++;
+          read.className = "result win";
+          read.innerHTML = "🏁 <b>PERFECT — " + moves + " swaps, exactly par!</b> " + (lvlUp ? "Level up: shelf grows to " + size() + "." : "Max level — you're a machine.");
+          if (window.DadMath) {
+            var freshBadge = DadMath.badge("cs-sort");
+            DadMath.star("cs4", freshBadge ? 2 : 1, "Perfect sort at level " + (lvlUp ? level - 1 : level));
+            DadMath.best("cs4-level", level);
+          }
+          setTimeout(deal, 1600);
+        } else {
+          read.className = "result miss";
+          read.innerHTML = "Sorted in " + moves + " — par was <b>" + par + "</b>. Every wasted swap un-fixed a pair. Shuffle and hunt the inversions.";
+        }
+      }
+    }
+    document.getElementById("sp-new").addEventListener("click", deal);
+    if (window.DadMath && DadMath.getBest("cs4-level") > 1) level = DadMath.getBest("cs4-level");
+    deal();
+  })();
+
+  // ---------- §4 GAME: Merge Master ----------
+  (function () {
+    var s = 4, MAXS = 8, A, B, OUT, perfect, combo = 0;
+    var aEl = document.getElementById("mg-a"), bEl = document.getElementById("mg-b"),
+        outEl = document.getElementById("mg-out"), read = document.getElementById("mg-read"),
+        comboEl = document.getElementById("mg-combo"), bestEl = document.getElementById("mg-best"),
+        count = document.getElementById("mg-count");
+    function deal() {
+      var vals = CS4.shuffled(2 * s, Math.random);
+      A = vals.slice(0, s).sort(function (x, y) { return x - y; });
+      B = vals.slice(s).sort(function (x, y) { return x - y; });
+      OUT = []; perfect = true;
+      paint();
+      read.className = "result";
+      read.innerHTML = "Two sorted piles of " + s + ". Tap the smaller front card.";
+    }
+    function paint() {
+      count.textContent = s + "+" + s + " cards";
+      [[aEl, A, "a"], [bEl, B, "b"]].forEach(function (row) {
+        row[0].innerHTML = "";
+        row[1].forEach(function (v, i) {
+          var c = document.createElement("div");
+          c.className = "card2" + (i === 0 ? " front" : "");
+          c.textContent = v;
+          if (i === 0) c.addEventListener("click", function () { pick(row[2], c); });
+          row[0].appendChild(c);
+        });
+      });
+      outEl.innerHTML = "";
+      OUT.forEach(function (v) {
+        var c = document.createElement("div");
+        c.className = "card2 out"; c.textContent = v;
+        outEl.appendChild(c);
+      });
+      comboEl.textContent = combo;
+      if (window.DadMath) bestEl.textContent = DadMath.getBest("cs4-merge");
+    }
+    function pick(which, el) {
+      var right = CS4.correctPick(A.length ? A[0] : null, B.length ? B[0] : null);
+      if (which !== right) {
+        perfect = false; combo = 0;
+        el.classList.add("bad");
+        read.className = "result miss";
+        read.innerHTML = "❌ " + (which === "a" ? B[0] : A[0]) + " was smaller — a real merge sort never gets this wrong. Combo reset (finish the merge anyway).";
+        comboEl.textContent = combo;
+        setTimeout(function () { el.classList.remove("bad"); }, 350);
+        return;
+      }
+      OUT.push(which === "a" ? A.shift() : B.shift());
+      if (!A.length && !B.length) {
+        if (perfect) {
+          combo++;
+          var rec = window.DadMath ? DadMath.best("cs4-merge", combo) : false;
+          read.className = "result win";
+          read.innerHTML = "✅ <b>Perfect merge!</b> Combo " + combo + (rec ? " — 🏅 new record!" : "") + (combo % 3 === 0 ? " ⭐" : "") + " Dealing bigger piles…";
+          if (window.DadMath && combo % 3 === 0) DadMath.star("cs4", 1, "Merge Master combo " + combo);
+          if (combo % 2 === 0 && s < MAXS) s++;
+        } else {
+          read.className = "result";
+          read.innerHTML = "Merged — but with mistakes, so no combo. Same size again, fresh cards.";
+        }
+        paint();
+        setTimeout(deal, 1400);
+        return;
+      }
+      read.className = "result";
+      paint();
+      read.innerHTML = "✔ " + OUT[OUT.length - 1] + " placed. " + (A.length + B.length) + " to go.";
+    }
+    document.getElementById("mg-new").addEventListener("click", function () { combo = 0; deal(); });
+    deal();
+  })();
+
+  // ---------- §4 the race ----------
+  (function () {
+    var timer = null;
+    var bbar = document.getElementById("rc-bbar"), mbar = document.getElementById("rc-mbar"),
+        bn = document.getElementById("rc-bn"), mn = document.getElementById("rc-mn"),
+        read = document.getElementById("rc-read");
+    function race(n) {
+      if (timer) { clearInterval(timer); timer = null; }
+      var arr = CS4.shuffled(n, Math.random);
+      var bTotal = CS4.bubbleCount(arr).compares, mTotal = CS4.mergeRun(arr).compares;
+      var done = 0, rate = Math.max(1, Math.round(mTotal / 90));   // merge finishes in ~90 ticks
+      read.className = "result";
+      read.innerHTML = "🏎️ Racing on " + n + " books — one compare each per tick…";
+      timer = setInterval(function () {
+        done += rate;
+        if (done > mTotal && rate < bTotal / 200) rate *= 1.12;   // fast-forward the long tail
+        var b = Math.min(done, bTotal), m = Math.min(done, mTotal);
+        bbar.style.width = (b / bTotal * 100) + "%";
+        mbar.style.width = (m / mTotal * 100) + "%";
+        bn.textContent = b.toLocaleString();
+        mn.textContent = m.toLocaleString();
+        if (m === mTotal && b < bTotal) {
+          read.innerHTML = "🏁 Merge finished in <b>" + mTotal.toLocaleString() + "</b> compares — bubble is still at " + Math.round(b / bTotal * 100) + "%… (fast-forwarding)";
+        }
+        if (b === bTotal) {
+          clearInterval(timer); timer = null;
+          read.className = "result win";
+          read.innerHTML = "🏆 Merge: <b>" + mTotal.toLocaleString() + "</b> compares. Bubble: <b>" + bTotal.toLocaleString() + "</b> — that's <b>" + Math.round(bTotal / mTotal) + "×</b> more work on the same shelf. Now double the size and race again.";
+        }
+      }, 30);
+    }
+    [16, 64, 256, 1024].forEach(function (n) {
+      document.getElementById("rc-" + n).addEventListener("click", function () { race(n); });
+    });
+  })();
+
+  // ---------- §5 GAME: binary search, both directions ----------
+  (function () {
+    var N = 1000, mode = null, lo, hi, guesses, secret, winStreak = 0;
+    var read = document.getElementById("bs-read"), winEl = document.getElementById("bs-window"),
+        nEl = document.getElementById("bs-n"), count = document.getElementById("bs-count"),
+        seekrow = document.getElementById("bs-seekrow"), hiderow = document.getElementById("bs-hiderow"),
+        input = document.getElementById("bs-input");
+    function stat() {
+      winEl.textContent = lo > hi ? "∅" : lo + " – " + hi;
+      nEl.textContent = guesses;
+      count.textContent = "win streak " + winStreak;
+    }
+    function startSeek() {
+      mode = "seek"; lo = 1; hi = N; guesses = 0;
+      secret = 1 + Math.floor(Math.random() * N);
+      seekrow.style.display = ""; hiderow.style.display = "none";
+      stat();
+      read.className = "result";
+      read.innerHTML = "I picked a number from 1 to " + N + ". 10 guesses. (Halving the window never needs more.)";
+      input.value = ""; input.focus();
+    }
+    function seekGuess() {
+      if (mode !== "seek") return;
+      var g = parseInt(input.value, 10);
+      input.value = "";
+      if (!(g >= 1 && g <= N)) { read.innerHTML = "Guess a whole number 1–" + N + "."; return; }
+      guesses++;
+      if (g === secret) {
+        winStreak++;
+        mode = null;
+        read.className = "result win";
+        read.innerHTML = "🎯 <b>" + secret + " in " + guesses + " guesses!</b> Streak " + winStreak + "." + (winStreak % 3 === 0 ? " ⭐" : "") + " Play again?";
+        if (window.DadMath && winStreak % 3 === 0) DadMath.star("cs4", 1, "Mind-seeker streak " + winStreak);
+        stat(); return;
+      }
+      if (g < secret) lo = Math.max(lo, g + 1); else hi = Math.min(hi, g - 1);
+      if (guesses >= 10) {
+        winStreak = 0; mode = null;
+        read.className = "result miss";
+        read.innerHTML = "💀 Out of guesses — it was <b>" + secret + "</b>. The window still showed " + (hi - lo + 1) + " possibilities: guess the <em>middle</em> every time and 10 is always enough.";
+        stat(); return;
+      }
+      read.className = "result";
+      read.innerHTML = (g < secret ? "⬆️ Higher" : "⬇️ Lower") + " than " + g + ". Perfect next guess: the middle of the window → <b>" + CS4.midGuess(lo, hi) + "</b>.";
+      stat();
+    }
+    function startHide() {
+      mode = "hide"; lo = 1; hi = N; guesses = 0;
+      seekrow.style.display = "none"; hiderow.style.display = "";
+      stat();
+      guesses = 1;
+      read.className = "result";
+      read.innerHTML = "Think of a number 1–" + N + " and hold it. My guess #1: <b>" + CS4.midGuess(lo, hi) + "</b> — higher, lower, or got it?";
+      stat();
+    }
+    function hideAnswer(dir) {
+      if (mode !== "hide") return;
+      var mid = CS4.midGuess(lo, hi);
+      if (dir === "yes") {
+        mode = null;
+        read.className = "result win";
+        read.innerHTML = "🔮 <b>Got it in " + guesses + "</b> — and I can never need more than 10, because 2<sup>10</sup> = 1024 > 1000. That's binary search: the whole reason your phone keeps things sorted.";
+        return;
+      }
+      if (dir === "higher") lo = mid + 1; else hi = mid - 1;
+      if (lo > hi) {
+        mode = null;
+        read.className = "result miss";
+        read.innerHTML = "🤨 Hold on — those answers don't fit ANY number from 1 to " + N + ". The halving game also catches fibbers. Restart when ready!";
+        stat(); return;
+      }
+      guesses++;
+      read.className = "result";
+      read.innerHTML = "Guess #" + guesses + ": <b>" + CS4.midGuess(lo, hi) + "</b> — higher, lower, or got it?";
+      stat();
+    }
+    document.getElementById("bs-seek").addEventListener("click", startSeek);
+    document.getElementById("bs-hide").addEventListener("click", startHide);
+    document.getElementById("bs-go").addEventListener("click", seekGuess);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") seekGuess(); });
+    document.getElementById("bs-higher").addEventListener("click", function () { hideAnswer("higher"); });
+    document.getElementById("bs-lower").addEventListener("click", function () { hideAnswer("lower"); });
+    document.getElementById("bs-yes").addEventListener("click", function () { hideAnswer("yes"); });
+    lo = 1; hi = N; guesses = 0; stat();
+  })();
+
+  // ---------- §6 puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    function newQ() {
+      q = CS4.GENS[Math.floor(Math.random() * CS4.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Shelved. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath && streak % 3 === 0) DadMath.star("cs4", 1, "Shelf drills — streak " + streak);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ();
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

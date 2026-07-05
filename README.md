@@ -44,6 +44,13 @@ client-side, so this is a trust-and-verify aid for a present parent, not tamper-
 - **💻 CS·3 How Logins Keep Secrets** — hashing as a one-way street (live SHA-256 blender +
   avalanche), why it's the opposite of a cipher, salt, and why a drawn pattern is guessable.
   The behind-the-scenes lesson for the account system below. → `cs03-logins.html`
+- **💻 CS·4 How to Sort a Messy Bookshelf** — algorithms: derive bubble sort live, discover its
+  worst case is the handshake formula `n(n−1)/2`, then split-sort-merge (divide and conquer,
+  `n·log₂n`, ~25,000× faster on a million items) and binary search as the payoff. Three
+  replayable games: **Sort Sprint** (sort in the fewest swaps — par = inversion count — with a
+  persistent level ladder and the 📚 Shelf Master badge), **Merge Master** (be the merge step,
+  combo scoring), and **The Mind Reader's Revenge** (find its number in ≤10 guesses, then it
+  finds yours — always). → `cs04-sorting.html`
 - **🕸️ G·1 The Seven Bridges** — playable Königsberg + envelope trace + Euler's degree
   rule. → `gt01-bridges.html`
 - **🎲 GT·1 How to Win Every Game (Sometimes)** — game theory: beat a perfect bot at the
