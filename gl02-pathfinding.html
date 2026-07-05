@@ -159,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var cv = document.getElementById("grid"), ctx = cv.getContext("2d");
     var CELL = 30, C = cv.width / CELL, R = cv.height / CELL;   // 16 x 10
     var start = { r: 0, c: 0 }, goal = { r: R - 1, c: C - 1 };
-    var walls = {}, anim = null, painting = false, paintVal = true;
+    var walls = {}, anim = null, painting = false, paintVal = true, lastCell = null;
     var read = document.getElementById("pf-read");
 
     function isSG(r, c) { return (r === start.r && c === start.c) || (r === goal.r && c === goal.c); }
@@ -201,21 +201,32 @@ document.addEventListener("DOMContentLoaded", function () {
       var py = (e.clientY - rect.top) * (cv.height / rect.height);
       return { r: Math.floor(py / CELL), c: Math.floor(px / CELL) };
     }
+    function applyCell(r, c) {
+      if (r < 0 || c < 0 || r >= R || c >= C || isSG(r, c)) return;
+      if (paintVal) walls[r + "," + c] = true; else delete walls[r + "," + c];
+    }
     function paint(e) {
-      var cell = cellAt(e);
-      if (cell.r < 0 || cell.c < 0 || cell.r >= R || cell.c >= C || isSG(cell.r, cell.c)) return;
-      walls[cell.r + "," + cell.c] = paintVal ? true : undefined;
-      if (!paintVal) delete walls[cell.r + "," + cell.c];
+      var cell = cellAt(e), from = lastCell || cell;
+      // Fill the 4-connected line from the previous sample to this one, so a fast
+      // drag can't leave 1-cell gaps the flood would sneak through (Amanatides walk).
+      var r = from.r, c = from.c, dr = Math.abs(cell.r - r), dc = Math.abs(cell.c - c);
+      var sr = cell.r > r ? 1 : -1, sc = cell.c > c ? 1 : -1, err = dc - dr, n = 1 + dr + dc;
+      for (; n > 0; n--) {
+        applyCell(r, c);
+        if (err > 0) { c += sc; err -= 2 * dr; } else { r += sr; err += 2 * dc; }
+      }
+      lastCell = cell;
       draw();
     }
     cv.addEventListener("mousedown", function (e) {
       var cell = cellAt(e); if (isSG(cell.r, cell.c)) return;
-      painting = true; paintVal = !walls[cell.r + "," + cell.c]; paint(e);
+      painting = true; paintVal = !walls[cell.r + "," + cell.c]; lastCell = null; paint(e);
     });
     cv.addEventListener("mousemove", function (e) { if (painting) paint(e); });
-    window.addEventListener("mouseup", function () { painting = false; });
-    cv.addEventListener("touchstart", function (e) { paintVal = true; paint(e.touches[0]); e.preventDefault(); }, { passive: false });
+    window.addEventListener("mouseup", function () { painting = false; lastCell = null; });
+    cv.addEventListener("touchstart", function (e) { paintVal = true; lastCell = null; paint(e.touches[0]); e.preventDefault(); }, { passive: false });
     cv.addEventListener("touchmove", function (e) { paint(e.touches[0]); e.preventDefault(); }, { passive: false });
+    cv.addEventListener("touchend", function () { lastCell = null; }, { passive: true });
 
     document.getElementById("pf-clear").addEventListener("click", function () { walls = {}; if (anim) clearInterval(anim); draw(); read.textContent = "Walls cleared."; });
     document.getElementById("pf-rand").addEventListener("click", function () {
