@@ -7,9 +7,9 @@ lists them, shows timestamp + IP + page, and lets you tick each one as actioned.
 
 Mirrors the house style of track.py: single stdlib file, run by systemd, no deps.
 Run:  python3 feedback.py [PORT]     (default 9110)
-DB:   $FEEDBACK_DB or /var/www/jasonsun.org/dad-math-feedback.db
-      (kept in the parent webroot — www-data-writable and outside the git tree,
-       so `git pull` never touches it.)
+DB:   $FEEDBACK_DB or /var/www/jasonsun.org/dad-math-data/feedback.db
+      (its own www-data-owned dir in the parent webroot — so SQLite can create the
+       db + journal/wal, it's outside the git tree, and off the public GitHub mirror.)
 """
 
 import html
@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import parse_qs
 
-DB_PATH = os.environ.get("FEEDBACK_DB", "/var/www/jasonsun.org/dad-math-feedback.db")
+DB_PATH = os.environ.get("FEEDBACK_DB", "/var/www/jasonsun.org/dad-math-data/feedback.db")
 MAX_BODY = 16 * 1024          # reject request bodies larger than this
 MAX_TEXT = 2000               # chars of feedback kept
 MAX_PAGE = 200
