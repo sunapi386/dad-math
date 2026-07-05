@@ -33,7 +33,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 DB_PATH = os.environ.get("ACCOUNTS_DB", "/var/www/jasonsun.org/dad-math-data/accounts.db")
 MAX_BODY = 32 * 1024          # progress blobs are small; reject anything bigger
 ITERS = 120_000              # pbkdf2 rounds
-USER_RE = re.compile(r"^[A-Za-z0-9_-]{2,20}$")   # a handle, not a name (no spaces)
+USER_RE = re.compile(r"^[A-Za-z0-9_-]{3,20}$")   # a handle, not a name (no spaces); 3–20 chars
 MIN_SECRET, MAX_SECRET = 4, 128
 MAX_KEY = 40                 # max length of a stars/badge/hw key
 MAX_INT_KEYS = 200           # cap map sizes so a blob can't grow unbounded

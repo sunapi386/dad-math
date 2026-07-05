@@ -264,7 +264,7 @@
   function submit(path, label) {
     var username = (handleEl.value || "").trim();
     var secret = pad.secret();
-    if (!/^[A-Za-z0-9_-]{2,20}$/.test(username)) { setStatus("Nickname: 2–20 letters/numbers, no spaces.", "err"); return; }
+    if (!/^[A-Za-z0-9_-]{3,20}$/.test(username)) { setStatus("Nickname: 3–20 letters/numbers, no spaces.", "err"); return; }
     if (pad.len() < 4) { setStatus("Draw a shape through at least 4 dots.", "err"); return; }
     setStatus("…", "");
     api(path, { username: username, secret: secret, progress: window.DadMath ? DadMath.data() : {} })
@@ -278,7 +278,7 @@
           setStatus("That nickname is taken — try “Log in”, or pick another.", "err");
         } else if (b.error === "bad_login") {
           setStatus("Nickname or pattern didn’t match. Try again.", "err");
-        } else if (b.error === "bad_handle") { setStatus("Nickname: 2–20 letters/numbers, no spaces.", "err"); }
+        } else if (b.error === "bad_handle") { setStatus("Nickname: 3–20 letters/numbers, no spaces.", "err"); }
         else if (b.error === "bad_secret") { setStatus("Draw a longer shape.", "err"); }
         else { setStatus("Saving isn’t available right now — your progress is still safe on this device.", "err"); }
       })
