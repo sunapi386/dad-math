@@ -275,6 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
       mctx.fillStyle = "#22c55e"; mctx.fillRect(s.c * cw + 2, s.r * ch + 2, cw - 4, ch - 4);
       mctx.fillStyle = "#ef4444"; mctx.fillRect(g.c * cw + 2, g.r * ch + 2, cw - 4, ch - 4);
     }
+    var booted = false;
     function newQ() {
       var cols = 4 + Math.floor(Math.random() * 4), rows = 3 + Math.floor(Math.random() * 3);
       var s = { r: Math.floor(Math.random() * rows), c: Math.floor(Math.random() * cols) };
@@ -284,7 +285,7 @@ document.addEventListener("DOMContentLoaded", function () {
       q = { ans: String(d), work: "|" + (g.c - s.c) + "| + |" + (g.r - s.r) + "| = " + Math.abs(g.c - s.c) + " + " + Math.abs(g.r - s.r) + " = " + d };
       promptEl.innerHTML = "Shortest steps from 🟩 to 🟥 (no diagonals)?";
       drawMini(s, g, cols, rows);
-      input.value = ""; input.focus();
+      input.value = ""; if (booted) input.focus();
       resEl.className = "result";
       resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
     }
@@ -311,7 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.getElementById("pz-new").addEventListener("click", newQ);
     input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
-    newQ();
+    newQ(); booted = true;
   })();
 });
 </script>

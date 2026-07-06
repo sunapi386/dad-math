@@ -619,10 +619,11 @@ document.addEventListener("DOMContentLoaded", function () {
   (function () {
     var streak = 0, best = 0, q = null;
     var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    var booted = false;
     function newQ() {
       q = GM2.GENS[Math.floor(Math.random() * GM2.GENS.length)](Math.random);
       promptEl.innerHTML = q.text;
-      input.value = ""; input.focus();
+      input.value = ""; if (booted) input.focus();
       resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
     }
     function check() {
@@ -645,7 +646,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.getElementById("pz-new").addEventListener("click", newQ);
     input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
-    newQ();
+    newQ(); booted = true;
   })();
 });
 </script>

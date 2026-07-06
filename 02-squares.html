@@ -198,11 +198,12 @@ document.addEventListener("DOMContentLoaded", function () {
     var promptEl = document.getElementById("pz-prompt"),
         input = document.getElementById("pz-input"),
         resEl = document.getElementById("pz-result");
+    var booted = false;
     function newSq() {
       k = 2 + Math.floor(Math.random() * 11); // 2..12
       promptEl.innerHTML = "The number <b>" + (k * k) + "</b> is a perfect square. " +
         "How many odd numbers (1, 3, 5, …) add up to it?";
-      input.value = ""; input.focus();
+      input.value = ""; if (booted) input.focus();
       resEl.className = "result";
       resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
     }
@@ -233,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("pz-reveal").addEventListener("click", reveal);
     document.getElementById("pz-new").addEventListener("click", newSq);
     input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
-    newSq();
+    newSq(); booted = true;
   })();
 });
 </script>
