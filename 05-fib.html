@@ -320,6 +320,7 @@ document.addEventListener("DOMContentLoaded", function () {
         input = document.getElementById("pz-input"),
         resEl = document.getElementById("pz-result");
     var F = [1, 1]; for (var i = 2; i < 20; i++) F.push(F[i - 1] + F[i - 2]);
+    var booted = false;
     function newQ() {
       var kind = Math.floor(Math.random() * 3);
       if (kind === 0) {          // next number
@@ -336,7 +337,7 @@ document.addEventListener("DOMContentLoaded", function () {
               text: "The rabbit farm starts with 1 baby pair. How many pairs in <b>month " + m + "</b>?" };
       }
       promptEl.innerHTML = q.text;
-      input.value = ""; input.focus();
+      input.value = ""; if (booted) input.focus();
       resEl.className = "result";
       resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
     }
@@ -363,7 +364,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.getElementById("pz-new").addEventListener("click", newQ);
     input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
-    newQ();
+    newQ(); booted = true;
   })();
 });
 </script>

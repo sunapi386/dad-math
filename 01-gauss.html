@@ -274,10 +274,11 @@ document.addEventListener("DOMContentLoaded", function () {
     var promptEl = document.getElementById("pz-prompt"),
         input = document.getElementById("pz-input"),
         resEl = document.getElementById("pz-result");
+    var booted = false;
     function newN() {
       cur = 5 + Math.floor(rnd() * 26); // 5..30
       promptEl.innerHTML = "Add every whole number from <b>1 to " + cur + "</b>. What's the total?";
-      input.value = ""; input.focus();
+      input.value = ""; if (booted) input.focus();
       resEl.className = "result";
       resEl.innerHTML = "Streak: <b id='pz-streak'>" + streak + "</b> &nbsp;·&nbsp; Best: <b id='pz-best'>" + best + "</b>";
     }
@@ -310,7 +311,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("pz-reveal").addEventListener("click", reveal);
     document.getElementById("pz-new").addEventListener("click", newN);
     input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
-    newN();
+    newN(); booted = true;
   })();
 });
 </script>
