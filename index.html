@@ -9,6 +9,12 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
 <link rel="stylesheet" href="assets/style.css?v=4">
   <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+/* completed-lesson state, driven by saved progress (homework flags + lesson badges) */
+a.card.done { border-color: var(--good); }
+a.card.done .num { position: relative; }
+a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; color: var(--good); font-weight: 800; }
+</style>
 </head>
 <body>
 
@@ -120,12 +126,12 @@
       <p>Quantum series, part 1. A bit that's an arrow, chance as a square, a coin-flip that can be UN-flipped — steer real quantum gates onto targets at par, and out-detective a mystery qubit.</p>
       <div class="go">Start topic →</div>
     </a>
-    <div class="card soon">
+    <a class="card" href="cs06-entanglement.html" style="border-color:var(--good)">
       <div class="num">CS·6</div>
-      <h3>Entanglement: The Spooky Phone <span class="badge amber" style="vertical-align:middle">soon</span></h3>
-      <p>Quantum series, part 2. Two qubits, one fate: the connection Einstein called spooky — and why it still can't send a message.</p>
-      <div class="go muted">Coming soon</div>
-    </div>
+      <h3>Entanglement: The Spooky Phone</h3>
+      <p>Quantum series, part 2. Two qubits, one fate: run the Nobel-Prize Bell test yourself, catch a glove-factory impostor with statistics, and see why the spooky phone can't send a text.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
   </div>
 
   <h2 id="games">🎮 Game Lab</h2>
@@ -191,18 +197,18 @@
       <p>The 1736 puzzle that invented graph theory. Try the impossible stroll, then prove why it's impossible — in two sentences.</p>
       <div class="go">Start topic →</div>
     </a>
-    <div class="card soon">
+    <a class="card" href="gt02-handshakes.html" style="border-color:var(--good)">
       <div class="num">G·2</div>
-      <h3>Six Handshakes to Anyone <span class="badge amber" style="vertical-align:middle">soon</span></h3>
-      <p>Small worlds: why you're ~6 friendships away from anyone alive, and how diseases and memes ride the same wires.</p>
-      <div class="go muted">Coming soon</div>
-    </div>
-    <div class="card soon">
+      <h3>Six Handshakes to Anyone</h3>
+      <p>Small worlds: why you're ~6 friendships from anyone alive, how five bridges shrink a whole world, and why memes and colds ride the same wires.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+    <a class="card" href="gt03-map-coloring.html" style="border-color:var(--good)">
       <div class="num">G·3</div>
-      <h3>The Map-Colouring War <span class="badge amber" style="vertical-align:middle">soon</span></h3>
-      <p>Four colours are always enough for any map — a theorem so stubborn it was the first ever proved by a computer.</p>
-      <div class="go muted">Coming soon</div>
-    </div>
+      <h3>The Map-Colouring War</h3>
+      <p>Four colours are always enough for any map — a theorem so stubborn it took 124 years and became the first ever proved by a computer. Paint maps at par yourself.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
   </div>
 
   <h2 id="gametheory">🎲 Game theory</h2>
@@ -238,18 +244,18 @@
       <p>Quantum mechanics as a story: a coin that hasn't decided, doors that act differently when watched, and gloves that choose together across the world.</p>
       <div class="go">Read the story →</div>
     </a>
-    <div class="card soon">
+    <a class="card" href="st01-pirates.html" style="border-color:var(--good)">
       <div class="num">🏴‍☠️</div>
-      <h3>The Pirate Split <span class="badge amber" style="vertical-align:middle">soon</span></h3>
-      <p>Game theory as a story: five pirates, one treasure, perfectly logical greed — and the shocking split that follows.</p>
-      <div class="go muted">Coming soon</div>
-    </div>
-    <div class="card soon">
+      <h3>The Pirate Split</h3>
+      <p>Game theory as a story: five pirates, one treasure, perfectly logical greed — and the shocking split that follows. Try your own plans on the vote machines.</p>
+      <div class="go" style="color:var(--good)">Read the story →</div>
+    </a>
+    <a class="card" href="st02-twenty-questions.html" style="border-color:var(--good)">
       <div class="num">❓</div>
-      <h3>Twenty Questions vs. the Universe <span class="badge amber" style="vertical-align:middle">soon</span></h3>
-      <p>Information theory as a story: why every secret in existence is just a game of twenty questions — if you ask perfectly.</p>
-      <div class="go muted">Coming soon</div>
-    </div>
+      <h3>Twenty Questions vs. the Universe</h3>
+      <p>Information theory as a story: why every secret in existence is just a game of twenty questions — if you ask perfectly. With a mind-reading machine and monster detective school.</p>
+      <div class="go" style="color:var(--good)">Read the story →</div>
+    </a>
   </div>
 
   <hr class="rule">
@@ -290,20 +296,55 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js?v=12"></script>
+<script defer src="assets/game.js?v=13"></script>
 <script>
   // render the tiny inline snippets used in cards
   document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".katex-inline").forEach(function (el) {
       if (window.katex) katex.render(el.textContent, el, { throwOnError: false });
     });
-    // homework ticks on lesson cards
+    // completion ticks on lesson cards: math lessons complete via their homework check,
+    // everything else via its lesson badge (each page's main achievement)
     if (window.DadMath) {
-      [["01-gauss.html","l1"],["02-squares.html","l2"],["03-triangles.html","l3"],
-       ["04-evens.html","l4"],["05-fib.html","l5"]].forEach(function (pair) {
-        if (!DadMath.hwDone(pair[1])) return;
-        var card = document.querySelector('a.card[href="' + pair[0] + '"] h3');
-        if (card) card.insertAdjacentHTML("beforeend", " <span class='hwtick'>✅ checked</span>");
+      var P = DadMath.data();
+      [
+        ["01-gauss.html",            "hw",    "l1",           "✅ checked"],
+        ["02-squares.html",          "hw",    "l2",           "✅ checked"],
+        ["03-triangles.html",        "hw",    "l3",           "✅ checked"],
+        ["04-evens.html",            "hw",    "l4",           "✅ checked"],
+        ["05-fib.html",              "hw",    "l5",           "✅ checked"],
+        ["homework.html",            "badge", "hw-all",       "✅ all five"],
+        ["cs01-binary.html",         "badge", "cs-bin",       "✅ done"],
+        ["cs02-secret-codes.html",   "badge", "cs-crypto",    "✅ done"],
+        ["cs03-logins.html",         "badge", "cs-login",     "✅ done"],
+        ["cs04-sorting.html",        "badge", "cs-sort",      "✅ done"],
+        ["cs05-qubits.html",         "badge", "cs-qubit",     "✅ done"],
+        ["cs06-entanglement.html",   "badge", "cs-spooky",    "✅ done"],
+        ["gamedev.html",             "badge", "gd-tree",      "✅ full tree"],
+        ["gl01-game-loop.html",      "badge", "gl-loop",      "✅ done"],
+        ["gl02-pathfinding.html",    "badge", "gl-path",      "✅ done"],
+        ["gl03-factory.html",        "badge", "gl-factory",   "✅ done"],
+        ["gl04-worlds.html",         "badge", "gl-world",     "✅ done"],
+        ["gl05-projectiles.html",    "badge", "gl-physics",   "✅ done"],
+        ["gl06-hitboxes.html",       "badge", "gl-aim",       "✅ done"],
+        ["gl07-minecraft-worlds.html","badge","gl-mine",      "✅ done"],
+        ["gt01-bridges.html",        "badge", "gt-euler",     "✅ done"],
+        ["gt02-handshakes.html",     "badge", "gt-small",     "✅ done"],
+        ["gt03-map-coloring.html",   "badge", "gt-color",     "✅ done"],
+        ["gm01-winning-games.html",  "badge", "gm-nim",       "✅ done"],
+        ["gm02-prisoners-dilemma.html","badge","gm-coop",     "✅ done"],
+        ["gm03-rps-scv.html",        "badge", "gm-scv",       "✅ done"],
+        ["qm01-quantum-story.html",  "badge", "qm-story",     "✅ read"],
+        ["st01-pirates.html",        "badge", "story-pirate", "✅ read"],
+        ["st02-twenty-questions.html","badge","story-bits",   "✅ read"]
+      ].forEach(function (row) {
+        var earned = row[1] === "hw" ? DadMath.hwDone(row[2]) : !!P.badges[row[2]];
+        if (!earned) return;
+        var card = document.querySelector('a.card[href="' + row[0] + '"]');
+        if (!card) return;
+        card.classList.add("done");
+        var h = card.querySelector("h3");
+        if (h) h.insertAdjacentHTML("beforeend", " <span class='hwtick'>" + row[3] + "</span>");
       });
     }
   });

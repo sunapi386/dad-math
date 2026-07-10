@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📖 The Pirate Split — a game theory story · Math in Half an Hour</title>
+<meta name="description" content="The five-pirate treasure puzzle told as a story: perfectly logical greed, voting, walking the plank, and the shocking split that backward induction predicts — with vote machines to try your own plans on.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.crewrow { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+.crewcard { text-align: center; border: 2px solid var(--line); border-radius: 12px; padding: 8px 6px; background: var(--panel-2); min-width: 86px; }
+.crewcard .cic { font-size: 1.5rem; }
+.crewcard .cnm { font-weight: 800; font-size: .82rem; }
+.crewcard input { width: 6ch; text-align: center; font-family: var(--mono); font-weight: 700; font-size: 1rem;
+  border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); padding: 4px 2px; margin-top: 5px; }
+.crewcard .cvote { font-size: .8rem; font-weight: 800; min-height: 1.3em; margin-top: 4px; }
+.votelog { font-size: .88rem; margin: 8px 0 0; }
+.votelog li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap story">
+
+  <header class="hero" style="padding-bottom:10px; text-align:center">
+    <div class="eyebrow">Story Mode · Game Theory</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">The Pirate Split</h1>
+    <p class="lede" style="margin:0 auto">Five pirates. One hundred gold coins. A crew so logical
+      it's terrifying. Read it aloud, and at every vote machine, stop and <em>try to beat the
+      captain</em>.</p>
+    <p style="margin-top:14px"><span class="badge">📖 story mode</span> &nbsp; <span class="badge amber">⏱ ~30 min aloud</span> &nbsp; <span class="badge green">finish = 🏴‍☠️ badge</span></p>
+  </header>
+
+  <!-- CH 1 -->
+  <div class="chapter open" id="ch1">
+    <div class="chtitle">Chapter 1 · The Code</div>
+    <div class="prose">
+      <p>The <em>Salty Theorem</em> dropped anchor at midnight with a hundred gold coins and five
+        pirates who did not trust each other even slightly.</p>
+      <p>In order of rank: <b>🦜 Captain Greybeard</b>, first mate <b>🐙 Silver</b>, then
+        <b>🦈 Bones</b>, then <b>🪝 Patch</b>, and finally <b>🐀 Pegleg</b>, who once got demoted
+        for asking a thoughtful question.</p>
+      <p>Pirate law is very clear about treasure. The Code:</p>
+      <p class="dialog">One — the highest-ranked pirate proposes a split.<br>
+        Two — ALL pirates vote on it, proposer included. Half or more in favour: it passes, gold
+        is paid, done.<br>
+        Three — if the vote fails… the proposer walks the plank, and the next-ranked pirate
+        proposes.</p>
+      <p>And you must know three things about these five. They are <b>perfectly greedy</b> — more
+        gold is always better. They are <b>perfectly logical</b> — each one can calculate exactly
+        what every other pirate will do, forever. And they are <b>bloodthirsty</b> — if the gold
+        comes out the same either way, a pirate will always vote to watch someone walk the plank.
+        For fun.</p>
+      <p>Captain Greybeard looked at the chest, looked at his crew, and smiled a slow, gold-toothed
+        smile. He had already worked out the answer.</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">🤔</span> Before we start — commit to a guess</div>
+      <p class="phint">Out of 100 coins, how many does Captain Greybeard end up keeping? Lock in
+        your prediction — the story will judge you at the end.</p>
+      <div class="controls" style="justify-content:center">
+        <button class="btn ghost pg" data-g="20">a fair 20</button>
+        <button class="btn ghost pg" data-g="34">about a third</button>
+        <button class="btn ghost pg" data-g="60">more than half</button>
+        <button class="btn ghost pg" data-g="98">nearly everything</button>
+        <button class="btn ghost pg" data-g="0">zero — he gets voted off</button>
+      </div>
+      <div class="result" id="pg-read">No pressure. (Some pressure.)</div>
+    </div>
+    <div class="continue-row"><button class="btn" data-next="ch2">Keep reading →</button></div>
+  </div>
+
+  <!-- CH 2 -->
+  <div class="chapter" id="ch2">
+    <div class="chtitle">Chapter 2 · Think from the end</div>
+    <div class="prose">
+      <p>Here is the captain's secret, and it's the same trick that beat the 21-stick game in
+        <a href="gm01-winning-games.html">How to Win Every Game</a>: when a game runs in rounds,
+        <b>don't think forwards. Think from the END backwards.</b></p>
+      <p>Imagine the worst has happened: three splashes. Only 🪝 Patch and 🐀 Pegleg remain, and
+        Patch proposes. Two voters, so one vote is “half or more” — and Patch votes for himself.</p>
+      <p class="dialog">“I propose,” said Patch, in this imaginary future, “that I get all one
+        hundred coins, and Pegleg gets a warm feeling of participation.”</p>
+      <p>Pegleg votes NO with every fibre of his body. It changes nothing. One vote out of two is
+        a tie, ties pass, Patch buys a solid-gold parrot.</p>
+      <p>Try to save Pegleg — be Patch, and see if generosity is ever <em>forced</em>:</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">⚓</span> Vote machine · 2 pirates</div>
+      <p class="phint">Split 100 coins between Patch and Pegleg, then call the vote. Can Pegleg's
+        NO ever sink the plan?</p>
+      <div class="crewrow" id="vm2-crew"></div>
+      <div class="controls" style="justify-content:center">
+        <button class="btn" id="vm2-go">⚓ Call the vote</button>
+      </div>
+      <div class="result" id="vm2-read">Machine ready. Rank rules the seas.</div>
+    </div>
+    <div class="continue-row"><button class="btn" data-next="ch3">Keep reading →</button></div>
+  </div>
+
+  <!-- CH 3 -->
+  <div class="chapter" id="ch3">
+    <div class="chtitle">Chapter 3 · One coin buys a rat</div>
+    <div class="prose">
+      <p>Now step back one splash. Three pirates: 🦈 Bones proposing, Patch and Pegleg voting.
+        Three voters — Bones needs <b>two</b> votes. His own, plus one more. Which one is for
+        sale, and at what price?</p>
+      <p>Every pirate on that deck has read Chapter 2. <b>Patch</b> is thinking: <em>vote this
+        down, Bones swims, and I get ALL 100.</em> Patch's vote would cost Bones everything.
+        But <b>Pegleg</b> is thinking something much sadder: <em>vote this down and next round
+        I get… zero.</em></p>
+      <p class="dialog">“Pegleg,” said Bones sweetly, “I'm offering you one whole coin. That's one
+        more than Patch ever will.”</p>
+      <p>One coin. More than zero. Greed says AYE — and remember, an equal offer wouldn't work:
+        zero coins now versus zero coins later, and bloodthirst votes for the splash. Bones needs
+        to beat Pegleg's future by exactly one coin, and no more, because greed cuts both ways.
+        Find Bones's cheapest winning plan:</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">⚓</span> Vote machine · 3 pirates</div>
+      <p class="phint">Be Bones. Find a plan where he keeps <b>99</b> and survives. Then try
+        bribing Patch instead of Pegleg and watch it sink.</p>
+      <div class="crewrow" id="vm3-crew"></div>
+      <div class="controls" style="justify-content:center">
+        <button class="btn" id="vm3-go">⚓ Call the vote</button>
+      </div>
+      <div class="result" id="vm3-read">Two votes needed. One is free. Shop wisely.</div>
+    </div>
+    <div class="continue-row"><button class="btn" data-next="ch4">Keep reading →</button></div>
+  </div>
+
+  <!-- CH 4 -->
+  <div class="chapter" id="ch4">
+    <div class="chtitle">Chapter 4 · The pattern locks in</div>
+    <div class="prose">
+      <p>Step back again. Four pirates: 🐙 Silver proposes; Bones, Patch and Pegleg vote. Four
+        voters — Silver needs two votes total, so just <b>one</b> ally. Everyone has read Chapter 3.
+        If Silver sinks, the future is Bones's plan: <span style="font-family:var(--mono)">Bones 99,
+        Patch 0, Pegleg 1</span>.</p>
+      <p>So who's cheap? Bones expects 99 — unbuyable. Pegleg expects 1, so he costs 2. But
+        <b>Patch expects 0</b>. Patch — who in Chapter 2 dreamed of the whole chest — has become
+        the cheapest pirate on the boat. One coin, and he's Silver's best friend.</p>
+      <p class="dialog">“It's not personal,” said Silver, sliding one coin across the deck.
+        “It's arithmetic.”</p>
+      <p>Notice the eerie flip-flop: the pirates who get a coin in one round expect a coin in the
+        next round — which makes them <em>expensive</em>, so the proposer skips them and buys the
+        ones expecting nothing. The gold zigzags down the ranks.</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">⚓</span> Vote machine · 4 pirates</div>
+      <p class="phint">Be Silver. Keep <b>99</b> and live. Then try being generous to Pegleg
+        instead and see why it wastes a coin.</p>
+      <div class="crewrow" id="vm4-crew"></div>
+      <div class="controls" style="justify-content:center">
+        <button class="btn" id="vm4-go">⚓ Call the vote</button>
+      </div>
+      <div class="result" id="vm4-read">One ally needed. The cheapest pirate expects nothing.</div>
+    </div>
+    <div class="continue-row"><button class="btn" data-next="ch5">Keep reading →</button></div>
+  </div>
+
+  <!-- CH 5 -->
+  <div class="chapter" id="ch5">
+    <div class="chtitle">Chapter 5 · The captain's smile</div>
+    <div class="prose">
+      <p>Back to the real deck, all five pirates, the chest unopened. Captain 🦜 Greybeard needs
+        <b>three</b> of five votes: his own plus <b>two</b> allies. And he can see the whole
+        chain of imaginary futures you just walked through. If he sinks, Silver's plan rules:
+        <span style="font-family:var(--mono)">Silver 99, Bones 0, Patch 1, Pegleg 0</span>.</p>
+      <p>Who expects nothing in that future? <b>Bones and Pegleg.</b> One coin each. Done.</p>
+      <p class="dialog">“Gentlemen,” said the captain, “my proposal. Ninety-eight for me. Nothing
+        for Silver — he's rich in dreams. One for Bones. Nothing for Patch. One for Pegleg. Do I
+        hear an AYE?”</p>
+      <p>Prove him right — or find something better. The machine is honest; if any plan lets the
+        captain keep more and live, it will pass it:</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">⚓</span> Vote machine · all 5 pirates</div>
+      <p class="phint">Be Greybeard. Survive with <b>98</b> — ⭐. Then try to beat it with 99 (the
+        machine will enjoy the splash). Every coin of bribe must beat someone's imaginary future
+        by exactly one.</p>
+      <div class="crewrow" id="vm5-crew"></div>
+      <div class="controls" style="justify-content:center">
+        <button class="btn" id="vm5-go">⚓ Call the vote</button>
+      </div>
+      <div class="result" id="vm5-read">Three votes to find. Two pirates expect nothing. You know what to do.</div>
+    </div>
+    <div class="continue-row"><button class="btn" id="story-done">✨ Finish the story</button></div>
+  </div>
+
+  <!-- EPILOGUE -->
+  <div class="chapter" id="ch6">
+    <div class="chtitle">Epilogue · What was true?</div>
+    <div class="prose">
+      <p>The puzzle is a classic of <b>game theory</b> and the answer really is
+        <span style="font-family:var(--mono)">98 · 0 · 1 · 0 · 1</span> — the pirate everyone
+        expects to lose everything walks away with almost everything, because he moves first and
+        thinks last-to-first. The method is called <b>backward induction</b>: solve the final
+        round, then the one before, all the way to the start. It's how chess engines value
+        positions, how economists predict auctions and negotiations, and how you already beat the
+        21-stick robot.</p>
+      <p>But run this with real humans and something wonderful breaks. In laboratory versions
+        (economists call the two-player one the <em>ultimatum game</em>), people offered one
+        insulting coin out of a hundred usually say <b>“NO — sink him”</b> — happily paying a coin
+        to punish greed. Real people carry fairness, anger and reputation into the room, and a
+        wise captain knows it: offers below about a third get people voted overboard in every
+        laboratory on Earth.</p>
+      <p>So the theorem is true about perfectly logical pirates, and the experiment is true about
+        us — and knowing <em>both</em> is what makes you dangerous at the negotiating table.</p>
+      <p style="text-align:center; font-family:var(--serif)">— The End (mind the plank on your way out) —</p>
+      <div class="result" id="pg-final" style="text-align:center; display:none"></div>
+    </div>
+    <h3>Words we learned</h3>
+    <p class="muted small">backward induction · proposal &amp; majority (ties pass) · the cheapest ally · ultimatum game · “rational” vs real people</p>
+    <div class="note try">
+      <span class="t">Table talk:</span> would YOU take the one coin, or pay it to watch the splash?
+      Now the scary follow-up: does your answer change if nobody's watching? That's the whole field
+      of behavioural economics in one dinner question.
+    </div>
+    <div class="lessonnav">
+      <a href="qm01-quantum-story.html">← Story: The Cat in the Box</a>
+      <a href="st02-twenty-questions.html">Next story: Twenty Questions vs. the Universe →</a>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=13"></script>
+<script>
+/* === ST1:PURE START === (DOM-free pirate logic; node-tested before deploy)
+   Rules: proposer included in the vote, half-or-more passes (ties pass), failure = proposer
+   overboard. Pirates are greedy (more gold strictly better), perfectly logical (compare any
+   offer with their exact payoff in the next-round subgame) and bloodthirsty (equal gold → vote
+   NO to enjoy the splash). Verified outcomes: 2→[100,0], 3→[99,0,1], 4→[99,0,1,0], 5→[98,0,1,0,1],
+   and no 99-keep plan can pass with 5 (exhaustive in tests). */
+var ST1 = {};
+ST1.CREW = [
+  { icon: "🦜", name: "Greybeard" },
+  { icon: "🐙", name: "Silver" },
+  { icon: "🦈", name: "Bones" },
+  { icon: "🪝", name: "Patch" },
+  { icon: "🐀", name: "Pegleg" }
+];
+/* rational outcome for n pirates splitting 100 (proposer first) */
+ST1.outcome = function (n) {
+  if (n === 1) return [100];
+  var next = ST1.outcome(n - 1);
+  var need = Math.ceil(n / 2) - 1;   // allies to buy beyond the proposer's own vote
+  var order = next.map(function (v, i) { return i; })
+    .sort(function (a, b) { return next[a] - next[b] || a - b; })
+    .slice(0, need);
+  var out = [], i;
+  for (i = 0; i < n; i++) out.push(0);
+  var cost = 0;
+  order.forEach(function (i2) { out[i2 + 1] = next[i2] + 1; cost += next[i2] + 1; });
+  out[0] = 100 - cost;
+  return out;
+};
+/* per-pirate votes on a proposal: [{aye, why}] — index 0 is the proposer */
+ST1.votes = function (proposal) {
+  var n = proposal.length;
+  var next = n > 1 ? ST1.outcome(n - 1) : null;
+  return proposal.map(function (coins, i) {
+    if (i === 0) return { aye: true, why: "it's my plan (and my neck)" };
+    var future = next[i - 1];
+    if (coins > future) return { aye: true, why: coins + " now beats the " + future + " I'd get after the splash" };
+    if (coins === future) return { aye: false, why: "same " + coins + " either way — so I vote for the splash. For fun." };
+    return { aye: false, why: "after the splash I'd get " + future + " — better than this " + coins };
+  });
+};
+ST1.passes = function (proposal) {
+  var v = ST1.votes(proposal), ayes = 0;
+  v.forEach(function (x) { if (x.aye) ayes++; });
+  return { pass: ayes * 2 >= proposal.length, ayes: ayes, votes: v };
+};
+/* === ST1:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ---------- chapter reveal ----------
+  document.querySelectorAll("[data-next]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.getElementById(btn.dataset.next).classList.add("open");
+      btn.parentNode.style.display = "none";
+      document.getElementById(btn.dataset.next).scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
+  // ---------- ch1 prediction ----------
+  var prediction = null;
+  document.querySelectorAll(".pg").forEach(function (b) {
+    b.addEventListener("click", function () {
+      prediction = +b.dataset.g;
+      document.getElementById("pg-read").className = "result win";
+      document.getElementById("pg-read").innerHTML = "Locked in: <b>" + b.textContent + "</b>. The Code remembers.";
+    });
+  });
+
+  // ---------- vote machines ----------
+  function machine(idPrefix, nPirates, opts) {
+    var crewEl = document.getElementById(idPrefix + "-crew"),
+        read = document.getElementById(idPrefix + "-read");
+    var offset = 5 - nPirates;   // which of the 5 crew members are still aboard
+    var inputs = [], voteEls = [];
+    for (var i = 0; i < nPirates; i++) {
+      var p = ST1.CREW[offset + i];
+      var card = document.createElement("div");
+      card.className = "crewcard";
+      card.innerHTML = "<div class='cic'>" + p.icon + "</div><div class='cnm'>" + p.name + (i === 0 ? " ☠️" : "") + "</div>";
+      var inp = document.createElement("input");
+      inp.type = "text"; inp.inputMode = "numeric";
+      inp.value = opts.start[i];
+      inp.setAttribute("aria-label", p.name + " coins");
+      card.appendChild(inp);
+      var v = document.createElement("div");
+      v.className = "cvote"; v.textContent = "·";
+      card.appendChild(v);
+      crewEl.appendChild(card);
+      inputs.push(inp); voteEls.push(v);
+    }
+    document.getElementById(idPrefix + "-go").addEventListener("click", function () {
+      var proposal = inputs.map(function (inp) { return Math.floor(+inp.value.trim()); });
+      if (proposal.some(function (x) { return isNaN(x) || x < 0; })) {
+        read.className = "result miss";
+        read.innerHTML = "Coins are whole and not negative — this is a pirate ship, not a bank.";
+        return;
+      }
+      var sum = proposal.reduce(function (a, b) { return a + b; }, 0);
+      if (sum !== 100) {
+        read.className = "result miss";
+        read.innerHTML = "That's " + sum + " coins. The chest holds exactly 100 — the Code frowns on creative accounting.";
+        return;
+      }
+      var r = ST1.passes(proposal);
+      r.votes.forEach(function (v, i) {
+        voteEls[i].textContent = v.aye ? "AYE ✅" : "NAY ❌";
+        voteEls[i].style.color = v.aye ? "var(--good)" : "#ff2d55";
+      });
+      var log = "<ul class='votelog'>" + r.votes.map(function (v, i) {
+        var p = ST1.CREW[offset + i];
+        return "<li>" + p.icon + " <b>" + p.name + "</b>: " + (v.aye ? "AYE" : "NAY") + " — " + v.why + "</li>";
+      }).join("") + "</ul>";
+      if (r.pass) {
+        var kept = proposal[0];
+        var win = kept >= opts.target;
+        read.className = "result win";
+        read.innerHTML = "⚓ <b>PASSES " + r.ayes + "–" + (nPirates - r.ayes) + ".</b> " + ST1.CREW[offset].name + " lives and keeps <b>" + kept + "</b>." +
+          (win ? " " + opts.winMsg : (opts.target ? " (A sharper pirate keeps " + opts.target + "…)" : "")) + log;
+        if (win && opts.onWin) opts.onWin();
+      } else {
+        read.className = "result miss";
+        read.innerHTML = "🌊 <b>FAILS " + r.ayes + "–" + (nPirates - r.ayes) + ". SPLASH.</b> " + ST1.CREW[offset].name + " walks the plank, the crew applauds, and rank passes down." + log;
+      }
+    });
+  }
+
+  var starredCh5 = false;
+  machine("vm2", 2, { start: [50, 50], target: 100, winMsg: "Generosity was never forced — rank plus a tie-vote is absolute power." });
+  machine("vm3", 3, { start: [34, 33, 33], target: 99, winMsg: "One coin, perfectly aimed. That's the whole trick." });
+  machine("vm4", 4, { start: [25, 25, 25, 25], target: 99, winMsg: "You bought the pirate who expected nothing. Arithmetic, not mercy." });
+  machine("vm5", 5, {
+    start: [20, 20, 20, 20, 20], target: 98,
+    winMsg: "⭐ Captain-level play.",
+    onWin: function () {
+      if (!starredCh5 && window.DadMath) { DadMath.star("st1", 2, "Passed the captain's 98-coin plan!"); starredCh5 = true; }
+    }
+  });
+
+  // ---------- finish ----------
+  document.getElementById("story-done").addEventListener("click", function () {
+    document.getElementById("ch6").classList.add("open");
+    this.parentNode.style.display = "none";
+    var fin = document.getElementById("pg-final");
+    if (prediction !== null) {
+      fin.style.display = "";
+      fin.className = "result" + (prediction === 98 ? " win" : "");
+      fin.innerHTML = prediction === 98
+        ? "Your Chapter 1 guess: <b>nearly everything</b> — you think like a captain. Slightly worrying. 🏴‍☠️"
+        : "Your Chapter 1 guess said the captain keeps <b>" + (prediction === 0 ? "nothing" : "about " + prediction) + "</b> — the Code says 98. Backward induction beats intuition again.";
+    }
+    document.getElementById("ch6").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (window.DadMath) {
+      DadMath.star("st1", 2, "Finished the pirate story");
+      DadMath.badge("story-pirate");
+    }
+  });
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

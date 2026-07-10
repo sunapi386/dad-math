@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📖 Twenty Questions vs. the Universe — an information story · Math in Half an Hour</title>
+<meta name="description" content="Information theory told as a story: why twenty perfect yes/no questions can find one number in a million, why a question is a bit, a monster-detective game about asking GOOD questions, and Claude Shannon's big idea.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.bigrange { font-family: var(--mono); font-weight: 800; font-size: 1.15rem; text-align: center; margin: 8px 0; }
+.crowdbar { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; height: 24px; overflow: hidden; margin: 8px 0; }
+.crowdbar .fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width .3s ease; }
+.moncards { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 7px; margin: 10px 0; }
+.moncard { border: 2px solid var(--line); border-radius: 10px; padding: 6px 4px; background: var(--panel-2);
+  text-align: center; cursor: pointer; transition: opacity .25s ease, transform .1s ease; }
+.moncard:hover { transform: translateY(-2px); border-color: var(--primary); }
+.moncard .mn { font-weight: 800; font-size: .8rem; }
+.moncard .mi { font-size: .85rem; letter-spacing: 1px; }
+.moncard.out { opacity: .18; pointer-events: none; }
+.qbtns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+.qbtn { padding: 9px 12px; border-radius: 12px; border: 2px solid var(--line); background: var(--panel-2);
+  cursor: pointer; font-weight: 700; font-size: .88rem; }
+.qbtn:hover { border-color: var(--primary); transform: translateY(-1px); }
+.qbtn:disabled { opacity: .35; cursor: default; transform: none; }
+.statrow { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap story">
+
+  <header class="hero" style="padding-bottom:10px; text-align:center">
+    <div class="eyebrow">Story Mode · Information Theory</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Twenty Questions vs. the Universe</h1>
+    <p class="lede" style="margin:0 auto">A story about the strangest discovery of the twentieth
+      century: that every secret in existence — numbers, songs, photographs, you — is just a game
+      of twenty questions. If you ask perfectly.</p>
+    <p style="margin-top:14px"><span class="badge">📖 story mode</span> &nbsp; <span class="badge amber">⏱ ~30 min aloud</span> &nbsp; <span class="badge green">finish = ❓ badge</span></p>
+  </header>
+
+  <!-- CH 1 -->
+  <div class="chapter open" id="ch1">
+    <div class="chtitle">Chapter 1 · The bet</div>
+    <div class="prose">
+      <p>Milo's uncle Max claimed, every single holiday, to be a mind reader. This year Milo came
+        prepared.</p>
+      <p class="dialog">“Fine,” said Milo. “I'm thinking of a number. Not up to a hundred — up to
+        <b>a MILLION</b>. Read my mind.”</p>
+      <p class="dialog">“Twenty questions,” said Uncle Max, cracking his knuckles. “Yes-or-no
+        answers. If I don't name your number exactly, I do your chores for a month.”</p>
+      <p>A million numbers. Twenty questions. Milo did some quick multiplication and accepted
+        instantly. Numbers were his thing. A million divided by twenty is fifty thousand — even if
+        every question somehow eliminated a full fifty thousand numbers, Max would still be
+        drowning. The chores were as good as done.</p>
+      <p>Uncle Max asked his first question, and it was a strange one.</p>
+      <p class="dialog">“Is your number less than or equal to five hundred thousand?”</p>
+      <p>Be Milo. Think of a number — really commit to one — and answer honestly:</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">🔮</span> Uncle Max's twenty questions</div>
+      <p class="phint">Think of any whole number from 1 to 1,000,000. Answer each question
+        truthfully. Count the questions.</p>
+      <div class="bigrange" id="nc-q">Is your number ≤ 500,000?</div>
+      <div class="statrow"><span>questions asked <b id="nc-n">0</b>/20</span><span>numbers still possible <b id="nc-left">1,000,000</b></span></div>
+      <div class="crowdbar"><div class="fill" id="nc-bar" style="width:100%"></div></div>
+      <div class="controls" style="justify-content:center">
+        <button class="btn" id="nc-yes">YES</button>
+        <button class="btn" id="nc-no">NO</button>
+        <button class="btn ghost" id="nc-restart">↺ new number</button>
+      </div>
+      <div class="result" id="nc-read">He can't possibly do it… can he?</div>
+    </div>
+    <div class="continue-row"><button class="btn" data-next="ch2">Keep reading →</button></div>
+  </div>
+
+  <!-- CH 2 -->
+  <div class="chapter" id="ch2">
+    <div class="chtitle">Chapter 2 · The halving avalanche</div>
+    <div class="prose">
+      <p>Max got it. Of course he got it. Milo demanded a rematch and Max got it again —
+        eighteen questions that time. Milo stormed off to his room with a pencil, and here is what
+        he found.</p>
+      <p>His mistake was thinking a question <em>subtracts</em>. “Is it 39?” subtracts — one
+        number gone, 999,999 to go. But Max's questions never asked about a number. They asked
+        about <b>half the numbers at once</b>. Answer YES or NO and either way, half the
+        possibilities die. A perfect question doesn't subtract. <b>It divides.</b></p>
+      <p>And dividing is an avalanche in reverse. You've met this monster from the other side —
+        the doubling in <a href="cs01-binary.html">CS·1</a>, the reach explosion in
+        <a href="gt02-handshakes.html">Six Handshakes</a>. Halving is how you kill a million
+        quickly:</p>
+      <p style="font-family:var(--mono); text-align:center">1,000,000 → 500,000 → 250,000 → 125,000 → …</p>
+      <p>How many halvings until one suspect remains? That's asking: how many doublings build a
+        million? $2^{20} = 1{,}048{,}576$. <b>Twenty.</b> Uncle Max wasn't reading minds. He was
+        halving them — with one question to spare.</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">🪓</span> The halving meter</div>
+      <p class="phint">Swing the axe. Watch a million suspects die in twenty chops.</p>
+      <div class="bigrange" id="hm-left">1,000,000 suspects</div>
+      <div class="crowdbar"><div class="fill" id="hm-bar" style="width:100%"></div></div>
+      <div class="controls" style="justify-content:center">
+        <button class="btn" id="hm-chop">🪓 ask a perfect question</button>
+        <button class="btn ghost" id="hm-reset">↺ reset</button>
+      </div>
+      <div class="result" id="hm-read">Each chop halves the crowd (rounding up — the suspect might be in either half).</div>
+    </div>
+    <div class="continue-row"><button class="btn" data-next="ch3">Keep reading →</button></div>
+  </div>
+
+  <!-- CH 3 -->
+  <div class="chapter" id="ch3">
+    <div class="chtitle">Chapter 3 · The detective school</div>
+    <div class="prose">
+      <p>Milo came back downstairs with a plan: master the perfect question, then never lose
+        again. Uncle Max, delighted, pulled out a deck of sixteen monster cards.</p>
+      <p class="dialog">“The rules of detective school. I pick a secret monster. Every question you
+        ask costs a point. Amateurs ask <em>‘Is it Zork?’</em> — that splits the deck fifteen to
+        one, and fifteen-to-one questions are almost always wasted. Professionals ask about
+        <b>features</b>, and count the split before they ask.”</p>
+      <p class="dialog">“Sixteen monsters,” said Milo slowly, “is two-to-the-fourth… so a perfect
+        game is <b>four</b> questions. Every time. No luck needed.”</p>
+      <p class="dialog">“Prove it,” said Uncle Max.</p>
+    </div>
+    <div class="panel">
+      <div class="ptitle"><span class="ic">👾</span> GAME · Monster detective <span class="qcount" id="md-count"></span></div>
+      <p class="phint">Uncle Max is hiding one monster. Feature questions cost 1 each — the split
+        is shown on every button. When you're sure, click the monster to accuse (free — but a
+        wrong accusation loses the round). Corner it in exactly 4 questions, 3 rounds in a row = ⭐.</p>
+      <div class="statrow"><span>questions <b id="md-q">0</b></span><span>suspects left <b id="md-left">16</b></span><span>perfect streak <b id="md-streak">0</b></span></div>
+      <div class="qbtns" id="md-qbtns"></div>
+      <div class="moncards" id="md-cards"></div>
+      <div class="ctrlrow" style="justify-content:center">
+        <button class="btn ghost" id="md-new">↻ new round</button>
+      </div>
+      <div class="result" id="md-read">The deck is shuffled, the monster is chosen. Ask well.</div>
+    </div>
+    <div class="continue-row"><button class="btn" data-next="ch4">Keep reading →</button></div>
+  </div>
+
+  <!-- CH 4 -->
+  <div class="chapter" id="ch4">
+    <div class="chtitle">Chapter 4 · The man who weighed questions</div>
+    <div class="prose">
+      <p>What Milo worked out at the kitchen table, a quiet engineer named <b>Claude Shannon</b>
+        worked out for the whole universe in 1948 — in a paper many call the founding document of
+        the information age.</p>
+      <p>Shannon's move was to give the answer of one perfect yes/no question a name: one
+        <b>bit</b>. The same bit from our binary lesson — because a bit IS a recorded answer to a
+        yes/no question. And then the wild part: he showed <em>everything</em> can be measured in
+        bits. A number up to a million is 20 bits, whoever you are. A photo is a few million
+        yes/no answers about pixels. A song, a video call, a spacecraft photo of Jupiter — all of
+        it is stored, sent, and protected as answers to enormous games of twenty questions.</p>
+      <p>Shannon went further, into the idea Milo brushed against with his fifteen-to-one split:
+        <b>questions about predictable things are cheap.</b> If a monster deck had twelve spotted
+        monsters and four plain, “spots?” splits it badly — but you can design <em>better
+        questions for that deck</em> and finish in fewer than four on average. That's why a
+        predictable photo (all blue sky) squeezes into fewer bits than static noise. Every ZIP
+        file, every streamed video, every “compressing…” bar you have ever watched is someone
+        asking a lopsided deck better questions.</p>
+      <p class="dialog">“One more rematch?” said Uncle Max, shuffling the monsters.</p>
+      <p class="dialog">“No,” said Milo, taking out his own deck. “I pick the monster. YOU count
+        the splits.” And from the way his uncle grinned, Milo knew he'd finally asked the right
+        question.</p>
+      <p style="text-align:center; font-family:var(--serif)">— The End (answer: YES) —</p>
+    </div>
+    <div class="continue-row"><button class="btn" id="story-done">✨ Finish the story</button></div>
+  </div>
+
+  <!-- EPILOGUE -->
+  <div class="chapter" id="ch5">
+    <div class="chtitle">Epilogue · What was true?</div>
+    <div class="prose">
+      <p>All of the math. $2^{20} = 1{,}048{,}576$, so twenty perfect questions really do corner
+        any number up to a million — try the machine on a grown-up. Claude Shannon (1916–2001) is
+        real, his 1948 paper <em>A Mathematical Theory of Communication</em> is real, he named the
+        bit (crediting his colleague John Tukey for the word), and information theory now runs
+        your phone, the internet, and every photo that survives a trip from Mars. Shannon also
+        built a mind-reading machine, juggled while riding a unicycle through Bell Labs, and wired
+        a mechanical mouse that learned mazes — all true, and all excellent homework gossip.</p>
+    </div>
+    <h3>Words we learned</h3>
+    <p class="muted small">yes/no question = bit · halving · 2²⁰ · perfect vs lopsided splits ·
+      binary search (CS·4's mind reader, all grown up) · Claude Shannon · compression</p>
+    <div class="note try">
+      <span class="t">Play it tonight:</span> classic twenty questions, but with one new house
+      rule — before anyone answers, the asker must say what the split is (“about half” or
+      “lopsided”). Watch everyone's questions get scarily good within three rounds.
+    </div>
+    <div class="lessonnav">
+      <a href="st01-pirates.html">← Story: The Pirate Split</a>
+      <a href="index.html#story">All stories →</a>
+    </div>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=13"></script>
+<script>
+/* === ST2:PURE START === (DOM-free twenty-questions logic; node-tested before deploy)
+   Number corner: textbook binary search on [1,1,000,000] — verified in node to finish in ≤ 20
+   questions for EVERY number (worst case exactly 20; 2^20 = 1,048,576).
+   Monster deck: 16 monsters = all 16 combinations of 4 yes/no features, so every feature
+   question splits ANY consistent remaining set exactly in half (verified exhaustively) and a
+   perfect game is always exactly 4 questions. */
+var ST2 = {};
+ST2.LO = 1;
+ST2.HI = 1000000;
+ST2.mid = function (lo, hi) { return Math.floor((lo + hi) / 2); };
+/* one answered question: returns the new [lo,hi] */
+ST2.narrow = function (lo, hi, yes) {
+  var m = ST2.mid(lo, hi);
+  return yes ? [lo, m] : [m + 1, hi];
+};
+ST2.PROPS = [
+  { key: "wings", icon: "🪽", q: "Does it have wings?" },
+  { key: "fins",  icon: "🐟", q: "Does it have fins?" },
+  { key: "big",   icon: "🐘", q: "Is it bigger than a dog?" },
+  { key: "spots", icon: "🟣", q: "Does it have spots?" }
+];
+ST2.MONSTERS = (function () {
+  var names = ["Blip", "Zork", "Fuzzle", "Grum", "Pip", "Snarf", "Wobble", "Quill",
+               "Munch", "Dax", "Ember", "Floop", "Nix", "Tumble", "Vex", "Yip"];
+  var out = [];
+  for (var m = 0; m < 16; m++) {
+    out.push({ name: names[m], bits: [m & 1, (m >> 1) & 1, (m >> 2) & 1, (m >> 3) & 1] });
+  }
+  return out;
+})();
+/* filter a suspect list by one answered feature question */
+ST2.sift = function (list, propIdx, yes) {
+  return list.filter(function (mo) { return mo.bits[propIdx] === (yes ? 1 : 0); });
+};
+/* how a question would split the current suspects: [yesCount, noCount] */
+ST2.split = function (list, propIdx) {
+  var y = 0;
+  list.forEach(function (mo) { if (mo.bits[propIdx] === 1) y++; });
+  return [y, list.length - y];
+};
+/* === ST2:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ---------- chapter reveal ----------
+  document.querySelectorAll("[data-next]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.getElementById(btn.dataset.next).classList.add("open");
+      btn.parentNode.style.display = "none";
+      document.getElementById(btn.dataset.next).scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+  document.getElementById("story-done").addEventListener("click", function () {
+    document.getElementById("ch5").classList.add("open");
+    this.parentNode.style.display = "none";
+    document.getElementById("ch5").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (window.DadMath) {
+      DadMath.star("st2", 2, "Finished the twenty-questions story");
+      DadMath.badge("story-bits");
+    }
+  });
+
+  // ---------- ch1: number corner ----------
+  (function () {
+    var lo, hi, n, done;
+    var read = document.getElementById("nc-read");
+    function fmt(x) { return x.toLocaleString("en-US"); }
+    function paint() {
+      var left = hi - lo + 1;
+      document.getElementById("nc-n").textContent = n;
+      document.getElementById("nc-left").textContent = fmt(left);
+      document.getElementById("nc-bar").style.width = Math.max(0.5, left / (ST2.HI - ST2.LO + 1) * 100) + "%";
+      if (lo === hi) {
+        done = true;
+        document.getElementById("nc-q").textContent = "Your number is " + fmt(lo) + ".";
+        read.className = "result win";
+        read.innerHTML = "🔮 <b>“Your number is " + fmt(lo) + ".”</b> Found in " + n + " question" + (n === 1 ? "" : "s") + " — with " + (20 - n) + " to spare. (If that's not your number… one of your answers fibbed. The math never does.)";
+      } else {
+        document.getElementById("nc-q").textContent = "Is your number ≤ " + fmt(ST2.mid(lo, hi)) + "?";
+      }
+    }
+    function answer(yes) {
+      if (done) return;
+      var next = ST2.narrow(lo, hi, yes);
+      lo = next[0]; hi = next[1]; n++;
+      if (lo !== hi) {
+        read.className = "result";
+        read.innerHTML = fmt(hi - lo + 1) + " suspects remain. He's not guessing. He's halving.";
+      }
+      paint();
+    }
+    function restart() {
+      lo = ST2.LO; hi = ST2.HI; n = 0; done = false;
+      read.className = "result";
+      read.innerHTML = "New number locked in your head? Answer away.";
+      paint();
+    }
+    document.getElementById("nc-yes").addEventListener("click", function () { answer(true); });
+    document.getElementById("nc-no").addEventListener("click", function () { answer(false); });
+    document.getElementById("nc-restart").addEventListener("click", restart);
+    restart();
+  })();
+
+  // ---------- ch2: halving meter ----------
+  (function () {
+    var left, chops;
+    var read = document.getElementById("hm-read");
+    function fmt(x) { return x.toLocaleString("en-US"); }
+    function paint() {
+      document.getElementById("hm-left").textContent = fmt(left) + " suspect" + (left === 1 ? "" : "s") + (chops ? " after " + chops + " chop" + (chops === 1 ? "" : "s") : "");
+      document.getElementById("hm-bar").style.width = Math.max(0.5, left / 1000000 * 100) + "%";
+    }
+    document.getElementById("hm-chop").addEventListener("click", function () {
+      if (left <= 1) {
+        read.className = "result win";
+        read.innerHTML = "Nothing left to chop — <b>" + chops + " questions</b> did it. (Notice the bar was nearly invisible after 7 — halving is brutal.)";
+        return;
+      }
+      left = Math.ceil(left / 2); chops++;
+      paint();
+      read.className = "result" + (left === 1 ? " win" : "");
+      read.innerHTML = left === 1
+        ? "🪓 <b>One suspect left after " + chops + " chops.</b> That's why the bet was 20 — 2²⁰ just beats a million."
+        : "Chop " + chops + ": " + fmt(left) + " remain.";
+    });
+    document.getElementById("hm-reset").addEventListener("click", function () {
+      left = 1000000; chops = 0;
+      read.className = "result";
+      read.innerHTML = "Each chop halves the crowd (rounding up — the suspect might be in either half).";
+      paint();
+    });
+    left = 1000000; chops = 0; paint();
+  })();
+
+  // ---------- ch3 GAME: monster detective ----------
+  (function () {
+    var secret, remaining, asked, qCount, streak = 0, over;
+    var read = document.getElementById("md-read"), count = document.getElementById("md-count");
+    var cardsEl = document.getElementById("md-cards"), qbtnsEl = document.getElementById("md-qbtns");
+    var cardEls = [], qEls = [];
+    ST2.MONSTERS.forEach(function (mo, idx) {
+      var c = document.createElement("div");
+      c.className = "moncard";
+      c.innerHTML = "<div class='mn'>👾 " + mo.name + "</div><div class='mi'>" +
+        ST2.PROPS.map(function (p, i) { return mo.bits[i] ? p.icon : "·"; }).join(" ") + "</div>";
+      c.addEventListener("click", function () { accuse(idx); });
+      cardsEl.appendChild(c);
+      cardEls.push(c);
+    });
+    ST2.PROPS.forEach(function (p, i) {
+      var b = document.createElement("button");
+      b.className = "qbtn";
+      b.addEventListener("click", function () { ask(i); });
+      qbtnsEl.appendChild(b);
+      qEls.push(b);
+    });
+    function paint() {
+      document.getElementById("md-q").textContent = qCount;
+      document.getElementById("md-left").textContent = remaining.length;
+      document.getElementById("md-streak").textContent = streak;
+      count.textContent = "best streak " + (window.DadMath ? DadMath.getBest("st2-detective") : 0);
+      ST2.PROPS.forEach(function (p, i) {
+        var s = ST2.split(remaining, i);
+        qEls[i].textContent = p.icon + " " + p.q + " (" + s[0] + "/" + s[1] + ")";
+        qEls[i].disabled = over || asked[i];
+      });
+      cardEls.forEach(function (c, idx) {
+        c.classList.toggle("out", remaining.indexOf(ST2.MONSTERS[idx]) === -1);
+      });
+    }
+    function newRound() {
+      secret = ST2.MONSTERS[Math.floor(Math.random() * 16)];
+      remaining = ST2.MONSTERS.slice();
+      asked = [false, false, false, false];
+      qCount = 0; over = false;
+      paint();
+      read.className = "result";
+      read.innerHTML = "The deck is shuffled, the monster is chosen. Ask well.";
+    }
+    function ask(i) {
+      if (over || asked[i]) return;
+      asked[i] = true; qCount++;
+      var yes = secret.bits[i] === 1;
+      remaining = ST2.sift(remaining, i, yes);
+      paint();
+      read.className = "result";
+      read.innerHTML = "“" + ST2.PROPS[i].q + "” — <b>" + (yes ? "YES" : "NO") + ".</b> " + remaining.length + " suspect" + (remaining.length === 1 ? "" : "s") + " left." + (remaining.length === 1 ? " Accuse!" : "");
+    }
+    function accuse(idx) {
+      if (over || remaining.indexOf(ST2.MONSTERS[idx]) === -1) return;
+      over = true;
+      var mo = ST2.MONSTERS[idx];
+      if (mo === secret) {
+        var perfect = qCount === 4 && remaining.length === 1;
+        if (perfect) {
+          streak++;
+          var rec = window.DadMath ? DadMath.best("st2-detective", streak) : false;
+          read.className = "result win";
+          read.innerHTML = "🕵️ <b>It was " + mo.name + " — a PERFECT four-question game.</b> Streak " + streak + (rec ? " — 🏅 new best!" : "") + ".";
+          if (window.DadMath && streak % 3 === 0) DadMath.star("st2", streak === 3 ? 2 : 1, "Perfect detective games — streak " + streak);
+        } else if (remaining.length > 1) {
+          streak = 0;
+          read.className = "result";
+          read.innerHTML = "It WAS " + mo.name + " — but with " + remaining.length + " suspects left, that was a lucky gamble, not detective work. Uncle Max raises an eyebrow. (Streak reset.)";
+        } else {
+          streak = 0;
+          read.className = "result";
+          read.innerHTML = "It was " + mo.name + " — solved, but in " + qCount + " questions. The pros do 16 monsters in exactly 4. (Streak reset.)";
+        }
+      } else {
+        streak = 0;
+        read.className = "result miss";
+        read.innerHTML = "❌ It was <b>" + secret.name + "</b>, not " + mo.name + ". A wrong accusation loses the round — that's why gambles are for amateurs. (Streak reset.)";
+      }
+      paint();
+      setTimeout(newRound, 2600);
+    }
+    document.getElementById("md-new").addEventListener("click", function () { if (!over) { streak = 0; newRound(); } });
+    newRound();
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

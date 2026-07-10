@@ -59,8 +59,29 @@ client-side, so this is a trust-and-verify aid for a present parent, not tamper-
   by BFS, up to 6; 🌀 Qubit Wrangler badge for 3 pars in a row) and **Spy Qubit** (identify a
   mystery lean from up to 15 one-bit measurements — statistics, the way real quantum computers
   are read out). Ends honestly: what 2ⁿ superposition does and doesn't mean. → `cs05-qubits.html`
+- **💻 CS·6 Entanglement: The Spooky Phone** (quantum series, part 2) — two qubits, one fate:
+  twin dials whose answers match with probability **cos²(twist)** (real Φ+ photon statistics),
+  Einstein's glove-factory objection as an **answer-sheet counting argument**, and a kid-runnable
+  **Bell test**: sheets can't beat disagreement(0°,60°) ≤ d(0°,30°) + d(30°,60°), the universe
+  scores 75% > 25% + 25%. Games: **Spooky or Gloves?** (inspect a crate by statistics — the fake
+  sits exactly ON the Bell limit; 📞 badge for 3 in a row) and a **no-signaling** widget showing
+  why the spooky phone can't text (your marginal stays 50/50 whatever the far dial does).
+  → `cs06-entanglement.html`
 - **🕸️ G·1 The Seven Bridges** — playable Königsberg + envelope trace + Euler's degree
   rule. → `gt01-bridges.html`
+- **🕸️ G·2 Six Handshakes to Anyone** — small-world networks: reach grows like **kᵈ**
+  (44⁶ ≈ 7.3 billion), why clumping almost kills it (a 48-person ring world has average distance
+  6.38), and the Watts–Strogatz fix: a few random shortcuts collapse distances for everyone.
+  **World Shrinker** game (place 5 bridges to get average distance ≤ 3.9 — tuned so random
+  placement usually fails; 🌍 badge) with a **meme/disease spread animation** on the same graph
+  (same wires, same speed — the 2020 lesson). Milgram 1967 and Facebook's 3.57 as evidence.
+  → `gt02-handshakes.html`
+- **🕸️ G·3 The Map-Colouring War** — the four-colour theorem: maps → graphs, why 4 is necessary
+  (K₄) and 5 mutual touchers are impossible, Kempe's 11-year false proof, and **Appel–Haken 1976**
+  (1,936 configurations, 1,200 computer-hours — the first machine-proved theorem and the fight
+  over whether it counts). Plus a provable consolation: greedy colouring needs ≤ d+1. **Map
+  painter** game: random grid-grown maps, par = true chromatic number by backtracking (χ ∈ {3,4});
+  3 pars in a row = 🎨 badge. → `gt03-map-coloring.html`
 - **🎲 GT·1 How to Win Every Game (Sometimes)** — game theory: beat a perfect bot at the
   21-stick game via **backward induction** (cold numbers = multiples of 4; badge for winning),
   then a **pattern-sniffing rock-paper-scissors bot** (a Markov counter on your habits) that
@@ -81,6 +102,17 @@ client-side, so this is a trust-and-verify aid for a present parent, not tamper-
   simulator** where the cheaters boom, starve, and go extinct. → `gm02-prisoners-dilemma.html`
 - **📖 Story mode: The Cat in the Box** — quantum mechanics as a read-aloud story with a
   collapsing coin, a double-slit toy, and entangled gloves. → `qm01-quantum-story.html`
+- **📖 Story mode: The Pirate Split** — game theory as a story: 5 pirates, 100 coins, and
+  **backward induction** built chapter by chapter (2 pirates → 3 → 4 → 5) with an honest **vote
+  machine** in every chapter — propose any split and watch perfectly greedy, logical, bloodthirsty
+  pirates vote with reasons. The 98·0·1·0·1 answer, verified; ends with the ultimatum-game twist
+  (real humans pay to punish greed). Finish = 🏴‍☠️ badge. → `st01-pirates.html`
+- **📖 Story mode: Twenty Questions vs. the Universe** — information theory as a story: a
+  million-number mind reader (binary search, always ≤ 20 questions since 2²⁰ = 1,048,576), the
+  halving meter, and **monster detective school** — 16 monsters = all 4-bit feature combos, so
+  every feature question splits any remaining set exactly in half and a perfect game is exactly 4
+  questions (splits shown on every button; gambling is called out). Shannon, the bit, and why
+  compression = asking better questions. Finish = ❓ badge. → `st02-twenty-questions.html`
 
 ## 🎮 Game Lab
 
