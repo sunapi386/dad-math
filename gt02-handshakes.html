@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G 2 · Six Handshakes to Anyone — Math in Half an Hour</title>
+<meta name="description" content="Small-world networks for kids: why you're about six friendships from anyone alive — exponential reach, the clumping problem, shortcut edges that shrink a world, and why memes and colds ride the same wires. With a world-shrinking game.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.reachbar { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; height: 26px; overflow: hidden; margin: 8px 0; }
+.reachbar .fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 7px 0 0 7px; transition: width .25s ease; }
+.reachnum { font-family: var(--mono); font-weight: 800; font-size: 1.25rem; text-align: center; margin: 6px 0; }
+.worldwrap { display: flex; gap: 18px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+#gw-svg circle.node { fill: var(--panel-2); stroke: var(--muted); stroke-width: 1.5; cursor: pointer; }
+#gw-svg circle.node:hover { stroke: var(--primary); stroke-width: 3; }
+#gw-svg circle.node.sel { fill: var(--primary); stroke: var(--primary); }
+#gw-svg line.ring { stroke: var(--line); stroke-width: 1.5; }
+#gw-svg line.sc { stroke: var(--accent); stroke-width: 3; stroke-linecap: round; opacity: .85; }
+.statrow { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Graph Theory · Topic 02 · Small worlds</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Six Handshakes to Anyone</h1>
+    <p class="lede">Pick anyone alive — a movie star, a fisherman in Norway, the kid who'll be your
+      best friend in ten years. The claim: a chain of about <b>six</b> friendships connects you to
+      them. Eight billion people, six steps. Tonight we find out why that's not magic — it's
+      multiplication — and why it <em>almost</em> fails, except for a trick you can build with five
+      clicks.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">best after G·1: Seven Bridges</span> &nbsp; <span class="badge green">🌍 shrink a world yourself</span></p>
+  </header>
+
+  <!-- 1 THE MULTIPLICATION -->
+  <h2>1 · The most powerful kind of counting</h2>
+  <p>In graph language (dots = people, lines = friendships): how many people can you reach in
+    $d$ hops? Suppose everyone knows about $k$ people. You know $k$. Their friends: $k \times k$.
+    Friends-of-friends-of-friends: $k \times k \times k$. Each handshake <b>multiplies</b>:</p>
+  <p>$$\text{reach in } d \text{ handshakes} \approx k^d$$</p>
+  <p>Adding grows like a snail; multiplying grows like an avalanche (you saw this in CS·1 — every
+    extra bit doubles the numbers). If everyone knows just 44 people, then
+    $44^6 \approx 7{,}300{,}000{,}000$ — six handshakes swallow the planet.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🌍</span> The reach machine</div>
+    <p class="phint">Slide “friends each” and “handshakes”. The bar compares your reach to all
+      8.2 billion humans. Find the smallest number of handshakes that covers Earth when k = 30.
+      Then try k = 5 — a shy planet.</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <label class="ctl">friends each (k): <b id="rm-kv">30</b><br><input type="range" id="rm-k" min="2" max="60" value="30" style="width:180px" aria-label="friends each"></label>
+      <label class="ctl">handshakes (d): <b id="rm-dv">4</b><br><input type="range" id="rm-d" min="1" max="8" value="4" style="width:180px" aria-label="handshakes"></label>
+    </div>
+    <div class="reachnum" id="rm-num">30⁴ = 810,000 people</div>
+    <div class="reachbar"><div class="fill" id="rm-bar" style="width:0%"></div></div>
+    <div class="result" id="rm-read">–</div>
+  </div>
+
+  <!-- 2 THE PROBLEM -->
+  <h2>2 · The catch: your friends know each other</h2>
+  <p>The $k^d$ avalanche has a cheat in it. It assumes every handshake reaches $k$ <em>new</em>
+    people. Real life isn't like that — your friends mostly know <em>your other friends</em>. Your
+    class, your street, your team: friendship comes in <b>clumps</b>. A handshake inside the clump
+    reaches almost nobody new.</p>
+  <p>Here's a whole world built only of clumps: 48 people around a ring, each knowing just their
+    4 nearest neighbours. No avalanche — news crawls around the circle like a bucket brigade. The
+    <b>average distance</b> between two people here is 6.4 hops, and opposite sides are 12 apart.
+    Scale that ring up to Earth and “six handshakes” dies — you'd need <em>millions</em>.</p>
+  <p>So why is the real world small? In 1998, two mathematicians (Watts and Strogatz) found the
+    answer, and it's beautiful: clumpy worlds need only a <b>few random shortcuts</b> — the aunt in
+    Australia, the pen-pal, the kid who moved schools — and distances collapse for <em>everyone</em>,
+    even people nowhere near a shortcut. Try it:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">✂️</span> GAME · World Shrinker <span class="qcount" id="gw-count"></span></div>
+    <p class="phint">Click two people to build a friendship bridge between them — you get
+      <b>5</b>. Get the average distance below <b>3.9</b> to earn the 🌍 badge. Hint: bridges
+      crammed in one neighbourhood are wasted. Spread them — or invent an airport.</p>
+    <div class="worldwrap">
+      <svg id="gw-svg" viewBox="-175 -175 350 350" width="330" height="330" aria-label="ring world"></svg>
+      <div style="min-width:180px">
+        <div class="statrow" style="flex-direction:column; gap:6px; align-items:flex-start">
+          <span>bridges <b id="gw-used">0</b>/5</span>
+          <span>average distance <b id="gw-avg">6.38</b></span>
+          <span>farthest pair <b id="gw-diam">12</b></span>
+          <span>world shrunk <b id="gw-shrink">0%</b></span>
+        </div>
+        <div class="ctrlrow">
+          <button class="btn ghost" id="gw-undo">↩ undo</button>
+          <button class="btn ghost" id="gw-reset">↺ reset</button>
+        </div>
+        <div class="ctrlrow">
+          <button class="btn" id="gw-meme">🦠 spread a meme</button>
+        </div>
+      </div>
+    </div>
+    <div class="result" id="gw-read">Pick a person to start your first bridge.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Did you find the airport trick?</span> When we let a computer search for the
+    best 5 bridges, it didn't spread them evenly — it kept attaching them to <em>one busy node</em>,
+    inventing a hub. Real networks do this too: airlines, the internet, and that one kid who
+    somehow knows everyone. Hubs are how small worlds get even smaller.
+  </div>
+
+  <!-- 3 SAME WIRES -->
+  <h2>3 · Memes and colds ride the same wires</h2>
+  <p>Press <b>🦠 spread a meme</b> up there and watch it wash over the ring, day by day — each day
+    it jumps one handshake. On the plain ring it takes 12 days to reach the far side. Add your
+    bridges and watch the same meme cross the world in 3 or 4.</p>
+  <p>Here's the grown-up secret: that animation doesn't care <em>what</em> is spreading. A joke, a
+    song, a rumour — or a cold. <b>Same graph, same speed.</b> This is why one sneeze in an airport
+    can reach every continent in a week (airports are shortcut factories), and why in 2020 the
+    whole world suddenly cared about network math: cancelling flights and gatherings is literally
+    <em>deleting shortcut edges</em> to make the world temporarily big again. You just did the
+    reverse with five clicks.</p>
+
+  <!-- 4 THE EVIDENCE -->
+  <h2>4 · Was six ever measured?</h2>
+  <p>Yes — with paper. In 1967 Stanley Milgram mailed packets to random people in Nebraska:
+    <em>“Get this to a stockbroker near Boston — but only by mailing it to someone you know
+    personally.”</em> The letters that arrived took a median of <b>six</b> mailings. Facebook
+    re-ran the experiment on its whole friendship graph in 2016: average distance
+    <b>3.57</b> — the internet is one giant shortcut machine, so the world got smaller. The next
+    time someone says “small world!” at a party, you now know it's a theorem, not a coincidence.</p>
+
+  <!-- 5 PUZZLE -->
+  <h2>5 · 🧩 Puzzle: think in hops</h2>
+  <p>Reach, rounds and ring-distance. Streak of 3 = ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Small-world drills</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:8ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Map a real clump.</strong> Draw your class as a graph: dots for kids, lines for
+      real friendships. Find the clumps. Now find the <em>shortcuts</em> — who's friends across
+      clumps? Those kids are your class's airports.</li>
+    <li><strong>Chain to a celebrity.</strong> Pick someone famous and build the shortest chain of
+      people you can argue actually know each other, starting from you. (Parents count. Parents'
+      coworkers count. You'll be shocked how often 4 is enough.)</li>
+    <li><strong>Explain the 2020 trick.</strong> Using the words <em>shortcut</em> and
+      <em>average distance</em>, explain to a grown-up why cancelling flights slows a virus even
+      though most people never fly.</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">network · reach kᵈ · exponential growth · clustering (clumps) · shortcut edge · small-world network · average distance · hub · six degrees of separation</p>
+
+  <div class="lessonnav">
+    <a href="gt01-bridges.html">← G·1: The Seven Bridges</a>
+    <a href="gt03-map-coloring.html">G·3: The Map-Colouring War →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=13"></script>
+<script>
+/* === GT2:PURE START === (DOM-free small-world logic; node-tested before deploy)
+   World: 48 people on a ring, each knowing neighbours ±1 and ±2 (a pure "clump" world:
+   avg distance 6.38, diameter 12 — verified against the exact ceil(m/2) formula).
+   The game adds up to 5 shortcut edges; goal avg ≤ 3.9 was tuned in node: random bridge
+   placement passes <10% of the time, spread-out or hub placements pass comfortably
+   (greedy search found ~3.60 — and kept building a hub). */
+var GT2 = {};
+GT2.N = 48;
+GT2.K = 2;
+GT2.WORLD_POP = 8200000000;
+GT2.GOAL_AVG = 3.9;
+GT2.BASE_AVG = 6.383;   // exact for n=48, k=±2 (see formula check in tests)
+GT2.reach = function (k, d) { return Math.pow(k, d); };
+GT2.ringDist = function (m) { return Math.ceil(m / 2); };  // hops between seats m apart (m ≤ 24)
+GT2.adj = function (shortcuts) {
+  var adj = [], i, k;
+  for (i = 0; i < GT2.N; i++) adj.push([]);
+  for (i = 0; i < GT2.N; i++) for (k = 1; k <= GT2.K; k++) {
+    adj[i].push((i + k) % GT2.N);
+    adj[i].push((i - k + GT2.N) % GT2.N);
+  }
+  (shortcuts || []).forEach(function (s) { adj[s[0]].push(s[1]); adj[s[1]].push(s[0]); });
+  return adj;
+};
+GT2.bfs = function (adj, src) {
+  var d = [], q = [src], h, u, i;
+  for (i = 0; i < adj.length; i++) d.push(-1);
+  d[src] = 0;
+  for (h = 0; h < q.length; h++) {
+    u = q[h];
+    for (i = 0; i < adj[u].length; i++) if (d[adj[u][i]] === -1) { d[adj[u][i]] = d[u] + 1; q.push(adj[u][i]); }
+  }
+  return d;
+};
+GT2.stats = function (adj) {
+  var sum = 0, cnt = 0, diam = 0, i, j, d;
+  for (i = 0; i < adj.length; i++) {
+    d = GT2.bfs(adj, i);
+    for (j = 0; j < adj.length; j++) if (j !== i) { sum += d[j]; cnt++; if (d[j] > diam) diam = d[j]; }
+  }
+  return { avg: sum / cnt, diameter: diam };
+};
+/* meme spread = BFS layers from patient zero: layers[r] = people first reached on day r */
+GT2.spreadLayers = function (adj, src) {
+  var d = GT2.bfs(adj, src), layers = [], i;
+  for (i = 0; i < d.length; i++) {
+    while (layers.length <= d[i]) layers.push([]);
+    layers[d[i]].push(i);
+  }
+  return layers;
+};
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+GT2.GENS = [
+  function (rng) {   // raw reach k^d
+    var k = 3 + Math.floor(rng() * 4), d = 2 + Math.floor(rng() * 3);
+    return { text: "In a town where everyone knows exactly " + k + " people, about how many people do " + d + " handshakes reach? (Assume every handshake reaches new people.)",
+             ans: Math.pow(k, d),
+             why: "each handshake multiplies by " + k + ": " + k + "^" + d + " = " + Math.pow(k, d) };
+  },
+  function (rng) {   // minimal d so k^d ≥ target
+    var k = 3 + Math.floor(rng() * 7);
+    var dTrue = 3 + Math.floor(rng() * 3);
+    var target = Math.pow(k, dTrue - 1) + 1 + Math.floor(rng() * (Math.pow(k, dTrue) - Math.pow(k, dTrue - 1) - 1));
+    var d = 1; while (Math.pow(k, d) < target) d++;
+    return { text: "Everyone knows " + k + " people. What is the SMALLEST number of handshakes that reaches at least " + target.toLocaleString("en-US") + " people?",
+             ans: d,
+             why: k + "^" + (d - 1) + " = " + Math.pow(k, d - 1) + " is too few, but " + k + "^" + d + " = " + Math.pow(k, d) + " ≥ " + target.toLocaleString("en-US") };
+  },
+  function (rng) {   // ring distance
+    var m = 3 + Math.floor(rng() * 22);
+    return { text: "48 people sit in a circle; each knows the 2 neighbours on each side. News hops friend-to-friend. How many hops to reach the person " + m + " seats away?",
+             ans: Math.ceil(m / 2),
+             why: "each hop covers at most 2 seats: ⌈" + m + "/2⌉ = " + Math.ceil(m / 2) };
+  }
+];
+/* === GT2:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ---------- §1 reach machine ----------
+  (function () {
+    var kEl = document.getElementById("rm-k"), dEl = document.getElementById("rm-d"),
+        read = document.getElementById("rm-read");
+    function fmt(x) {
+      if (x >= 1e12) return (x / 1e12 < 100 ? (x / 1e12).toFixed(1) : Math.round(x / 1e12)) + " trillion";
+      return x.toLocaleString("en-US");
+    }
+    function sup(d) { return String(d).split("").map(function (c) { return "⁰¹²³⁴⁵⁶⁷⁸⁹"[+c]; }).join(""); }
+    function paint() {
+      var k = +kEl.value, d = +dEl.value, r = GT2.reach(k, d);
+      document.getElementById("rm-kv").textContent = k;
+      document.getElementById("rm-dv").textContent = d;
+      document.getElementById("rm-num").textContent = k + sup(d) + " = " + fmt(r) + (r >= GT2.WORLD_POP ? " 🌍" : " people");
+      // log-scale bar: 0 → 10^0, 100% → world population
+      var frac = Math.max(0, Math.min(1, Math.log(r) / Math.log(GT2.WORLD_POP)));
+      document.getElementById("rm-bar").style.width = (frac * 100) + "%";
+      read.className = "result" + (r >= GT2.WORLD_POP ? " win" : "");
+      read.innerHTML = r >= GT2.WORLD_POP
+        ? "🌍 <b>That covers every human alive</b> (8.2 billion) — with " + fmt(r - GT2.WORLD_POP) + " reach to spare."
+        : "That's " + (r / GT2.WORLD_POP < 0.001 ? "less than 0.1%" : Math.round(r / GT2.WORLD_POP * 100) + "%") + " of the planet. " + (d < 8 ? "More handshakes multiply — slide d." : "Even 8 hops can't fix a tiny k — multiplication needs something to multiply.");
+    }
+    kEl.addEventListener("input", paint);
+    dEl.addEventListener("input", paint);
+    paint();
+  })();
+
+  // ---------- §2 GAME: world shrinker (+ §3 meme spread) ----------
+  (function () {
+    var svg = document.getElementById("gw-svg"), read = document.getElementById("gw-read"),
+        count = document.getElementById("gw-count");
+    var SVGNS = "http://www.w3.org/2000/svg";
+    var R = 150, shortcuts = [], sel = -1, won = false, spreading = false;
+    var nodeEls = [], scEls = [];
+    function pos(i) {
+      var a = i * 2 * Math.PI / GT2.N - Math.PI / 2;
+      return [R * Math.cos(a), R * Math.sin(a)];
+    }
+    // ring edges (±1 as rim, ±2 as inner chords)
+    for (var i = 0; i < GT2.N; i++) {
+      [1, 2].forEach(function (k) {
+        var l = document.createElementNS(SVGNS, "line");
+        var p = pos(i), q = pos((i + k) % GT2.N);
+        var shrinkTo = k === 2 ? 0.96 : 1;
+        l.setAttribute("x1", p[0] * shrinkTo); l.setAttribute("y1", p[1] * shrinkTo);
+        l.setAttribute("x2", q[0] * shrinkTo); l.setAttribute("y2", q[1] * shrinkTo);
+        l.setAttribute("class", "ring");
+        svg.appendChild(l);
+      });
+    }
+    for (var n = 0; n < GT2.N; n++) {
+      (function (idx) {
+        var c = document.createElementNS(SVGNS, "circle");
+        var p = pos(idx);
+        c.setAttribute("cx", p[0]); c.setAttribute("cy", p[1]); c.setAttribute("r", 6.5);
+        c.setAttribute("class", "node");
+        c.addEventListener("click", function () { clickNode(idx); });
+        svg.appendChild(c);
+        nodeEls.push(c);
+      })(n);
+    }
+    function stats() { return GT2.stats(GT2.adj(shortcuts)); }
+    function paintStats() {
+      var s = stats();
+      var shrink = Math.max(0, Math.round((1 - s.avg / GT2.BASE_AVG) * 100));
+      document.getElementById("gw-used").textContent = shortcuts.length;
+      document.getElementById("gw-avg").textContent = s.avg.toFixed(2);
+      document.getElementById("gw-diam").textContent = s.diameter;
+      document.getElementById("gw-shrink").textContent = shrink + "%";
+      count.textContent = "best shrink " + (window.DadMath ? DadMath.getBest("gt2-shrink") : 0) + "%";
+      return s;
+    }
+    function clickNode(i) {
+      if (spreading) return;
+      if (sel === -1) {
+        sel = i;
+        nodeEls[i].classList.add("sel");
+        read.className = "result";
+        read.innerHTML = "Person " + i + " selected — now click who they should befriend.";
+        return;
+      }
+      if (sel === i) { nodeEls[i].classList.remove("sel"); sel = -1; return; }
+      var ringGap = Math.min(Math.abs(sel - i), GT2.N - Math.abs(sel - i));
+      var dup = shortcuts.some(function (s) { return (s[0] === sel && s[1] === i) || (s[0] === i && s[1] === sel); });
+      if (ringGap <= GT2.K || dup) {
+        read.className = "result miss";
+        read.innerHTML = ringGap <= GT2.K ? "They already know each other — a bridge to a neighbour shrinks nothing." : "That bridge already exists.";
+        nodeEls[sel].classList.remove("sel"); sel = -1;
+        return;
+      }
+      if (shortcuts.length >= 5) {
+        read.className = "result miss";
+        read.innerHTML = "All 5 bridges used — undo one to move it.";
+        nodeEls[sel].classList.remove("sel"); sel = -1;
+        return;
+      }
+      shortcuts.push([sel, i]);
+      var l = document.createElementNS(SVGNS, "line");
+      var p = pos(sel), q = pos(i);
+      l.setAttribute("x1", p[0]); l.setAttribute("y1", p[1]);
+      l.setAttribute("x2", q[0]); l.setAttribute("y2", q[1]);
+      l.setAttribute("class", "sc");
+      svg.appendChild(l);
+      scEls.push(l);
+      nodeEls[sel].classList.remove("sel"); sel = -1;
+      var s = paintStats();
+      var shrink = Math.max(0, Math.round((1 - s.avg / GT2.BASE_AVG) * 100));
+      if (s.avg <= GT2.GOAL_AVG && !won) {
+        won = true;
+        read.className = "result win";
+        read.innerHTML = "🌍 <b>World shrunk!</b> Average distance " + s.avg.toFixed(2) + " with " + shortcuts.length + " bridge" + (shortcuts.length > 1 ? "s" : "") + " — below 3.9. Everyone on the ring got closer to everyone, even far from your bridges.";
+        if (window.DadMath) {
+          DadMath.best("gt2-shrink", shrink);
+          DadMath.badge("gt-small");
+          DadMath.star("gt2", 2, "Shrunk the world below 3.9 average hops!");
+        }
+      } else {
+        if (window.DadMath) DadMath.best("gt2-shrink", shrink);
+        read.className = "result";
+        read.innerHTML = "Bridge built. Average distance now <b>" + s.avg.toFixed(2) + "</b> (goal ≤ 3.9)" + (shortcuts.length === 5 && s.avg > GT2.GOAL_AVG ? " — out of bridges. Undo and re-plan: are two of yours doing the same job?" : ".");
+      }
+    }
+    document.getElementById("gw-undo").addEventListener("click", function () {
+      if (spreading || !shortcuts.length) return;
+      shortcuts.pop();
+      svg.removeChild(scEls.pop());
+      won = false;
+      paintStats();
+      read.className = "result";
+      read.innerHTML = "Bridge removed.";
+    });
+    document.getElementById("gw-reset").addEventListener("click", function () {
+      if (spreading) return;
+      shortcuts = [];
+      scEls.forEach(function (l) { svg.removeChild(l); });
+      scEls = []; won = false;
+      if (sel !== -1) { nodeEls[sel].classList.remove("sel"); sel = -1; }
+      paintStats();
+      read.className = "result";
+      read.innerHTML = "Back to the plain ring: average distance 6.38.";
+    });
+    // meme spread animation
+    document.getElementById("gw-meme").addEventListener("click", function () {
+      if (spreading) return;
+      spreading = true;
+      var src = Math.floor(Math.random() * GT2.N);
+      var layers = GT2.spreadLayers(GT2.adj(shortcuts), src);
+      nodeEls.forEach(function (c) { c.style.fill = ""; });
+      var day = 0;
+      read.className = "result";
+      function step() {
+        if (day >= layers.length) {
+          spreading = false;
+          read.innerHTML = "🦠 Everyone caught it in <b>" + (layers.length - 1) + " days</b>" + (shortcuts.length ? " (plain ring takes 12 — your bridges sped it up)." : " — that's the plain-ring speed. Add bridges and spread it again.");
+          setTimeout(function () { nodeEls.forEach(function (c) { c.style.fill = ""; }); }, 1800);
+          return;
+        }
+        layers[day].forEach(function (i) { nodeEls[i].style.fill = day === 0 ? "var(--accent)" : "var(--primary)"; });
+        read.innerHTML = "Day " + day + ": <b>" + layers.slice(0, day + 1).reduce(function (a, l) { return a + l.length; }, 0) + "</b>/" + GT2.N + " people have it.";
+        day++;
+        setTimeout(step, 550);
+      }
+      step();
+    });
+    paintStats();
+  })();
+
+  // ---------- §5 puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    var booted = false;
+    function newQ() {
+      q = GT2.GENS[Math.floor(Math.random() * GT2.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; if (booted) input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim().replace(/,/g, "");
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Connected. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath && streak % 3 === 0) DadMath.star("gt2", 1, "Small-world drills — streak " + streak);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ(); booted = true;
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

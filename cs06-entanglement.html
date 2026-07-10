@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CS 6 · Entanglement: The Spooky Phone — Math in Half an Hour</title>
+<meta name="description" content="Entanglement for kids: twin qubits that always agree, the glove-factory impostor, a Bell test you can actually run (the impossible score 75 > 25 + 25), why no message can ride the spookiness — and a detective game.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.dialwrap { display: flex; gap: 22px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 12px 0; }
+.dial svg { display: block; margin: 0 auto; }
+.dial .dlab { text-align: center; font-weight: 700; font-family: var(--mono); font-size: .85rem; margin-top: 2px; }
+.dial .dans { text-align: center; font-size: 1.5rem; font-weight: 800; font-family: var(--mono); min-height: 1.5em; }
+.mmrow { display: flex; align-items: center; gap: 8px; margin: 7px 0; }
+.mmrow .ql { width: 11ch; font-family: var(--mono); font-weight: 700; font-size: .85rem; flex: none; }
+.mmrow .qtrack { flex: 1; background: var(--panel-2); border: 1px solid var(--line); border-radius: 7px; height: 20px; overflow: hidden; }
+.mmrow .qbar { height: 100%; border-radius: 6px 0 0 6px; transition: width .3s ease; background: var(--accent); }
+.mmrow .qv { width: 6ch; font-family: var(--mono); font-weight: 700; flex: none; text-align: right; }
+.statrow { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; }
+.sheet { border-collapse: collapse; margin: 10px auto; font-family: var(--mono); font-weight: 700; }
+.sheet th, .sheet td { border: 1px solid var(--line); padding: 6px 14px; text-align: center; }
+.sheet th { background: var(--panel-2); }
+.verdict { text-align: center; font-weight: 800; font-size: 1.05rem; margin: 10px 0; font-family: var(--mono); }
+.accuserow { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+.accusebtn { font-size: 1rem; padding: 12px 18px; border-radius: 14px; border: 2px solid var(--line);
+  background: var(--panel-2); cursor: pointer; font-weight: 800; transition: transform .1s ease, border-color .1s ease; }
+.accusebtn:hover { transform: translateY(-2px); border-color: var(--primary); }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Computer Science · Topic 06 · Quantum series, part 2</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Entanglement: The Spooky Phone</h1>
+    <p class="lede">In <a href="cs05-qubits.html">CS·5</a> you steered one qubit. Tonight: <b>two</b>
+      qubits that share a single fate — the connection Einstein refused to believe and called
+      <em>“spooky action at a distance.”</em> You'll run the actual experiment that proved him wrong
+      (it won the 2022 Nobel Prize), catch an impostor with statistics, and find out why the
+      spookiest phone in the universe still can't send a text.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">best after CS·5 + the cat story</span> &nbsp; <span class="badge green">📞 run a real Bell test</span></p>
+  </header>
+
+  <!-- 1 THE PHONE -->
+  <h2>1 · Two dials, one fate</h2>
+  <p>Remember the glove boxes from <a href="qm01-quantum-story.html">the Cat in the Box</a>? Here's
+    the laboratory version. A machine in the middle fires out <b>a pair of qubits</b>, one to your
+    dial, one to your friend's dial across town. Each dial measures its qubit and prints a
+    <b>0</b> or a <b>1</b> — a perfect coin-flip, every single time, on both ends.</p>
+  <p>But the two coin-flips are not strangers. Set both dials to the <b>same angle</b> and the
+    answers <em>always match</em>. Twist them apart and they start to disagree — by an amount the
+    universe computes with a formula you already own from CS·5:</p>
+  <p>$$\text{chance the answers match} = \cos^2(\text{angle between the dials})$$</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">📞</span> The spooky phone</div>
+    <p class="phint">Set each dial (15° steps), then ring the phones — the machine sends one
+      entangled pair and both dials answer at the same instant. Same angle → always a match.
+      Twisted 90° apart → never. Try 45°.</p>
+    <div class="dialwrap">
+      <div class="dial">
+        <svg viewBox="-62 -62 124 124" width="140" height="140" aria-label="your dial">
+          <circle r="50" fill="none" stroke="var(--line)" stroke-width="2"/>
+          <text x="54" y="5" font-size="13" font-weight="700" fill="currentColor">0°</text>
+          <text x="-8" y="-53" font-size="13" font-weight="700" fill="currentColor">90°</text>
+          <line id="tp-arrA" x1="0" y1="0" x2="50" y2="0" stroke="var(--primary)" stroke-width="5" stroke-linecap="round"/>
+          <circle r="4" fill="var(--primary)"/>
+        </svg>
+        <div class="dlab">you · <span id="tp-degA">0°</span></div>
+        <div class="dans" id="tp-ansA">·</div>
+        <input type="range" id="tp-slidA" min="0" max="90" value="0" step="15" style="width:130px" aria-label="your dial angle">
+      </div>
+      <div style="font-size:1.6rem; align-self:center">🛰️</div>
+      <div class="dial">
+        <svg viewBox="-62 -62 124 124" width="140" height="140" aria-label="friend's dial">
+          <circle r="50" fill="none" stroke="var(--line)" stroke-width="2"/>
+          <text x="54" y="5" font-size="13" font-weight="700" fill="currentColor">0°</text>
+          <text x="-8" y="-53" font-size="13" font-weight="700" fill="currentColor">90°</text>
+          <line id="tp-arrB" x1="0" y1="0" x2="50" y2="0" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>
+          <circle r="4" fill="var(--accent)"/>
+        </svg>
+        <div class="dlab">your friend · <span id="tp-degB">0°</span></div>
+        <div class="dans" id="tp-ansB">·</div>
+        <input type="range" id="tp-slidB" min="0" max="90" value="0" step="15" style="width:130px" aria-label="friend's dial angle">
+      </div>
+    </div>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="btn" id="tp-ring">📞 Ring the phones</button>
+      <button class="btn ghost" id="tp-ring20">ring ×20</button>
+      <button class="btn ghost" id="tp-clear">clear tally</button>
+    </div>
+    <div class="statrow"><span>calls <b id="tp-n">0</b></span><span>matches <b id="tp-m">0</b></span><span>match rate <b id="tp-pct">–</b></span><span>predicted <b id="tp-pred">100%</b></span></div>
+    <div class="result" id="tp-read">Dials aligned — the answers will agree, guaranteed.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">The spooky part:</span> neither qubit has an answer <em>before</em> you ring.
+    Each side alone is a perfect coin-flip (check the tally — about half your answers are 1 no
+    matter what). Yet the two flips agree. It's not that both coins were secretly loaded the same
+    way at the factory… or is it? A good scientist checks. That's section 2.
+  </div>
+
+  <!-- 2 GLOVES -->
+  <h2>2 · The impostor: a glove factory</h2>
+  <p>Einstein's explanation was simple and sensible: <b>the answers were decided at the factory.</b>
+    Like a pair of gloves packed in boxes — open one, find LEFT, and of course the other is RIGHT.
+    No spookiness, just a secret decided in advance that you only <em>discovered</em> later.</p>
+  <p>So imagine an impostor company, <b>Gloves Inc.</b>, that sells fake spooky phones. Inside each
+    pair it hides a little <b>answer sheet</b> — the same sheet in both phones — that pre-decides
+    the answer for every dial angle. Same dial, same sheet, same answer: it matches perfectly at
+    equal angles, just like the real thing. At twisted angles their sheets disagree sometimes too.
+    From the outside the two machines look almost identical.</p>
+  <p><b>Almost.</b> For thirty years everyone believed no experiment could ever tell “decided at
+    the factory” from “decided at the moment of the call.” Then in 1964 the physicist John Bell
+    found a crack: a score that answer sheets <em>cannot</em> beat — and the real universe does.</p>
+  <p>Here's Bell's trick, kid-sized. Use just three dial settings: <b>0°, 30°, 60°</b>. Any answer
+    sheet writes down one answer for each — say <span style="font-family:var(--mono)">1, 1, 0</span>.
+    Now count the <em>disagreements</em> between pairs of settings:</p>
+  <table class="sheet">
+    <tr><th>sheet</th><th>0° vs 30°</th><th>30° vs 60°</th><th>0° vs 60°</th></tr>
+    <tr><td>1 · 1 · 0</td><td>agree</td><td>disagree</td><td>disagree</td></tr>
+    <tr><td>1 · 0 · 0</td><td>disagree</td><td>agree</td><td>disagree</td></tr>
+    <tr><td>1 · 0 · 1</td><td>disagree</td><td>disagree</td><td>agree</td></tr>
+    <tr><td>1 · 1 · 1</td><td>agree</td><td>agree</td><td>agree</td></tr>
+  </table>
+  <p>Stare at that table (those are half the sheets; the rest are mirror images). If a sheet's 0°
+    and 60° answers differ, it <em>must</em> have changed its mind somewhere along the way — at the
+    first step or the second. An answer can't change without changing! So for answer sheets,
+    <b>every single time</b>:</p>
+  <p>$$\text{disagreement}(0°\!,60°) \;\le\; \text{disagreement}(0°\!,30°) + \text{disagreement}(30°\!,60°)$$</p>
+  <p>That's just counting — it holds for one sheet, so it holds for millions of sheets averaged
+    together, no matter how cleverly the factory mixes them. Gloves Inc. <em>cannot</em> break it.</p>
+
+  <!-- 3 BELL TEST -->
+  <h2>3 · The impossible score</h2>
+  <p>Now ask the real spooky phone. Its disagreement rate is $\sin^2$ of the twist (that's the
+    flip side of the $\cos^2$ match rule). Read the three settings off the formula:</p>
+  <p style="text-align:center; font-family:var(--mono); font-weight:700">
+    0° vs 30°: sin²(30°) = 25% &nbsp;·&nbsp; 30° vs 60°: sin²(30°) = 25% &nbsp;·&nbsp; 0° vs 60°: sin²(60°) = <b>75%</b></p>
+  <p>But the sheet rule says the big twist can disagree <b>at most 25% + 25% = 50%</b>. The
+    universe answers <b>75%</b>. That's not a small miss — it's a score no answer sheet, no
+    secret plan, no “decided at the factory” story can ever produce. Run it yourself:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🔔</span> Run the Bell test</div>
+    <p class="phint">One click rings 60 entangled pairs at each of the three settings and counts
+      disagreements. Sheets predict the last bar ≤ the first two combined. Watch it break.</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="btn" id="bt-run">🔔 Ring 3 × 60 pairs</button>
+    </div>
+    <div class="mmrow"><span class="ql">0° vs 30°</span><div class="qtrack"><div class="qbar" id="bt-b0" style="width:0%"></div></div><span class="qv" id="bt-v0">–</span></div>
+    <div class="mmrow"><span class="ql">30° vs 60°</span><div class="qtrack"><div class="qbar" id="bt-b1" style="width:0%"></div></div><span class="qv" id="bt-v1">–</span></div>
+    <div class="mmrow"><span class="ql">0° vs 60°</span><div class="qtrack"><div class="qbar" id="bt-b2" style="width:0%;background:var(--primary)"></div></div><span class="qv" id="bt-v2">–</span></div>
+    <div class="verdict" id="bt-verdict">sheet limit: first two bars added = ?</div>
+    <div class="result" id="bt-read">Press the bell. If the last bar beats the first two combined, no answer sheet could have done that.</div>
+  </div>
+
+  <p>Real laboratories ran exactly this (with photons, mirrors and very fast switches) — Clauser
+    in the 70s, Aspect in the 80s, Zeilinger's group across whole cities. The universe broke the
+    sheet limit every time. In 2022 the three of them shared the <b>Nobel Prize in Physics</b> for
+    it. Einstein's sensible explanation is dead: the answers truly do not exist until the call —
+    and yet the two ends still agree. <em>That</em> is entanglement.</p>
+
+  <!-- 4 GAME -->
+  <h2>4 · 🕵️ GAME: Spooky or Gloves?</h2>
+  <p>You're the lab inspector. A crate arrives: is it a <b>real spooky phone</b> or a
+    <b>Gloves Inc. fake</b>? The fake is the best sheet-mixer money can buy — it matches perfectly
+    at equal angles and gets <em>suspiciously close</em> at twisted ones (33% · 33% · 67% — right
+    at the sheet limit). The real thing scores 25% · 25% · 75%. The bars wobble because samples
+    are small — read carefully, then accuse.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🕵️</span> Inspector's bench <span class="qcount" id="sg-count"></span></div>
+    <p class="phint">Run the test (60 pairs per setting), study the three bars and the sum rule,
+      then accuse. Streak of 3 correct = the 📞 badge. Even a perfect inspector gets fooled
+      sometimes — that's statistics, not failure.</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="btn" id="sg-run">🔔 Run the test</button>
+    </div>
+    <div class="mmrow"><span class="ql">0° vs 30°</span><div class="qtrack"><div class="qbar" id="sg-b0" style="width:0%"></div></div><span class="qv" id="sg-v0">–</span></div>
+    <div class="mmrow"><span class="ql">30° vs 60°</span><div class="qtrack"><div class="qbar" id="sg-b1" style="width:0%"></div></div><span class="qv" id="sg-v1">–</span></div>
+    <div class="mmrow"><span class="ql">0° vs 60°</span><div class="qtrack"><div class="qbar" id="sg-b2" style="width:0%;background:var(--primary)"></div></div><span class="qv" id="sg-v2">–</span></div>
+    <div class="verdict" id="sg-verdict">–</div>
+    <div class="accuserow">
+      <button class="accusebtn" id="sg-gloves">🧤 Gloves Inc. fake</button>
+      <button class="accusebtn" id="sg-spooky">👻 Real entanglement</button>
+    </div>
+    <div class="statrow"><span>streak <b id="sg-streak">0</b></span></div>
+    <div class="result" id="sg-read">A new crate is on the bench. Run the test.</div>
+  </div>
+
+  <!-- 5 NO SIGNAL -->
+  <h2>5 · The phone that can't send a text</h2>
+  <p>“Wait,” says every kid (and half the physicists of 1935). “The dials agree <em>instantly</em>,
+    even across a galaxy. Faster than light! Let's send messages!” Try it. You're on the left dial;
+    your friend far away wiggles theirs — or unplugs it entirely. If their choice changed
+    <em>anything</em> you can see on your side, that's a message.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">📵</span> Try to receive a message</div>
+    <p class="phint">Your dial stays at 0°. Choose what your friend does, ring 50 pairs, and watch
+      YOUR tally. Can you tell their choices apart from your side alone?</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <label class="ctl">friend's dial:
+        <select id="ns-far" aria-label="friend's dial setting">
+          <option value="0">0°</option>
+          <option value="30">30°</option>
+          <option value="60">60°</option>
+          <option value="90">90°</option>
+          <option value="off">🔌 unplugged</option>
+        </select>
+      </label>
+      <button class="btn" id="ns-run">📞 ring ×50</button>
+      <button class="btn ghost" id="ns-clear">clear</button>
+    </div>
+    <div class="mmrow"><span class="ql">your 1s</span><div class="qtrack"><div class="qbar" id="ns-bar" style="width:0%"></div></div><span class="qv" id="ns-pct">–</span></div>
+    <div class="result" id="ns-read">Whatever they do, your own tape is a fair coin. Ring and see.</div>
+  </div>
+
+  <p>Your side is a 50/50 coin <b>no matter what they do</b>. The agreement only appears when you
+    two <em>meet later and compare notes</em> — and the notes travel by ordinary mail, slower than
+    light. So relativity survives, Einstein keeps that victory, and the “spooky phone” is really a
+    <b>spooky coincidence generator</b>: useless for texting, but priceless for quantum computers
+    (entangled qubits are how CS·5's machines link their arrows into one big lean) and for
+    <b>unbreakable secret keys</b> — because if a spy taps the line, the impossible score drops to
+    a possible one, and the Bell test from section 3 catches them red-handed.</p>
+
+  <!-- 6 PUZZLE -->
+  <h2>6 · 🧩 Puzzle: think in twists</h2>
+  <p>Match rates, sheet counting, and the sum rule. Streak of 3 = ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Entanglement drills</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:8ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>Explain the crack.</strong> Using the answer-sheet table, show a grown-up why a
+      sheet whose 0° and 60° answers differ MUST also differ at one of the small steps. Then tell
+      them the universe's three numbers (25, 25, 75) and let them be bothered by it.</li>
+    <li><strong>Be Gloves Inc.</strong> Write secret answer sheets for 10 pairs of paper “phones”
+      (one answer for each of 0°, 30°, 60° — same sheet in both phones of a pair). Have someone
+      test them at the three settings and tally disagreements. Check: does the big-twist row stay
+      under the two small rows added together? (It has to. You're a sheet.)</li>
+    <li><strong>The no-texting rule.</strong> Your friend claims wiggling their dial sends you a
+      message faster than light. Explain what your own tape looks like no matter what they do —
+      and what extra, slower-than-light step is needed before the spooky agreement is even
+      visible.</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">entanglement · answer sheet (hidden variables) · Bell test · the sheet limit (Bell inequality) · match rate = cos²(twist) · no-signaling · quantum key</p>
+
+  <div class="lessonnav">
+    <a href="cs05-qubits.html">← CS 5: Qubits</a>
+    <a href="qm01-quantum-story.html">Story mode: The Cat in the Box →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=13"></script>
+<script>
+/* === CS6:PURE START === (DOM-free entanglement logic; node-tested before deploy)
+   Quantum model: an entangled pair measured at dial angles a,b agrees with probability
+   cos²(a−b) — exactly the statistics of photon pairs in the Φ+ state with polarizers at a and b.
+   Each side's marginal is 50/50 whatever the far dial does (no-signaling).
+   Classical impostor: a shared hidden orientation λ uniform on [0°,180°); each phone answers 1
+   iff its dial is within 45° of λ (as orientations). That factory matches perfectly at equal
+   angles, disagrees at rate Δ/90 — the strongest sheet-mixer: it sits exactly ON the Bell limit. */
+var CS6 = {};
+CS6.mulberry32 = function (a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+/* match probability for dial twist d degrees */
+CS6.matchProb = function (d) { var c = Math.cos(d * Math.PI / 180); return c * c; };
+/* one entangled call at angles a,b → [yourBit, friendBit] */
+CS6.qPair = function (a, b, rng) {
+  var mine = rng() < 0.5 ? 1 : 0;
+  var same = rng() < CS6.matchProb(a - b);
+  return [mine, same ? mine : 1 - mine];
+};
+/* orientation distance (angles are lines, period 180°, max distance 90°) */
+CS6.orientDist = function (a, b) { var d = Math.abs(a - b) % 180; return Math.min(d, 180 - d); };
+/* one Gloves Inc. call: shared hidden orientation decides both answers in advance */
+CS6.cPair = function (a, b, rng) {
+  var lam = rng() * 180;
+  var ans = function (t) { return CS6.orientDist(t, lam) < 45 ? 1 : 0; };
+  return [ans(a), ans(b)];
+};
+/* the Bell test: three settings, n pairs each, count disagreements per setting */
+CS6.SETTINGS = [[0, 30], [30, 60], [0, 60]];
+CS6.NPER = 60;
+CS6.runTest = function (pairFn, n, rng) {
+  return CS6.SETTINGS.map(function (s) {
+    var mm = 0;
+    for (var i = 0; i < n; i++) { var r = pairFn(s[0], s[1], rng); if (r[0] !== r[1]) mm++; }
+    return mm;
+  });
+};
+/* inspector's ideal rule: sheets obey mm2 ≤ mm0+mm1 (with noise), spooks break it by ~25% of n.
+   Accuse spooky when the excess passes the midpoint. */
+CS6.looksSpooky = function (mm, n) { return (mm[2] - mm[0] - mm[1]) / n > 0.125; };
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+CS6.GENS = [
+  function (rng) {   // match rate for a clean twist
+    var opts = [[0, 100], [30, 75], [45, 50], [60, 25], [90, 0]];
+    var pick = opts[Math.floor(rng() * opts.length)];
+    return { text: "The two dials are twisted " + pick[0] + "° apart. What is the chance the answers MATCH, in percent?",
+             ans: pick[1],
+             why: "match = cos²(" + pick[0] + "°) = " + pick[1] + "%" };
+  },
+  function (rng) {   // sheet disagreement parity: always 0 or 2 of the three pairs
+    var bits = [0, 0, 0];
+    do { bits = [rng() < 0.5 ? 1 : 0, rng() < 0.5 ? 1 : 0, rng() < 0.5 ? 1 : 0]; } while (false);
+    var d = (bits[0] !== bits[1] ? 1 : 0) + (bits[1] !== bits[2] ? 1 : 0) + (bits[0] !== bits[2] ? 1 : 0);
+    return { text: "A Gloves Inc. answer sheet reads " + bits.join(" · ") + " at the dials 0°, 30°, 60°. Of the three pairs (0&30, 30&60, 0&60), how many DISAGREE?",
+             ans: d,
+             why: "compare each pair: 0&30 " + (bits[0] !== bits[1] ? "differ" : "same") + ", 30&60 " + (bits[1] !== bits[2] ? "differ" : "same") + ", 0&60 " + (bits[0] !== bits[2] ? "differ" : "same") + " → " + d + " (a sheet always disagrees an EVEN number of times — 0 or 2, never 1 or 3!)" };
+  },
+  function (rng) {   // the sheet limit
+    var small = [10, 15, 20, 25][Math.floor(rng() * 4)];
+    return { text: "A factory's sheets disagree " + small + "% of the time at 0°vs30° and also " + small + "% at 30°vs60°. At MOST how many percent can they disagree at 0°vs60°?",
+             ans: 2 * small,
+             why: "a 0°vs60° flip must happen at one of the two steps: at most " + small + "% + " + small + "% = " + (2 * small) + "% (the universe scores 75% where sheets cap at 50% — that's the Bell surprise)" };
+  }
+];
+/* === CS6:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  function setArrow(el, deg) { el.setAttribute("transform", "rotate(" + (-deg) + ")"); }
+
+  // ---------- §1 the spooky phone ----------
+  (function () {
+    var calls = 0, matches = 0;
+    var sA = document.getElementById("tp-slidA"), sB = document.getElementById("tp-slidB");
+    var read = document.getElementById("tp-read");
+    function paint() {
+      setArrow(document.getElementById("tp-arrA"), +sA.value);
+      setArrow(document.getElementById("tp-arrB"), +sB.value);
+      document.getElementById("tp-degA").textContent = sA.value + "°";
+      document.getElementById("tp-degB").textContent = sB.value + "°";
+      var d = Math.abs(sA.value - sB.value);
+      document.getElementById("tp-pred").textContent = Math.round(CS6.matchProb(d) * 100) + "%";
+      document.getElementById("tp-n").textContent = calls;
+      document.getElementById("tp-m").textContent = matches;
+      document.getElementById("tp-pct").textContent = calls ? Math.round(matches / calls * 100) + "%" : "–";
+    }
+    function ring(n) {
+      var a = +sA.value, b = +sB.value, last = null;
+      for (var i = 0; i < n; i++) {
+        last = CS6.qPair(a, b, Math.random);
+        calls++; if (last[0] === last[1]) matches++;
+      }
+      document.getElementById("tp-ansA").textContent = last[0];
+      document.getElementById("tp-ansB").textContent = last[1];
+      paint();
+      var d = Math.abs(a - b);
+      read.className = "result" + (last[0] === last[1] ? " win" : "");
+      read.innerHTML = (n === 1 ? "📞 You got <b>" + last[0] + "</b>, your friend got <b>" + last[1] + "</b> — " + (last[0] === last[1] ? "a match" : "a mismatch") + "."
+                                : "📞×" + n + " rung.")
+        + " Twist " + d + "° → predicted match " + Math.round(CS6.matchProb(d) * 100) + "%, your tally says " + (calls ? Math.round(matches / calls * 100) + "%" : "–") + ".";
+    }
+    function slid() {
+      paint();
+      var d = Math.abs(sA.value - sB.value);
+      read.className = "result";
+      read.innerHTML = d === 0 ? "Dials aligned — the answers will agree, guaranteed."
+        : d === 90 ? "Fully crossed — the answers will always disagree."
+        : "Twisted " + d + "° apart — they'll match about " + Math.round(CS6.matchProb(d) * 100) + "% of the time. (Changing the twist changes the tally's meaning — clear it for a clean test.)";
+    }
+    sA.addEventListener("input", slid);
+    sB.addEventListener("input", slid);
+    document.getElementById("tp-ring").addEventListener("click", function () { ring(1); });
+    document.getElementById("tp-ring20").addEventListener("click", function () { ring(20); });
+    document.getElementById("tp-clear").addEventListener("click", function () {
+      calls = 0; matches = 0;
+      document.getElementById("tp-ansA").textContent = "·";
+      document.getElementById("tp-ansB").textContent = "·";
+      paint();
+    });
+    paint();
+  })();
+
+  // ---------- §3 Bell test ----------
+  (function () {
+    var read = document.getElementById("bt-read"), verdict = document.getElementById("bt-verdict");
+    document.getElementById("bt-run").addEventListener("click", function () {
+      var mm = CS6.runTest(CS6.qPair, CS6.NPER, Math.random);
+      var pct = mm.map(function (m) { return Math.round(m / CS6.NPER * 100); });
+      for (var i = 0; i < 3; i++) {
+        document.getElementById("bt-b" + i).style.width = pct[i] + "%";
+        document.getElementById("bt-v" + i).textContent = pct[i] + "%";
+      }
+      var broke = mm[2] > mm[0] + mm[1];
+      verdict.textContent = "sheet limit: " + pct[0] + "% + " + pct[1] + "% = " + (pct[0] + pct[1]) + "% — big twist scored " + pct[2] + "%";
+      read.className = "result" + (broke ? " win" : " miss");
+      read.innerHTML = broke
+        ? "🔔 <b>" + pct[2] + "% &gt; " + (pct[0] + pct[1]) + "%.</b> The big twist beat both small twists combined — no answer sheet in any factory in any universe can do that. You just reproduced a Nobel-Prize experiment."
+        : "This run stayed under the limit — small samples wobble (expected ~25/25/75). Ring again!";
+    });
+  })();
+
+  // ---------- §4 GAME: spooky or gloves ----------
+  (function () {
+    var secretSpooky, tested, streak = 0;
+    var read = document.getElementById("sg-read"), verdict = document.getElementById("sg-verdict"),
+        count = document.getElementById("sg-count");
+    function newCrate() {
+      secretSpooky = Math.random() < 0.5;
+      tested = false;
+      for (var i = 0; i < 3; i++) {
+        document.getElementById("sg-b" + i).style.width = "0%";
+        document.getElementById("sg-v" + i).textContent = "–";
+      }
+      verdict.textContent = "–";
+      paint();
+      read.className = "result";
+      read.innerHTML = "A new crate is on the bench. Run the test.";
+    }
+    function paint() {
+      document.getElementById("sg-streak").textContent = streak;
+      count.textContent = "best streak " + (window.DadMath ? DadMath.getBest("cs6-inspect") : 0);
+    }
+    document.getElementById("sg-run").addEventListener("click", function () {
+      var mm = CS6.runTest(secretSpooky ? CS6.qPair : CS6.cPair, CS6.NPER, Math.random);
+      var pct = mm.map(function (m) { return Math.round(m / CS6.NPER * 100); });
+      for (var i = 0; i < 3; i++) {
+        document.getElementById("sg-b" + i).style.width = pct[i] + "%";
+        document.getElementById("sg-v" + i).textContent = pct[i] + "%";
+      }
+      verdict.textContent = "sum rule: " + pct[0] + "% + " + pct[1] + "% = " + (pct[0] + pct[1]) + "% vs big twist " + pct[2] + "%";
+      tested = true;
+      read.className = "result";
+      read.innerHTML = "Test done — one run only, inspector. Does the big twist clearly beat the sum, or hug it? Accuse.";
+    });
+    function accuse(saidSpooky) {
+      if (!tested) {
+        read.className = "result miss";
+        read.innerHTML = "Run the test first — accusing without evidence is how inspectors get fired.";
+        return;
+      }
+      var right = saidSpooky === secretSpooky;
+      if (right) {
+        streak++;
+        var rec = window.DadMath ? DadMath.best("cs6-inspect", streak) : false;
+        read.className = "result win";
+        read.innerHTML = "🕵️ <b>Correct — it was " + (secretSpooky ? "👻 real entanglement (25/25/75)" : "a 🧤 Gloves Inc. fake (33/33/67)") + ".</b> Streak " + streak + (rec ? " — 🏅 new best!" : "") + ".";
+        if (window.DadMath) {
+          if (streak === 3) { DadMath.badge("cs-spooky"); DadMath.star("cs6", 2, "Three crates inspected correctly in a row!"); }
+          else if (streak % 3 === 0) DadMath.star("cs6", 1, "Inspector streak " + streak);
+        }
+      } else {
+        streak = 0;
+        read.className = "result miss";
+        read.innerHTML = "It was " + (secretSpooky ? "👻 <b>real entanglement</b> — expected 25/25/75" : "a 🧤 <b>Gloves Inc. fake</b> — expected 33/33/67") + ", and this sample fooled you. Honest loss: with 60 pairs per setting even a perfect inspector is right only ~9 times in 10. Streak reset.";
+      }
+      setTimeout(newCrate, 2200);
+      paint();
+    }
+    document.getElementById("sg-gloves").addEventListener("click", function () { accuse(false); });
+    document.getElementById("sg-spooky").addEventListener("click", function () { accuse(true); });
+    newCrate();
+  })();
+
+  // ---------- §5 no-signaling ----------
+  (function () {
+    var n = 0, ones = 0;
+    var read = document.getElementById("ns-read");
+    function paint() {
+      var pct = n ? Math.round(ones / n * 100) : 0;
+      document.getElementById("ns-bar").style.width = (n ? pct : 0) + "%";
+      document.getElementById("ns-pct").textContent = n ? pct + "%" : "–";
+    }
+    document.getElementById("ns-run").addEventListener("click", function () {
+      var far = document.getElementById("ns-far").value;
+      for (var i = 0; i < 50; i++) {
+        var mine = far === "off" ? (Math.random() < 0.5 ? 1 : 0) : CS6.qPair(0, +far, Math.random)[0];
+        n++; ones += mine;
+      }
+      paint();
+      read.className = "result";
+      read.innerHTML = "Friend's dial: <b>" + (far === "off" ? "unplugged" : far + "°") + "</b> → your tape shows " + Math.round(ones / n * 100) + "% ones over " + n + " calls. Still a fair coin. No message got through — it never does.";
+    });
+    document.getElementById("ns-clear").addEventListener("click", function () { n = 0; ones = 0; paint(); read.className = "result"; read.textContent = "Tally cleared."; });
+    paint();
+  })();
+
+  // ---------- §6 puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    var booted = false;
+    function newQ() {
+      q = CS6.GENS[Math.floor(Math.random() * CS6.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; if (booted) input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Entangled with the truth. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath && streak % 3 === 0) DadMath.star("cs6", 1, "Entanglement drills — streak " + streak);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ(); booted = true;
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

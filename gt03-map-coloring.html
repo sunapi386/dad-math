@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G 3 · The Map-Colouring War — Math in Half an Hour</title>
+<meta name="description" content="The four-colour theorem for kids: colour any map with four crayons, why maps become graphs, why five mutually-touching countries are impossible, and the 1976 computer proof that started a war over what counts as mathematics. With a par-scored map-painting game.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.mapwrap { display: flex; gap: 18px; justify-content: center; align-items: flex-start; flex-wrap: wrap; }
+#mp-svg rect.cell { cursor: pointer; }
+.crayons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+.crayon { width: 46px; height: 46px; border-radius: 12px; border: 3px solid var(--line); cursor: pointer;
+  font-size: 1.2rem; display: grid; place-items: center; transition: transform .1s ease; }
+.crayon:hover { transform: translateY(-2px); }
+.crayon.on { border-color: var(--ink); transform: scale(1.08); }
+.statrow { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; }
+.k4demo { display: block; margin: 10px auto; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Graph Theory · Topic 03 · The four-colour theorem</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">The Map-Colouring War</h1>
+    <p class="lede">In 1852 a student colouring a map of England noticed he never needed a fifth
+      crayon — and asked <em>why</em>. That innocent question defeated the world's best
+      mathematicians for <b>124 years</b>, produced a famous wrong proof that stood for a decade,
+      and was finally settled by a computer — the first great theorem in history proved by a
+      machine. Mathematicians are <em>still</em> arguing about whether that counts.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">best after G·1: Seven Bridges</span> &nbsp; <span class="badge green">🎨 paint maps at par</span></p>
+  </header>
+
+  <!-- 1 THE RULE -->
+  <h2>1 · One rule, one question</h2>
+  <p>Map-makers follow one rule: <b>countries that share a border must get different colours</b>
+    (touching at a single corner point doesn't count — only real shared borders). The question:
+    what's the smallest box of crayons that can handle <em>any</em> map anyone could ever draw?</p>
+  <p>The 1852 claim, now the <b>four-colour theorem</b>: <b>four crayons always suffice.</b> Any
+    map. Any number of countries. Any crazy shapes. Before reading why — earn it. Paint:</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎨</span> GAME · The map painter <span class="qcount" id="mp-count"></span></div>
+    <p class="phint">Pick a crayon, click a region. Colour the whole map with <b>no two touching
+      regions sharing a colour</b> — using as FEW crayons as possible. “Fewest possible” for each
+      map is shown as par. Hit par 3 maps in a row for the 🎨 badge.</p>
+    <div class="mapwrap">
+      <svg id="mp-svg" viewBox="0 0 308 220" width="330" height="236" aria-label="map to colour"></svg>
+      <div style="min-width:170px">
+        <div class="statrow" style="flex-direction:column; gap:6px; align-items:flex-start">
+          <span>regions <b id="mp-r">–</b></span>
+          <span>crayons used <b id="mp-used">0</b></span>
+          <span>par <b id="mp-par">?</b></span>
+          <span>streak <b id="mp-streak">0</b></span>
+        </div>
+        <div class="ctrlrow">
+          <button class="btn ghost" id="mp-clear">🧽 wipe map</button>
+          <button class="btn ghost" id="mp-new">🗺️ new map</button>
+        </div>
+      </div>
+    </div>
+    <div class="crayons" id="mp-crayons"></div>
+    <div class="result" id="mp-read">Loading a map…</div>
+  </div>
+
+  <!-- 2 MAP TO GRAPH -->
+  <h2>2 · Squash the map into dots</h2>
+  <p>Here's the move that turns colouring into mathematics — the same move as G·1's bridges: throw
+    away everything that doesn't matter. Shrink each country to a <b>dot</b>. Draw a <b>line</b>
+    between two dots if their countries share a border. Shapes, sizes, wiggly coastlines — gone.
+    The map has become a <b>graph</b>, and the puzzle becomes: <em>colour the dots so no line
+    connects two same-coloured dots.</em></p>
+  <p>Now we can actually reason. Why are four crayons sometimes <em>needed</em>? Because this map
+    exists — three countries around one, every pair touching:</p>
+  <svg class="k4demo" viewBox="0 0 300 150" width="300" height="150" aria-label="four mutually touching countries">
+    <circle cx="80" cy="75" r="62" fill="#e8554d" opacity=".85"/>
+    <path d="M80 13 A62 62 0 0 1 80 137 L80 75 Z" fill="#3b82f6"/>
+    <path d="M80 137 A62 62 0 0 1 80 13 L80 75 Z" fill="#eab308"/>
+    <circle cx="80" cy="75" r="26" fill="#22c55e"/>
+    <g font-size="13" font-weight="700">
+      <circle cx="225" cy="30" r="8" fill="#22c55e"/><circle cx="195" cy="105" r="8" fill="#3b82f6"/><circle cx="255" cy="105" r="8" fill="#eab308"/><circle cx="225" cy="68" r="8" fill="#e8554d"/>
+      <line x1="225" y1="30" x2="195" y2="105" stroke="currentColor" stroke-width="2"/>
+      <line x1="225" y1="30" x2="255" y2="105" stroke="currentColor" stroke-width="2"/>
+      <line x1="195" y1="105" x2="255" y2="105" stroke="currentColor" stroke-width="2"/>
+      <line x1="225" y1="30" x2="225" y2="68" stroke="currentColor" stroke-width="2"/>
+      <line x1="195" y1="105" x2="225" y2="68" stroke="currentColor" stroke-width="2"/>
+      <line x1="255" y1="105" x2="225" y2="68" stroke="currentColor" stroke-width="2"/>
+    </g>
+  </svg>
+  <p>Four countries, every pair sharing a border — so all four need different colours. Four crayons
+    are <b>necessary</b>. The war was over whether four are always <b>enough</b>. Notice what would
+    settle it instantly: five countries, every pair touching. Try to draw that. Seriously — try it
+    in the homework. It cannot be done on flat paper (or a globe): the fifth connection always has
+    to cross another border. That impossibility is real progress… but it is <em>not</em> the proof.
+    A map could conceivably need 5 crayons in some sneakier way, without containing five mutual
+    touchers. Closing that gap took the full 124 years.</p>
+
+  <div class="note try">
+    <span class="t">A theorem you can use at dinner:</span> every flat map has some country with
+    <b>at most 5 neighbours</b> (proved with Euler's formula from G·1 — everything connects!). That
+    little fact powers the “peel one country off, colour the rest, put it back” strategy behind
+    both the famous wrong proof and the real one.
+  </div>
+
+  <!-- 3 THE WAR -->
+  <h2>3 · The war: 1852 → 1976</h2>
+  <p><b>1879:</b> Alfred Kempe publishes a proof. Applause; he's elected a Fellow of the Royal
+    Society. <b>1890:</b> Percy Heawood finds a hole in it — a case Kempe's colour-swapping trick
+    silently gets wrong. Eleven years of “solved,” undone by one counterexample. (Kempe's broken
+    proof still correctly shows <b>five</b> crayons always work — the gap between “5 is proven”
+    and “4 is true” then sat open for almost a century.)</p>
+  <p><b>1976:</b> Kenneth Appel and Wolfgang Haken finally close it — with a new weapon. They
+    showed every possible map must contain at least one of <b>1,936 special local patterns</b>,
+    and that each pattern lets you shrink the map to a smaller one needing no fifth colour. Check
+    all 1,936, and — since any smallest-possible counterexample would have to contain one — no
+    counterexample can exist. One problem: checking them took <b>1,200 hours of computer time</b>.
+    No human has ever read the whole proof. No human ever will.</p>
+  <p>Mathematicians split on the spot, and the argument is still alive: if no person can check it,
+    is it really <em>knowing</em>? Or is trusting a well-tested machine no different from trusting
+    a well-tested telescope? Whatever side you take, 1976 marks the moment computers stopped being
+    math's calculators and became its <em>colleagues</em> — today, machine-checked proofs guard
+    everything from internet encryption to the code in aircraft.</p>
+
+  <!-- 4 GREEDY -->
+  <h2>4 · The lazy painter's guarantee</h2>
+  <p>Proving “4 always works” is monstrous. But here's a guarantee <em>you</em> can prove tonight.
+    Colour the dots one at a time, any order, always reusing the lowest-numbered crayon that
+    doesn't clash — the <b>greedy</b> method (same spirit as the greedy chunk-growing in Minecraft
+    Worlds). When you arrive at a dot with at most $d$ neighbours, at most $d$ crayons are
+    forbidden — so crayon number $d+1$ is always free:</p>
+  <p>$$\text{if every region touches at most } d \text{ others, greedy never needs more than } d+1 \text{ crayons}$$</p>
+  <p>That's a real proof — three sentences, no computer. It gives a worse number (a map whose
+    busiest region has 9 neighbours might get 10 crayons from greedy), but it's <em>yours</em>.
+    The whole map-colouring war is the gap between an easy $d+1$ and a bitter, beautiful 4.</p>
+
+  <!-- 5 PUZZLE -->
+  <h2>5 · 🧩 Puzzle: count the crayons</h2>
+  <p>Rings, wheels, and the greedy guarantee. Streak of 3 = ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Colouring drills</div>
+    <p class="phint" id="pz-prompt">Loading…</p>
+    <div class="controls">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="?" aria-label="your answer" style="width:8ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">Show working</button>
+      <button class="btn ghost" id="pz-new">New →</button>
+    </div>
+    <div class="result" id="pz-result">Streak: <b>0</b></div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework</h2>
+  <ol class="hw">
+    <li><strong>The impossible five.</strong> Try to draw 5 countries on paper where EVERY pair
+      shares a border. Spend ten honest minutes. Then explain to someone where the fifth
+      connection keeps getting trapped.</li>
+    <li><strong>Colour a real map.</strong> Print or trace a map of Canada's provinces (or the
+      US states) and four-colour it. Which region forces the most re-thinking? (Hint: it's
+      usually one with many neighbours — count them first, like a greedy painter.)</li>
+    <li><strong>Take a side.</strong> The 1976 proof: real proof, or just very strong evidence?
+      Argue your side for one minute to a grown-up, then argue the OTHER side for one minute.
+      (Mathematicians who can't do the second half lose the argument eventually.)</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">four-colour theorem · region/border · graph colouring · chromatic number (fewest colours) · K₄, the impossible K₅ · Kempe's false proof · Appel–Haken 1976 · greedy colouring d+1</p>
+
+  <div class="lessonnav">
+    <a href="gt02-handshakes.html">← G·2: Six Handshakes</a>
+    <a href="index.html#graphs">All graph topics →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=13"></script>
+<script>
+/* === GT3:PURE START === (DOM-free map-colouring logic; node-tested before deploy)
+   Maps are generated on a 7×5 grid: pick R seed cells, grow regions by random flood until every
+   cell is claimed — regions stay connected, the map stays planar, and adjacency = shared cell
+   edges. Par is the true chromatic number, found by backtracking (regions ≤ 12, instant).
+   Generated maps verified in node: always 4-colourable, χ ∈ {3,4} roughly 2:1. */
+var GT3 = {};
+GT3.MW = 7;
+GT3.MH = 5;
+GT3.mulberry32 = function (a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+GT3.nbrs = function (c) {
+  var x = c % GT3.MW, y = (c / GT3.MW) | 0, out = [];
+  if (x > 0) out.push(c - 1);
+  if (x < GT3.MW - 1) out.push(c + 1);
+  if (y > 0) out.push(c - GT3.MW);
+  if (y < GT3.MH - 1) out.push(c + GT3.MW);
+  return out;
+};
+GT3.genMap = function (rng, nRegions) {
+  var total = GT3.MW * GT3.MH, cells = [], i;
+  for (i = 0; i < total; i++) cells.push(-1);
+  var placed = 0;
+  while (placed < nRegions) {
+    var c = Math.floor(rng() * total);
+    if (cells[c] === -1) { cells[c] = placed; placed++; }
+  }
+  var unassigned = total - nRegions;
+  while (unassigned > 0) {
+    var grow = [];
+    for (i = 0; i < total; i++) if (cells[i] !== -1) {
+      GT3.nbrs(i).forEach(function (nb) { if (cells[nb] === -1) grow.push([i, nb]); });
+    }
+    var pick = grow[Math.floor(rng() * grow.length)];
+    cells[pick[1]] = cells[pick[0]];
+    unassigned--;
+  }
+  var adjSet = [];
+  for (i = 0; i < nRegions; i++) adjSet.push({});
+  for (i = 0; i < total; i++) {
+    GT3.nbrs(i).forEach(function (nb) {
+      if (nb > i && cells[nb] !== cells[i]) {
+        adjSet[cells[i]][cells[nb]] = true;
+        adjSet[cells[nb]][cells[i]] = true;
+      }
+    });
+  }
+  return { cells: cells, adj: adjSet.map(function (s) { return Object.keys(s).map(Number); }) };
+};
+GT3.colorable = function (adj, k) {
+  var n = adj.length, col = [], i;
+  for (i = 0; i < n; i++) col.push(-1);
+  var order = adj.map(function (a, idx) { return idx; }).sort(function (a, b) { return adj[b].length - adj[a].length; });
+  function bt(idx) {
+    if (idx === n) return true;
+    var v = order[idx], c, j, clash;
+    for (c = 0; c < k; c++) {
+      clash = false;
+      for (j = 0; j < adj[v].length; j++) if (col[adj[v][j]] === c) { clash = true; break; }
+      if (clash) continue;
+      col[v] = c;
+      if (bt(idx + 1)) return true;
+      col[v] = -1;
+    }
+    return false;
+  }
+  return bt(0);
+};
+GT3.chromatic = function (adj) {
+  for (var k = 1; k <= 5; k++) if (GT3.colorable(adj, k)) return k;
+  return 6;
+};
+/* conflicts in a partial colouring: pairs of adjacent regions sharing a crayon */
+GT3.conflicts = function (adj, colors) {
+  var bad = [], i, j;
+  for (i = 0; i < adj.length; i++) for (j = 0; j < adj[i].length; j++) {
+    var u = adj[i][j];
+    if (u > i && colors[i] !== -1 && colors[i] === colors[u]) bad.push([i, u]);
+  }
+  return bad;
+};
+GT3.usedColors = function (colors) {
+  var seen = {}, n = 0;
+  colors.forEach(function (c) { if (c !== -1 && !seen[c]) { seen[c] = true; n++; } });
+  return n;
+};
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node against the backtracker */
+GT3.GENS = [
+  function (rng) {   // ring of countries
+    var n = 4 + Math.floor(rng() * 9);
+    return { text: "A round island is split into " + n + " countries arranged in a ring — each touches exactly its two ring neighbours. Fewest crayons?",
+             ans: n % 2 === 0 ? 2 : 3,
+             why: n % 2 === 0 ? "even ring: alternate two colours all the way around — " + n + " is even, so the pattern closes cleanly. 2 crayons" : "odd ring: alternating breaks at the end (" + n + " is odd — the last country touches two SAME-coloured ones), so a third crayon is forced. 3 crayons" };
+  },
+  function (rng) {   // wheel
+    var n = 4 + Math.floor(rng() * 6);
+    return { text: "Same ring of " + n + " countries — but now there's a lake country in the middle touching ALL of them. Fewest crayons?",
+             ans: (n % 2 === 0 ? 2 : 3) + 1,
+             why: "the ring needs " + (n % 2 === 0 ? 2 : 3) + " (" + (n % 2 === 0 ? "even" : "odd") + " ring), and the lake touches everyone so it needs its own: " + ((n % 2 === 0 ? 2 : 3) + 1) };
+  },
+  function (rng) {   // greedy guarantee
+    var d = 3 + Math.floor(rng() * 5);
+    return { text: "On some map every region touches at most " + d + " others. The lazy greedy painter colours regions one by one, always reusing the lowest crayon that doesn't clash. How many crayons does greedy need AT MOST?",
+             ans: d + 1,
+             why: "at each region at most " + d + " crayons are forbidden by neighbours, so crayon " + (d + 1) + " is always free" };
+  }
+];
+/* === GT3:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ---------- §1 GAME: map painter ----------
+  (function () {
+    var svg = document.getElementById("mp-svg"), read = document.getElementById("mp-read"),
+        count = document.getElementById("mp-count");
+    var SVGNS = "http://www.w3.org/2000/svg";
+    var CELL = 44;
+    var CRAYONS = ["#e8554d", "#3b82f6", "#eab308", "#22c55e"];
+    var map = null, colors = [], par = 0, crayon = 0, streak = 0, solvedWait = false;
+    var cellEls = [], borderEls = [];
+
+    // crayon palette
+    var pal = document.getElementById("mp-crayons");
+    CRAYONS.forEach(function (col, idx) {
+      var b = document.createElement("button");
+      b.className = "crayon" + (idx === 0 ? " on" : "");
+      b.style.background = col;
+      b.setAttribute("aria-label", "crayon " + (idx + 1));
+      b.addEventListener("click", function () {
+        crayon = idx;
+        Array.prototype.forEach.call(pal.children, function (el, i2) { el.classList.toggle("on", i2 === idx); });
+      });
+      pal.appendChild(b);
+    });
+
+    function newMap() {
+      var R = 8 + Math.floor(Math.random() * 4);
+      map = GT3.genMap(Math.random, R);
+      par = GT3.chromatic(map.adj);
+      colors = map.adj.map(function () { return -1; });
+      solvedWait = false;
+      // rebuild svg
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+      cellEls = []; borderEls = [];
+      var c, x, y;
+      for (c = 0; c < map.cells.length; c++) {
+        x = c % GT3.MW; y = (c / GT3.MW) | 0;
+        var r = document.createElementNS(SVGNS, "rect");
+        r.setAttribute("x", x * CELL); r.setAttribute("y", y * CELL);
+        r.setAttribute("width", CELL); r.setAttribute("height", CELL);
+        r.setAttribute("class", "cell");
+        r.setAttribute("fill", "var(--panel-2)");
+        (function (cell) { r.addEventListener("click", function () { paintRegion(map.cells[cell]); }); })(c);
+        svg.appendChild(r);
+        cellEls.push(r);
+      }
+      // borders between different regions (and outer frame)
+      for (c = 0; c < map.cells.length; c++) {
+        x = c % GT3.MW; y = (c / GT3.MW) | 0;
+        // right edge
+        if (x < GT3.MW - 1 && map.cells[c + 1] !== map.cells[c]) addBorder((x + 1) * CELL, y * CELL, (x + 1) * CELL, (y + 1) * CELL, map.cells[c], map.cells[c + 1]);
+        // bottom edge
+        if (y < GT3.MH - 1 && map.cells[c + GT3.MW] !== map.cells[c]) addBorder(x * CELL, (y + 1) * CELL, (x + 1) * CELL, (y + 1) * CELL, map.cells[c], map.cells[c + GT3.MW]);
+      }
+      var frame = document.createElementNS(SVGNS, "rect");
+      frame.setAttribute("x", 1); frame.setAttribute("y", 1);
+      frame.setAttribute("width", GT3.MW * CELL - 2); frame.setAttribute("height", GT3.MH * CELL - 2);
+      frame.setAttribute("fill", "none"); frame.setAttribute("stroke", "var(--ink)"); frame.setAttribute("stroke-width", "3");
+      svg.appendChild(frame);
+      document.getElementById("mp-r").textContent = map.adj.length;
+      document.getElementById("mp-par").textContent = par;
+      paint();
+      read.className = "result";
+      read.innerHTML = "Fresh map: " + map.adj.length + " regions. The pros can do this one in <b>" + par + "</b> crayons.";
+    }
+    function addBorder(x1, y1, x2, y2, a, b) {
+      var l = document.createElementNS(SVGNS, "line");
+      l.setAttribute("x1", x1); l.setAttribute("y1", y1);
+      l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+      l.setAttribute("stroke", "var(--ink)"); l.setAttribute("stroke-width", "3");
+      l.setAttribute("stroke-linecap", "round");
+      svg.appendChild(l);
+      borderEls.push({ el: l, a: a, b: b });
+    }
+    function paint() {
+      for (var c = 0; c < map.cells.length; c++) {
+        var col = colors[map.cells[c]];
+        cellEls[c].setAttribute("fill", col === -1 ? "var(--panel-2)" : CRAYONS[col]);
+      }
+      borderEls.forEach(function (bd) {
+        var clash = colors[bd.a] !== -1 && colors[bd.a] === colors[bd.b];
+        bd.el.setAttribute("stroke", clash ? "#ff2d55" : "var(--ink)");
+        bd.el.setAttribute("stroke-width", clash ? "5" : "3");
+      });
+      document.getElementById("mp-used").textContent = GT3.usedColors(colors);
+      document.getElementById("mp-streak").textContent = streak;
+      count.textContent = "maps at par " + (window.DadMath ? DadMath.getBest("gt3-pars") : 0);
+    }
+    var parsTotal = 0;
+    function paintRegion(r) {
+      if (solvedWait) return;
+      colors[r] = colors[r] === crayon ? -1 : crayon;   // same crayon again = erase
+      paint();
+      var done = colors.every(function (c) { return c !== -1; });
+      var bad = GT3.conflicts(map.adj, colors);
+      if (bad.length) {
+        read.className = "result miss";
+        read.innerHTML = "⚠️ " + bad.length + " border" + (bad.length > 1 ? "s" : "") + " with the same colour on both sides (shown red). Map-makers get fired for that.";
+        return;
+      }
+      if (!done) {
+        read.className = "result";
+        read.innerHTML = GT3.usedColors(colors) + " crayon" + (GT3.usedColors(colors) > 1 ? "s" : "") + " in play, no clashes. Keep going.";
+        return;
+      }
+      // solved!
+      solvedWait = true;
+      var used = GT3.usedColors(colors);
+      if (used === par) {
+        streak++;
+        parsTotal++;
+        var rec = window.DadMath ? DadMath.best("gt3-pars", parsTotal) : false;
+        read.className = "result win";
+        read.innerHTML = "🎨 <b>Par! Legal map in " + used + " crayons.</b> Streak " + streak + (rec ? " — 🏅 most pars yet!" : "") + " Next map…";
+        if (window.DadMath) {
+          if (streak === 3) { DadMath.badge("gt-color"); DadMath.star("gt3", 2, "Three maps at par in a row!"); }
+          else if (streak % 3 === 0) DadMath.star("gt3", 1, "Map-painting streak " + streak);
+        }
+      } else {
+        streak = 0;
+        read.className = "result";
+        read.innerHTML = "✔️ Legal map in " + used + " crayons — but the pros need only <b>" + par + "</b>. Streak reset. (Trick: find the busiest region and start there.) Next map…";
+      }
+      setTimeout(newMap, 2400);
+    }
+    document.getElementById("mp-clear").addEventListener("click", function () {
+      if (solvedWait) return;
+      colors = map.adj.map(function () { return -1; });
+      paint();
+      read.className = "result";
+      read.innerHTML = "Wiped clean. Par is " + par + ".";
+    });
+    document.getElementById("mp-new").addEventListener("click", function () { if (!solvedWait) { streak = 0; newMap(); } });
+    newMap();
+  })();
+
+  // ---------- §5 puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    var booted = false;
+    function newQ() {
+      q = GT3.GENS[Math.floor(Math.random() * GT3.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; if (booted) input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Coloured inside the lines. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath && streak % 3 === 0) DadMath.star("gt3", 1, "Colouring drills — streak " + streak);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ(); booted = true;
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>
