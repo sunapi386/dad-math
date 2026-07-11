@@ -94,7 +94,12 @@
     "gt-color":    { icon: "🎨", name: "Four-Crayon Artist", desc: "Colour three maps in a row using the fewest crayons possible." },
     "story-pirate":{ icon: "🏴‍☠️", name: "Pirate Captain",   desc: "Finish the pirate story — and learn to think from the last splash backwards." },
     "story-bits":  { icon: "❓", name: "Question Master",  desc: "Finish the twenty-questions story — every secret is just bits." },
-    "hw-scholar":  { icon: "🧑‍🎓", name: "Professor",       desc: "Pass the homework check for every single lesson on the site." }
+    "hw-scholar":  { icon: "🧑‍🎓", name: "Professor",       desc: "Pass the homework check for every single lesson on the site." },
+    "sk-flat":     { icon: "📐", name: "Flatlander",       desc: "Get a 5 streak flattening 3D onto the glass." },
+    "sk-rim":      { icon: "🌒", name: "Rim Finder",       desc: "Graze three balls in a row with perfect tangent math." },
+    "sk-xray":     { icon: "🩻", name: "X-Ray Eyes",       desc: "Count the surviving stroke pieces right three times in a row." },
+    "sk-tone":     { icon: "✏️", name: "Tone Master",      desc: "Mix three target grays in a row from spacing and layers alone." },
+    "sk-studio":   { icon: "🖋️", name: "Studio Artist",    desc: "Render every scene in the Sketch Studio with the real Krbn engine." }
   };
 
   // [starsNeeded, icon, title]

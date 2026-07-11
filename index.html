@@ -194,6 +194,43 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
     </a>
   </div>
 
+  <h2 id="sketch">✏️ Sketch Lab</h2>
+  <p class="muted">Teach a robot to draw like an artist — outlines solved as equations, hidden lines
+    bitten out, shading from pure fractions, and imperfection added on purpose. Four lessons, then a
+    studio running <a href="https://github.com/vpalos/krbn">Krbn</a>, a real open-source sketch engine.</p>
+  <div class="grid">
+    <a class="card" href="sk01-flatten.html" style="border-color:var(--good)">
+      <div class="num">SK·1</div>
+      <h3>Flattening Space</h3>
+      <p>The world is 3D, paper is flat — one division fixes it. Why far things look small, similar triangles, perspective vs orthographic, and a wireframe cube you can spin and measure.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+    <a class="card" href="sk02-silhouettes.html" style="border-color:var(--good)">
+      <div class="num">SK·2</div>
+      <h3>Where Outlines Live</h3>
+      <p>An outline is where your gaze grazes the surface. Tangent rays, one right triangle — and the surprise that a ball's rim is NOT its equator (you've never seen half a basketball).</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+    <a class="card" href="sk03-hidden-lines.html" style="border-color:var(--good)">
+      <div class="num">SK·3</div>
+      <h3>The Art of Leaving Out</h3>
+      <p>An artist's superpower is NOT drawing. Eye-rays decide draw-or-don't for every millimetre, bites merge, pieces survive — and ghost mode keeps the hidden world as faint x-ray dashes.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+    <a class="card" href="sk04-hatching.html" style="border-color:var(--good)">
+      <div class="num">SK·4</div>
+      <h3>Shading with Lines</h3>
+      <p>Gray is a fraction: coverage = width ÷ spacing. Cross-hatch stacks tone, strokes follow the surface's grain — and the machine wobbles on purpose, with seeded noise, to look human.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+    <a class="card" href="sk05-studio.html" style="border-color:var(--accent)">
+      <div class="num">🖋️</div>
+      <h3>The Sketch Studio</h3>
+      <p>A real rendering engine, live on this page. Pick a scene — snowman, donut, trefoil knot, space-time well — turn the knobs from the lessons, and download plotter-ready SVG art.</p>
+      <div class="go" style="color:var(--accent)">Enter the studio →</div>
+    </a>
+  </div>
+
   <h2 id="graphs">🕸️ Graph theory</h2>
   <p class="muted">Dots and lines — the math of every network on Earth.</p>
   <div class="grid">
@@ -302,7 +339,7 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js?v=15"></script>
+<script defer src="assets/game.js?v=16"></script>
 <script>
   // render the tiny inline snippets used in cards
   document.addEventListener("DOMContentLoaded", function () {
@@ -345,6 +382,11 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
         ["qm01-quantum-story.html",  "badge", "qm-story",     "✅ read"],
         ["st01-pirates.html",        "badge", "story-pirate", "✅ read"],
         ["st02-twenty-questions.html","badge","story-bits",   "✅ read"],
+        ["sk01-flatten.html",        "badge", "sk-flat",      "✅ done"],
+        ["sk02-silhouettes.html",    "badge", "sk-rim",       "✅ done"],
+        ["sk03-hidden-lines.html",   "badge", "sk-xray",      "✅ done"],
+        ["sk04-hatching.html",       "badge", "sk-tone",      "✅ done"],
+        ["sk05-studio.html",         "badge", "sk-studio",    "✅ rendered"],
         ["cs01-binary.html",         "hw",    "cs1",          "✅ checked"],
         ["cs02-secret-codes.html",   "hw",    "cs2",          "✅ checked"],
         ["cs03-logins.html",         "hw",    "cs3",          "✅ checked"],
@@ -367,7 +409,12 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
         ["gl07-minecraft-worlds.html","hw",   "gl7",          "✅ checked"],
         ["qm01-quantum-story.html",  "hw",    "qm1",          "✅ checked"],
         ["st01-pirates.html",        "hw",    "st1",          "✅ checked"],
-        ["st02-twenty-questions.html","hw",   "st2",          "✅ checked"]
+        ["st02-twenty-questions.html","hw",   "st2",          "✅ checked"],
+        ["sk01-flatten.html",        "hw",    "sk1",          "✅ checked"],
+        ["sk02-silhouettes.html",    "hw",    "sk2",          "✅ checked"],
+        ["sk03-hidden-lines.html",   "hw",    "sk3",          "✅ checked"],
+        ["sk04-hatching.html",       "hw",    "sk4",          "✅ checked"],
+        ["sk05-studio.html",         "hw",    "sk5",          "✅ rendered"]
       ].forEach(function (row) {
         var card = document.querySelector('a.card[href="' + row[0] + '"]');
         if (!card || card.classList.contains("done")) return;

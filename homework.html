@@ -53,10 +53,11 @@
   <div id="checks"></div>
 
   <hr class="rule">
-  <p class="muted small">Two checks live elsewhere on purpose: 🐛 Aim &amp; Hitboxes is a <em>skill
+  <p class="muted small">Three checks live elsewhere on purpose: 🐛 Aim &amp; Hitboxes is a <em>skill
     challenge</em> on <a href="gl06-hitboxes.html">its own page</a> (you have to actually hit the
-    weak points), and the 🌳 <a href="gamedev.html">Builder's Tree</a> nodes are unlocked by their
-    own principles tests.</p>
+    weak points), the 🌳 <a href="gamedev.html">Builder's Tree</a> nodes are unlocked by their
+    own principles tests, and the 🖋️ <a href="sk05-studio.html">Sketch Studio</a> checks itself off
+    when you've rendered all five scenes with the engine.</p>
 
 </div>
 
@@ -67,7 +68,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js?v=15"></script>
+<script defer src="assets/game.js?v=16"></script>
 <script>
 /* === HW:PURE START === (DOM-free question banks; node-tested before deploy)
    One bank per lesson page. Every generator takes an rng and returns {text, ans, why} with
@@ -303,6 +304,37 @@ HW.TRACKS = [
         function (rng) { var k = HW.ri(rng, 6, 12); return { text: "One PERFECT question is asked about " + Math.pow(2, k) + " suspects. How many remain?", ans: Math.pow(2, k - 1), why: "a perfect question divides: " + Math.pow(2, k) + " ÷ 2 = " + Math.pow(2, k - 1) }; },
         function (rng) { return { text: "16 monsters, each a different combo of 4 features: a perfect detective needs exactly how many questions?", ans: 4, why: "2⁴ = 16 — each feature question splits the suspects exactly in half" }; }
       ] }
+  ] },
+
+  { name: "✏️ Sketch Lab", note: "🖋️ the Studio checks itself off when you render all five scenes there", items: [
+    { id: "sk1", icon: "📐", title: "SK·1 · Flattening Space", href: "sk01-flatten.html",
+      gens: [
+        function (rng) { var m = [2, 3, 4, 10][HW.ri(rng, 0, 3)], pool = [12, 24, 36, 60].filter(function (h) { return h % m === 0; }), h = pool[HW.ri(rng, 0, pool.length - 1)]; return { text: "A tower measures " + h + " units on your picture-glass. It slides " + m + "× farther away. Now how many units?", ans: h / m, why: "size on the glass divides by distance: " + h + " ÷ " + m + " = " + (h / m) }; },
+        function (rng) { var p = [[2, 3, 6], [2, 4, 8], [4, 3, 6], [10, 2, 4], [5, 6, 10], [8, 3, 12]][HW.ri(rng, 0, 5)]; return { text: "Glass at f = " + p[0] + ", a flagpole " + p[1] + " m tall at " + p[2] + " m. Size on the glass = f × S ÷ d = ?", ans: p[0] * p[1] / p[2], why: p[0] + " × " + p[1] + " ÷ " + p[2] + " = " + (p[0] * p[1] / p[2]) }; },
+        function (rng) { var s = [3, 7, 12][HW.ri(rng, 0, 2)], m = [5, 10, 100][HW.ri(rng, 0, 2)]; return { text: "ORTHOGRAPHIC camera: a crate drawn " + s + " units wide moves " + m + "× farther away. Drawn width now?", ans: s, why: "orthographic never divides by distance — engineers can put a ruler on the drawing" }; },
+        function (rng) { var S = [6, 9, 12][HW.ri(rng, 0, 2)], g = [2, 3, 4][HW.ri(rng, 0, 2)]; return { text: "Glass at f = 4: a " + S + " m dinosaur measures " + g + " units on the glass. How many metres away is it?", ans: 4 * S / g, why: "d = f × S ÷ size = 4 × " + S + " ÷ " + g + " = " + (4 * S / g) }; }
+      ] },
+    { id: "sk2", icon: "🌒", title: "SK·2 · Where Outlines Live", href: "sk02-silhouettes.html",
+      gens: [
+        function (rng) { var p = [[3, 5], [6, 10], [5, 13], [8, 17], [9, 15], [7, 25], [20, 25], [12, 13], [15, 17], [24, 25]][HW.ri(rng, 0, 9)]; return { text: "Ball radius " + p[0] + ", eye " + p[1] + " from its centre. Grazing-gaze length t = √(d² − r²) = ?", ans: Math.sqrt(p[1] * p[1] - p[0] * p[0]), why: "√(" + p[1] + "² − " + p[0] + "²) = √" + (p[1] * p[1] - p[0] * p[0]) + " = " + Math.sqrt(p[1] * p[1] - p[0] * p[0]) }; },
+        function (rng) { var p = [[15, 25, 12], [20, 25, 12], [30, 50, 24], [40, 50, 24], [45, 75, 36], [60, 75, 36]][HW.ri(rng, 0, 5)]; return { text: "Ball radius " + p[0] + ", eye at " + p[1] + ". The visible rim is a circle of what radius? (rim = r × t ÷ d)", ans: p[2], why: "t = " + Math.sqrt(p[1] * p[1] - p[0] * p[0]) + ", rim = " + p[0] + " × " + Math.sqrt(p[1] * p[1] - p[0] * p[0]) + " ÷ " + p[1] + " = " + p[2] }; },
+        function (rng) { var p = [[2, 25], [5, 40], [10, 45]][HW.ri(rng, 0, 2)]; return { text: "Eye at " + p[0] + " ball-radii from the centre: what PERCENT of the ball's skin do you see? ((1 − r/d) ÷ 2)", ans: p[1], why: "(1 − 1/" + p[0] + ") ÷ 2 = " + p[1] + "% — never 50% from any finite distance" }; },
+        function (rng) { return { text: "Is the rim you see on a ball closer to your eye than the ball's centre? (1 yes, 0 no)", ans: 1, why: "the graze points lean toward you — the rim is never the equator" }; }
+      ] },
+    { id: "sk3", icon: "🩻", title: "SK·3 · The Art of Leaving Out", href: "sk03-hidden-lines.html",
+      gens: [
+        function (rng) { var k = HW.ri(rng, 1, 4); return { text: "A rail runs behind " + k + " well-separated trees (ends uncovered). Visible pieces of rail?", ans: k + 1, why: k + " separate bites → " + k + " + 1 = " + (k + 1) + " pieces" }; },
+        function (rng) { var wall = HW.ri(rng, 3, 6), ball = rng() < 0.5 ? wall + HW.ri(rng, 1, 5) : HW.ri(rng, 1, wall - 1); return { text: "One sight-line: wall at " + wall + " m, balloon at " + ball + " m. Do you see the balloon? (1 yes, 0 no)", ans: ball < wall ? 1 : 0, why: ball < wall ? "the balloon is in front of the wall" : "the wall is in front — blocked" }; },
+        function (rng) { var h = HW.ri(rng, 2, 7); return { text: "A sketch has " + h + " hidden stroke-pieces. In DROP mode, how many get drawn?", ans: 0, why: "drop gives hidden pieces no ink; ghost mode would draw all " + h + " as faint dashes" }; },
+        function (rng) { var g = HW.ri(rng, 0, 1); return { text: "Two blockers bite 20–45 and " + (g ? "40–70 (they overlap!)" : "55–80") + " out of a stroke 0–100. Visible pieces?", ans: g ? 2 : 3, why: g ? "overlapping bites merge into one bite 20–70, leaving 0–20 and 70–100 = 2 pieces" : "the bites stay separate, leaving 0–20, 45–55 and 80–100 = 3 pieces" }; }
+      ] },
+    { id: "sk4", icon: "✏️", title: "SK·4 · Shading with Lines", href: "sk04-hatching.html",
+      gens: [
+        function (rng) { var s = [2, 4, 5, 10][HW.ri(rng, 0, 3)]; return { text: "Strokes 1 unit wide, spaced " + s + " apart, one layer. Percent of paper inked?", ans: 100 / s, why: "coverage = width ÷ spacing = 1/" + s + " = " + (100 / s) + "%" }; },
+        function (rng) { var s = [5, 10][HW.ri(rng, 0, 1)], L = HW.ri(rng, 2, 3); return { text: "One layer covers " + (100 / s) + "%. Stack " + L + " cross layers — roughly what percent?", ans: L * 100 / s, why: L + " × " + (100 / s) + "% = " + (L * 100 / s) + "%" }; },
+        function (rng) { var t = [10, 20, 25, 50][HW.ri(rng, 0, 3)]; return { text: "Strokes 1 unit wide, single layer: what spacing gives exactly " + t + "% gray?", ans: 100 / t, why: "spacing = 100 ÷ " + t + " = " + (100 / t) }; },
+        function (rng) { return { text: "The engine wobbles a stroke with seed 7, then re-draws it with seed 7. Identical wiggle? (1 yes, 0 no)", ans: 1, why: "seeded noise is deterministic — same seed, same wiggle (that's why animations don't boil)" }; }
+      ] }
   ] }
 ];
 
@@ -324,6 +356,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return { id: L.id, icon: L.icon, label: L.title.replace(/^[^·]*·\s*/, ""), href: L.href, here: true };
   });
   ASSIGNABLE.push({ id: "gl6", icon: "🐛", label: "Deep Rock · Aim & Hitboxes (skill)", href: "gl06-hitboxes.html", here: false });
+  ASSIGNABLE.push({ id: "sk5", icon: "🖋️", label: "Sketch Studio · render all five scenes", href: "sk05-studio.html", here: false });
   // Builder's Tree nodes (gamedev.html) — assignable like any homework
   [["gd1", "🎮", "The Loop"], ["gd2", "🎯", "Hitboxes"], ["gd3", "💣", "The Arc"],
    ["gd4", "🧭", "Pathfinding"], ["gd5", "🗺️", "Random Worlds"], ["gd6", "🤖", "The Sentry"]].forEach(function (n) {

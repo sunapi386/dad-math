@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SK 4 · Shading with Lines, Wobbling on Purpose — Math in Half an Hour</title>
+<meta name="description" content="Hatching for kids: gray is a fraction (ink coverage = width ÷ spacing), cross-hatch layers stack tone, strokes follow the surface's grain — and why a machine adds wobble ON PURPOSE.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.stage { display: block; margin: 10px auto; background: #faf9f5; border: 1px solid var(--line); border-radius: 12px; max-width: 100%; }
+.readrow { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; font-size: .9rem; }
+.tonebox { width: 84px; height: 84px; border-radius: 10px; border: 2px solid var(--line); }
+.tonewrap { display: flex; gap: 26px; justify-content: center; align-items: center; flex-wrap: wrap; margin: 10px 0; }
+.tonelab { text-align: center; font-family: var(--mono); font-weight: 700; font-size: .8rem; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Sketch Lab · Topic 04 · The robot artist, step 4</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Shading with Lines, Wobbling on Purpose</h1>
+    <p class="lede">A pencil can't pour gray paint — yet pencil drawings are full of grays. The trick is
+      <b>hatching</b>: gray isn't a colour, it's a <em>fraction</em>. Tonight you'll shade with
+      arithmetic, learn why the strokes must <b>bend with the surface</b>, and meet the strangest idea
+      in the whole Sketch Lab: a machine that computes everything perfectly… and then adds mistakes
+      <b>on purpose</b>.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">fractions and percents</span> &nbsp; <span class="badge green">✏️ mix gray from math</span></p>
+  </header>
+
+  <!-- 1 TONE -->
+  <h2>1 · Gray is a fraction</h2>
+  <p>Zoom into pencil shading and it's just parallel strokes. If each stroke is
+    <span class="katex-inline">w</span> wide and they sit <span class="katex-inline">s</span> apart,
+    the fraction of paper covered in ink is</p>
+  <p>$$\text{tone} = \frac{w}{s} \qquad \text{(width 1, spacing 4} \Rightarrow \text{25\% gray)}$$</p>
+  <p>Want darker? Don't press harder — <b>squeeze the spacing</b>, or lay a second layer of strokes
+    <em>across</em> the first (<b>cross-hatching</b> ≈ double the coverage), or a third
+    (<b>triple</b>). The Studio engine offers exactly these: <b>single / cross / triple</b>, and it
+    <em>quantizes</em> — instead of a smooth soup of grays it snaps every patch of a scene to a few
+    honest tone levels, the way an artist commits: paper, light, medium, dark.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">✏️</span> The tone mixer</div>
+    <p class="phint">A target gray comes up. Mix it: set the spacing and stack layers. Land within
+      ±3% to score. Streak of 3 = the ✏️ <b>Tone Master</b> badge.</p>
+    <div class="tonewrap">
+      <div><div class="tonebox" id="tm-target"></div><div class="tonelab">target <b id="tm-tv">–</b></div></div>
+      <div style="font-size:1.5rem">⇦ match it</div>
+      <div><svg class="tonebox" id="tm-mine" viewBox="0 0 84 84"></svg><div class="tonelab">yours <b id="tm-mv">–</b></div></div>
+    </div>
+    <div class="ctrlrow" style="justify-content:center">
+      <label style="font-weight:700">spacing <input type="range" id="tm-s" min="2" max="12" value="8" style="width:150px; vertical-align:middle"> <span id="tm-sv" style="font-family:var(--mono)">8</span></label>
+      <label style="font-weight:700">layers <input type="range" id="tm-l" min="1" max="3" value="1" style="width:80px; vertical-align:middle"> <span id="tm-lv" style="font-family:var(--mono)">1</span></label>
+    </div>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="btn" id="tm-check">Lock it in</button>
+      <button class="btn ghost" id="tm-new">new target</button>
+    </div>
+    <div class="result" id="tm-read">…</div>
+  </div>
+
+  <!-- 2 GRAIN -->
+  <h2>2 · Strokes have a grain</h2>
+  <p>Here's what separates flat shading from <em>drawing</em>: on a curved thing, good hatching
+    <b>follows the surface</b>. Artists shade a ball with strokes that bend like lines of latitude,
+    and a pipe with strokes that wrap around it. Your eye reads the bending itself as 3D — the
+    strokes don't just darken the shape, they <em>describe</em> it.</p>
+  <p>The engine does this by remembering, for every surface, its own natural grid — like the
+    latitude/longitude lines on a globe or the rings and rays of a tree stump — and laying hatch
+    strokes along it (<span style="font-family:var(--mono)">field: true</span> in the Studio). Switch
+    to <span style="font-family:var(--mono)">field: false</span> and it rules flat parallel lines
+    across everything instead — suddenly the ball looks like a printed circle, not a sphere.
+    Same tone, worse story. Try exactly this in the <a href="sk05-studio.html">Studio</a> tomorrow.</p>
+
+  <div class="note try">
+    <span class="t">Feel the grain:</span> shade a toilet-paper tube with straight up-down strokes,
+    then shade another wrapping the strokes around the curve. Hold both at arm's length — which one
+    looks round? Show someone else, don't tell them which is which, and ask.
+  </div>
+
+  <!-- 3 WOBBLE -->
+  <h2>3 · Perfect wobble</h2>
+  <p>Now the beautiful, backwards part. The engine computes outlines <em>exactly</em> (SK·2), removes
+    hidden lines <em>exactly</em> (SK·3)… and then, if you ask, it <b>wobbles every stroke</b> so the
+    drawing looks like a human held the pencil. Why ruin perfection? Because a ruler-straight drawing
+    says “measured by a machine,” while a wobbly one says “seen by someone.” The imperfection is
+    <em>information about being drawn</em>.</p>
+  <p>The person who built this engine (his name is Valeriu — you'll meet his work in the Studio)
+    wanted to call it <em>genesis imperfecta</em> as a kid: the fascination isn't adding detail, it's
+    choosing <b>which detail to drop and which imperfections to add</b>. That is an actual math
+    question, and here's the engine's answer for wobble: the wiggle is <b>seeded noise</b> — the same
+    trick as your <a href="gl04-worlds.html">Minecraft worlds</a>! Same seed → the exact same wiggle,
+    every single time. So an animation doesn't “boil” with new scribbles each frame, and the drawing
+    is still, secretly, perfectly reproducible. Controlled chaos, chosen on purpose.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🖊️</span> The wobble dial</div>
+    <p class="phint">One line, one circle, one dial. 0 = ruler. Crank it and watch a machine pretend
+      to be a hand. “new pen” picks a new seed — same wobble amount, different (but repeatable!) wiggle.</p>
+    <svg class="stage" id="wb-svg" viewBox="0 0 460 170" width="460" height="170" aria-label="a line and circle with adjustable hand-drawn wobble"></svg>
+    <div class="ctrlrow" style="justify-content:center">
+      <label style="font-weight:700">wobble <input type="range" id="wb-amt" min="0" max="100" value="0" style="width:180px; vertical-align:middle"> <span id="wb-av" style="font-family:var(--mono)">0%</span></label>
+      <button class="btn ghost" id="wb-seed">🖊️ new pen</button>
+    </div>
+    <div class="result" id="wb-read">Wobble 0 — a ruler drew this.</div>
+  </div>
+
+  <!-- 4 PUZZLE -->
+  <h2>4 · Puzzle</h2>
+  <p>Tone arithmetic. Streak of 3 = ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Gray matter</div>
+    <p class="qcount" id="pz-prompt">…</p>
+    <div class="ctrlrow">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="answer" aria-label="your answer" style="width:10ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">show working</button>
+      <button class="btn ghost" id="pz-new">new question</button>
+    </div>
+    <div class="result" id="pz-result">…</div>
+  </div>
+
+  <h2>Try this tonight</h2>
+  <ul>
+    <li><strong>The 25% experiment:</strong> rule strokes 4 mm apart with a ~1 mm pencil line. Step
+      back — does it read as quarter-gray? Now cross-hatch a patch and compare.</li>
+    <li><strong>Tone ladder:</strong> draw four squares: paper, single, cross, triple. You've built the
+      engine's quantized tone scale with your own hand.</li>
+    <li><strong>Forgery test:</strong> draw a freehand circle, then trace a coin. Show both to someone —
+      which one do they say has more <em>life</em>? Ask them why. (There's no right answer. That's the point.)</li>
+  </ul>
+
+  <p class="muted small">hatching · tone · coverage = width ÷ spacing · cross-hatch · quantize · direction field · wobble · seeded noise</p>
+
+  <div class="lessonnav">
+    <a href="sk03-hidden-lines.html">← SK 3: The Art of Leaving Out</a>
+    <a href="sk05-studio.html">SK 5: The Sketch Studio →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=16"></script>
+<script>
+/* === SK4:PURE START === (DOM-free hatching math; node-tested before deploy)
+   Tone = ink coverage: layers × strokeWidth ÷ spacing, capped at 100%.
+   Wobble = deterministic seeded value-noise: same seed → same wiggle (no boiling). */
+var SK4 = {};
+SK4.coverage = function (layers, w, s) { return Math.min(100, Math.round(layers * w / s * 100)); };
+SK4.mulberry32 = function (a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+};
+/* smooth 1-D value noise in [-1,1]: hash the integer lattice, ease between */
+SK4.noise1 = function (x, seed) {
+  function h(i) {
+    var v = SK4.mulberry32((i * 374761393 + seed * 668265263) | 0)();
+    return v * 2 - 1;
+  }
+  var i = Math.floor(x), f = x - i, e = f * f * (3 - 2 * f);
+  return h(i) + (h(i + 1) - h(i)) * e;
+};
+/* wobble a polyline: push each point sideways by amp × noise(arc-position) */
+SK4.wobblePath = function (pts, amp, seed) {
+  return pts.map(function (p, k) {
+    var prev = pts[Math.max(0, k - 1)], next = pts[Math.min(pts.length - 1, k + 1)];
+    var dx = next[0] - prev[0], dy = next[1] - prev[1], len = Math.hypot(dx, dy) || 1;
+    var n = SK4.noise1(k * 0.35, seed) * amp;
+    return [p[0] + (-dy / len) * n, p[1] + (dx / len) * n];
+  });
+};
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+SK4.GENS = [
+  function (rng) {   // single-layer coverage
+    var s = [2, 4, 5, 10][Math.floor(rng() * 4)];
+    return { text: "Strokes 1 unit wide, spaced " + s + " apart, one layer. What percent of the paper is inked?",
+             ans: 100 / s,
+             why: "coverage = width ÷ spacing = 1/" + s + " = " + (100 / s) + "%" };
+  },
+  function (rng) {   // stacking layers
+    var s = [5, 10][Math.floor(rng() * 2)];
+    var L = 2 + Math.floor(rng() * 2);
+    return { text: "One hatch layer covers " + (100 / s) + "% of the paper. Stack " + L + " layers (cross directions, overlaps tiny). Roughly what percent now?",
+             ans: L * 100 / s,
+             why: "each layer adds its own ink: " + L + " × " + (100 / s) + "% = " + (L * 100 / s) + "%" };
+  },
+  function (rng) {   // spacing for a target tone
+    var t = [10, 20, 25, 50][Math.floor(rng() * 4)];
+    return { text: "Strokes are 1 unit wide, single layer. What spacing gives exactly " + t + "% gray?",
+             ans: 100 / t,
+             why: "tone = 1 ÷ spacing, so spacing = 1 ÷ tone = 100 ÷ " + t + " = " + (100 / t) };
+  },
+  function (rng) {   // wobble determinism
+    var pick = Math.floor(rng() * 2);
+    if (pick === 0) return { text: "The engine wobbles a stroke with seed 42, then draws the SAME stroke with seed 42 again. Is the wiggle identical? (1 yes, 0 no)",
+                             ans: 1, why: "seeded noise is deterministic — same seed, same wiggle, every time (that's why animations don't boil)" };
+    return { text: "Wobble is set to 0. How many units does the wiggliest point stray from the perfect line?",
+             ans: 0, why: "wobble 0 multiplies the noise by zero — the machine draws like a ruler" };
+  }
+];
+/* === SK4:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ---------- §1 tone mixer ----------
+  (function () {
+    var streak = 0, target = 25;
+    var sEl = document.getElementById("tm-s"), lEl = document.getElementById("tm-l");
+    var read = document.getElementById("tm-read");
+    function myTone() { return SK4.coverage(+lEl.value, 1, +sEl.value); }
+    function paintMine() {
+      var s = +sEl.value, L = +lEl.value;
+      var html = "";
+      var angles = [0, 90, 45].slice(0, L);
+      angles.forEach(function (ang) {
+        for (var off = -84; off < 168; off += s * 3) {   // spacing scaled ×3 px for visibility
+          if (ang === 0) html += "<line x1='0' y1='" + off + "' x2='84' y2='" + off + "' stroke='#333' stroke-width='3'/>";
+          else if (ang === 90) html += "<line x1='" + off + "' y1='0' x2='" + off + "' y2='84' stroke='#333' stroke-width='3'/>";
+          else html += "<line x1='" + (off - 84) + "' y1='84' x2='" + off + "' y2='0' stroke='#333' stroke-width='3'/>";
+        }
+      });
+      document.getElementById("tm-mine").innerHTML = "<rect width='84' height='84' fill='#faf9f5'/>" + html;
+      document.getElementById("tm-sv").textContent = s;
+      document.getElementById("tm-lv").textContent = L;
+      document.getElementById("tm-mv").textContent = myTone() + "%";
+    }
+    function newTarget() {
+      // targets always reachable: layers 1-3, spacing 2-12 → coverage values
+      var opts = [10, 13, 17, 20, 25, 33, 40, 50, 60, 75];
+      target = opts[Math.floor(Math.random() * opts.length)];
+      var g = Math.round(250 - target * 2.2);
+      document.getElementById("tm-target").style.background = "rgb(" + g + "," + g + "," + (g - 4) + ")";
+      document.getElementById("tm-tv").textContent = target + "%";
+      read.className = "result";
+      read.innerHTML = "Mix " + target + "% gray. Streak: <b>" + streak + "</b>";
+      paintMine();
+    }
+    document.getElementById("tm-check").addEventListener("click", function () {
+      var mine = myTone(), diff = Math.abs(mine - target);
+      if (diff <= 3) {
+        streak++;
+        read.className = "result win";
+        read.innerHTML = "✅ " + mine + "% vs target " + target + "% — within tolerance. Streak: <b>" + streak + "</b>";
+        if (window.DadMath) {
+          if (streak === 3 && DadMath.badge("sk-tone")) {
+            DadMath.star("sk4", 2, "Tone Master — three grays mixed in a row");
+            read.innerHTML += " &nbsp;✏️ <b>Badge earned: Tone Master!</b>";
+          }
+          DadMath.best("sk4-tones", (DadMath.getBest("sk4-tones") || 0) + 1);
+        }
+        setTimeout(newTarget, 1600);
+      } else {
+        streak = 0;
+        read.className = "result miss";
+        read.innerHTML = "❌ You mixed " + mine + "%, target was " + target + "% — off by " + diff + ". Tone = layers × 1 ÷ spacing. (streak reset)";
+      }
+    });
+    document.getElementById("tm-new").addEventListener("click", newTarget);
+    sEl.addEventListener("input", paintMine);
+    lEl.addEventListener("input", paintMine);
+    newTarget();
+  })();
+
+  // ---------- §3 wobble dial ----------
+  (function () {
+    var seed = 7;
+    var svg = document.getElementById("wb-svg");
+    function poly(pts, w) {
+      return "<polyline points='" + pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") +
+        "' fill='none' stroke='#26261f' stroke-width='" + w + "' stroke-linecap='round' stroke-linejoin='round'/>";
+    }
+    function paint() {
+      var amt = +document.getElementById("wb-amt").value / 100 * 6; // up to 6px sway
+      var line = [], circle = [];
+      for (var i = 0; i <= 60; i++) line.push([40 + i * (240 / 60), 85]);
+      for (var k = 0; k <= 72; k++) {
+        var a = k / 72 * Math.PI * 2;
+        circle.push([370 + 55 * Math.cos(a), 85 + 55 * Math.sin(a)]);
+      }
+      svg.innerHTML = poly(SK4.wobblePath(line, amt, seed), 2.4) + poly(SK4.wobblePath(circle, amt, seed + 1), 2.4);
+      var pct = +document.getElementById("wb-amt").value;
+      document.getElementById("wb-av").textContent = pct + "%";
+      var read = document.getElementById("wb-read");
+      read.className = "result";
+      read.textContent = pct === 0 ? "Wobble 0 — a ruler drew this."
+        : pct < 45 ? "A careful hand. (Drag the dial back to 0 and this exact wiggle vanishes — and returns identically. Seed " + seed + ".)"
+        : "A confident scribbler. Same seed " + seed + " → same scribble, every repaint. Chaos, but owned.";
+    }
+    document.getElementById("wb-amt").addEventListener("input", paint);
+    document.getElementById("wb-seed").addEventListener("click", function () { seed = Math.floor(Math.random() * 9999); paint(); });
+    paint();
+  })();
+
+  // ---------- §4 puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    var booted = false;
+    function newQ() {
+      q = SK4.GENS[Math.floor(Math.random() * SK4.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; if (booted) input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Shaded right. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath && streak % 3 === 0) DadMath.star("sk4", 1, "Tone drills — streak " + streak);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ(); booted = true;
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

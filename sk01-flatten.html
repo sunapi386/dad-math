@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SK 1 · Flattening Space: How 3D Becomes a Picture — Math in Half an Hour</title>
+<meta name="description" content="Perspective projection for kids: why far things look small (divide by distance!), similar triangles, perspective vs orthographic — with a wireframe cube you can spin and measure.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.stage { display: block; margin: 10px auto; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; max-width: 100%; }
+.readrow { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; font-size: .9rem; }
+.modebtn { font-weight: 800; padding: 8px 14px; border-radius: 10px; border: 2px solid var(--line); background: var(--panel-2); cursor: pointer; }
+.modebtn.on { border-color: var(--primary); }
+.shrinkscene { position: relative; height: 120px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin: 10px 0; }
+.robot { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); transition: font-size .15s ease; line-height: 1; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Sketch Lab · Topic 01 · The robot artist, step 1</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Flattening Space</h1>
+    <p class="lede">This is the first lesson of the <b>Sketch Lab</b>: over four nights you'll learn how a
+      machine can draw like an artist — outlines, hidden lines, pencil shading — and at the end you get a
+      real <a href="sk05-studio.html">sketching engine</a> to play with. But every drawing starts with one
+      brutal problem: the world is 3D and paper is flat. Tonight: the single division that solves it.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">good after GL·5 (angles) — not required</span> &nbsp; <span class="badge green">📐 spin a wireframe cube</span></p>
+  </header>
+
+  <!-- 1 WINDOW -->
+  <h2>1 · The window trick</h2>
+  <p>Close one eye and hold a finger at arm's length: it can cover a whole car across the street.
+    Renaissance painters turned this into a machine: look at the world through a <b>window</b>, and
+    paint each thing exactly where its line of sight crosses the glass. A photo, a video game frame,
+    and a pencil sketch all do the same thing — the window is the <b>picture plane</b>.</p>
+  <p>The math of the window is one division. Walk a thing of height <span class="katex-inline">S</span>
+    to distance <span class="katex-inline">d</span>, and on the glass it measures</p>
+  <p>$$\text{size on the glass} = \frac{f \cdot S}{d}$$</p>
+  <p>where <span class="katex-inline">f</span> is just how far the glass is from your eye — a fixed
+    zoom number. All the perspective in every painting ever made is hiding in that
+    <b>divide&nbsp;by&nbsp;d</b>: twice as far → half as tall. Ten times as far → a tenth as tall.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🤖</span> The shrink ray (that isn't one)</div>
+    <p class="phint">March the robot away and watch the glass. Predict before you drag: at double the
+      distance, how tall?</p>
+    <div class="shrinkscene"><div class="robot" id="sr-bot" style="font-size:80px">🤖</div></div>
+    <div class="ctrlrow" style="justify-content:center">
+      <label style="font-weight:700">distance <input type="range" id="sr-d" min="2" max="20" value="2" step="1" style="width:200px; vertical-align:middle"></label>
+    </div>
+    <div class="readrow"><span>real height <b>2 m</b> (never changes)</span><span>distance <b id="sr-dv">2 m</b></span><span>on the glass <b id="sr-h">80 px</b></span></div>
+    <div class="result" id="sr-read">At 2 m the robot fills the window: 160 ÷ 2 = 80 px.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Say it like a mathematician:</span> the robot never shrinks — the <em>angle</em> it
+    eats out of your view shrinks. Similar triangles: the eye–robot triangle and the eye–glass triangle
+    have the same shape, so glass-size / f = real-size / d. Cross-multiply and you've re-invented the
+    formula.
+  </div>
+
+  <!-- 2 CUBE -->
+  <h2>2 · Two kinds of flattening</h2>
+  <p>There's a choice hiding in the window trick. <b>Perspective</b> divides by each point's own
+    distance — near parts get big, far parts get small, exactly like your eye. <b>Orthographic</b>
+    refuses to divide at all — it slides every point straight onto the glass, so far things stay
+    just as big as near things. Engineers love orthographic (you can <em>measure</em> the drawing:
+    a ruler on the paper is a ruler on the machine); artists mostly want perspective (it's how
+    seeing feels). A sketching machine has to offer both.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">📐</span> The wireframe spinner</div>
+    <p class="phint">Spin the cube. In perspective, read the two measurements — the near face really is
+      drawn bigger. Switch to orthographic and watch the difference vanish.</p>
+    <svg class="stage" id="cw-svg" viewBox="0 0 420 300" width="420" height="300" aria-label="wireframe cube"></svg>
+    <div class="ctrlrow" style="justify-content:center">
+      <label style="font-weight:700">spin <input type="range" id="cw-yaw" min="0" max="360" value="30" step="2" style="width:180px; vertical-align:middle"></label>
+      <button class="modebtn on" id="cw-persp">perspective</button>
+      <button class="modebtn" id="cw-ortho">orthographic</button>
+    </div>
+    <div class="readrow"><span>near edge <b id="cw-near">–</b></span><span>far edge <b id="cw-far">–</b></span></div>
+    <div class="result" id="cw-read">Perspective: the front of the cube is closer, so it's drawn larger.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Spot it in the wild:</span> railway tracks meeting at the horizon = perspective
+    (divide by bigger and bigger d). Minecraft's inventory item icons and IKEA instructions =
+    orthographic (measurable, no vanishing point). Which one is your favourite game's map screen?
+  </div>
+
+  <!-- 3 PUZZLE -->
+  <h2>3 · Puzzle</h2>
+  <p>Window drills. Streak of 3 = ⭐, streak of 5 = the 📐 <b>Flatlander</b> badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Glass math</div>
+    <p class="qcount" id="pz-prompt">…</p>
+    <div class="ctrlrow">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="answer" aria-label="your answer" style="width:10ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">show working</button>
+      <button class="btn ghost" id="pz-new">new question</button>
+    </div>
+    <div class="result" id="pz-result">…</div>
+  </div>
+
+  <h2>Try this tonight</h2>
+  <ul>
+    <li><strong>Thumb measuring:</strong> artists hold up a pencil at arm's length to measure the world —
+      that's reading sizes off the picture plane. Measure a lamppost in “pencil units,” walk to half the
+      distance, measure again. Did it double?</li>
+    <li><strong>Window painter:</strong> with a washable marker, actually trace a building on a real
+      window, one eye closed, head very still. You are doing exactly what the render engine does.</li>
+    <li><strong>Find the vanishing point</strong> in a photo of a straight street: extend the road edges
+      with a ruler — they cross at one point. Orthographic drawings have none. Why?</li>
+  </ul>
+
+  <p class="muted small">picture plane · perspective · divide by distance · similar triangles · orthographic · vanishing point</p>
+
+  <div class="lessonnav">
+    <a href="index.html#sketch">← Sketch Lab home</a>
+    <a href="sk02-silhouettes.html">SK 2: Where Outlines Live →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=16"></script>
+<script>
+/* === SK1:PURE START === (DOM-free projection math; node-tested before deploy)
+   Camera sits on the +Y axis at distance CAMD looking at the origin, glass at focal F.
+   A point is first spun about Z (yaw) and tipped about X (tilt), then flattened:
+   perspective divides by its distance from the eye, orthographic just scales. */
+var SK1 = {};
+SK1.F = 160;      /* focal: glass distance in px — also the shrink-ray constant */
+SK1.CAMD = 6;     /* camera distance for the cube widget */
+SK1.ORTHO_K = 55; /* orthographic px per world unit */
+SK1.rot = function (p, yaw, tilt) {
+  var c = Math.cos(yaw), s = Math.sin(yaw);
+  var x = p[0] * c - p[1] * s, y = p[0] * s + p[1] * c, z = p[2];
+  var ct = Math.cos(tilt), st = Math.sin(tilt);
+  return [x, y * ct - z * st, y * st + z * ct];
+};
+/* rotated point → [screenX, screenY, depth]; depth = eye→point along the view axis */
+SK1.project = function (p, mode) {
+  var depth = SK1.CAMD - p[1];
+  if (mode === "ortho") return [p[0] * SK1.ORTHO_K, -p[2] * SK1.ORTHO_K, depth];
+  return [p[0] * SK1.F / depth, -p[2] * SK1.F / depth, depth];
+};
+SK1.glassSize = function (S, d) { return SK1.F * S / d; };
+SK1.CUBE = {
+  verts: [[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]],
+  edges: [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]]
+};
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+SK1.GENS = [
+  function (rng) {   // halving by walking (h always divisible by the slide factor)
+    var mult = [2, 3, 4, 10][Math.floor(rng() * 4)];
+    var pool = [12, 24, 36, 60].filter(function (h) { return h % mult === 0; });
+    var h = pool[Math.floor(rng() * pool.length)];
+    return { text: "A tree measures " + h + " pencil-units on your window. It magically slides " + mult + "× farther away. Now how many pencil-units?",
+             ans: h / mult,
+             why: "size on the glass divides by distance: " + h + " ÷ " + mult + " = " + (h / mult) };
+  },
+  function (rng) {   // the formula straight up
+    var picks = [[2, 3, 6], [2, 4, 8], [4, 3, 6], [10, 2, 4], [5, 6, 10], [8, 3, 12]];
+    var p = picks[Math.floor(rng() * picks.length)];
+    var f = p[0], S = p[1], d = p[2];
+    return { text: "Glass at f = " + f + ", a rocket " + S + " m tall standing " + d + " m away. Size on the glass = f × S ÷ d = ?",
+             ans: f * S / d,
+             why: f + " × " + S + " ÷ " + d + " = " + (f * S / d) };
+  },
+  function (rng) {   // ortho doesn't shrink
+    var far = [5, 10, 100][Math.floor(rng() * 3)];
+    var s = [3, 7, 12][Math.floor(rng() * 3)];
+    return { text: "ORTHOGRAPHIC camera: a crate drawn " + s + " units wide slides " + far + "× farther away. How wide is it drawn now?",
+             ans: s,
+             why: "orthographic never divides by distance — far things stay drawn full size (that's why engineers can measure the drawing)" };
+  },
+  function (rng) {   // reverse: how far did it go
+    var f = 4, S = [6, 9, 12][Math.floor(rng() * 3)];
+    var g = [2, 3, 4][Math.floor(rng() * 3)];
+    var d = f * S / g;
+    return { text: "Glass at f = " + f + ": a " + S + " m dragon measures only " + g + " units on the glass. How many metres away is it? (size = f × S ÷ d)",
+             ans: d,
+             why: "d = f × S ÷ size = " + f + " × " + S + " ÷ " + g + " = " + d };
+  }
+];
+/* === SK1:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ---------- §1 shrink ray ----------
+  (function () {
+    var slider = document.getElementById("sr-d");
+    function paint() {
+      var d = +slider.value;
+      var px = Math.round(SK1.glassSize(2, d) / 2 * 40) / 40; // 2m robot; F·2/d, displayed via font-size
+      var fontPx = SK1.F * 2 / d / 2;                          // = 160/d
+      var bot = document.getElementById("sr-bot");
+      bot.style.fontSize = Math.max(8, fontPx) + "px";
+      document.getElementById("sr-dv").textContent = d + " m";
+      document.getElementById("sr-h").textContent = Math.round(SK1.glassSize(2, d)) + " px";
+      var read = document.getElementById("sr-read");
+      read.className = "result";
+      read.textContent = "At " + d + " m: " + (SK1.F * 2) + " ÷ " + d + " = " + Math.round(SK1.glassSize(2, d)) + " px on the glass." +
+        (d === 2 ? "" : d % 2 === 0 ? " (Check: that's exactly the 2 m answer ÷ " + (d / 2) + ".)" : "");
+    }
+    slider.addEventListener("input", paint);
+    paint();
+  })();
+
+  // ---------- §2 wireframe spinner ----------
+  (function () {
+    var TILT = -0.42, CX = 210, CY = 150;
+    var mode = "persp";
+    var svg = document.getElementById("cw-svg");
+    var yawEl = document.getElementById("cw-yaw");
+    function edgeLen(a, b) { return Math.hypot(b[0] - a[0], b[1] - a[1]); }
+    function paint() {
+      var yaw = +yawEl.value * Math.PI / 180;
+      var pts = SK1.CUBE.verts.map(function (v) { return SK1.project(SK1.rot(v, yaw, TILT), mode); });
+      var html = "";
+      // sort edges far-first so near edges draw on top
+      var order = SK1.CUBE.edges.slice().sort(function (e1, e2) {
+        var d1 = pts[e1[0]][2] + pts[e1[1]][2], d2 = pts[e2[0]][2] + pts[e2[1]][2];
+        return d2 - d1;
+      });
+      order.forEach(function (e) {
+        var a = pts[e[0]], b = pts[e[1]];
+        var depth = (a[2] + b[2]) / 2;
+        var near = depth < SK1.CAMD;
+        html += "<line x1='" + (CX + a[0]).toFixed(1) + "' y1='" + (CY + a[1]).toFixed(1) +
+          "' x2='" + (CX + b[0]).toFixed(1) + "' y2='" + (CY + b[1]).toFixed(1) +
+          "' stroke='" + (near ? "var(--primary)" : "var(--muted)") + "' stroke-width='" + (near ? 2.6 : 1.4) + "' stroke-linecap='round'/>";
+      });
+      svg.innerHTML = html;
+      // measure a matched pair of vertical edges: near = the one whose midpoint depth is least
+      var e1 = pts[0], e2 = pts[4], f1 = pts[2], f2 = pts[6]; // verticals 0-4 and 2-6 are diagonal opposites
+      var l1 = edgeLen(e1, e2), l2 = edgeLen(f1, f2);
+      var nearLen = (e1[2] + e2[2]) < (f1[2] + f2[2]) ? l1 : l2;
+      var farLen = (e1[2] + e2[2]) < (f1[2] + f2[2]) ? l2 : l1;
+      document.getElementById("cw-near").textContent = Math.round(nearLen) + " px";
+      document.getElementById("cw-far").textContent = Math.round(farLen) + " px";
+      var read = document.getElementById("cw-read");
+      read.className = "result";
+      read.textContent = mode === "persp"
+        ? "Perspective: near edge " + Math.round(nearLen) + " px vs far edge " + Math.round(farLen) + " px — same cube, different distances, different divisions."
+        : "Orthographic: near " + Math.round(nearLen) + " px, far " + Math.round(farLen) + " px — no dividing, so no difference. You could measure this cube with a ruler.";
+    }
+    yawEl.addEventListener("input", paint);
+    document.getElementById("cw-persp").addEventListener("click", function () {
+      mode = "persp"; this.className = "modebtn on"; document.getElementById("cw-ortho").className = "modebtn"; paint();
+    });
+    document.getElementById("cw-ortho").addEventListener("click", function () {
+      mode = "ortho"; this.className = "modebtn on"; document.getElementById("cw-persp").className = "modebtn"; paint();
+    });
+    paint();
+  })();
+
+  // ---------- §3 puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    var booted = false;
+    function newQ() {
+      q = SK1.GENS[Math.floor(Math.random() * SK1.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; if (booted) input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Flattened perfectly. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          if (streak % 3 === 0) DadMath.star("sk1", 1, "Projection drills — streak " + streak);
+          if (streak === 5 && DadMath.badge("sk-flat")) resEl.innerHTML += " &nbsp;📐 <b>Badge earned: Flatlander!</b>";
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ(); booted = true;
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>
