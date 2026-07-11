@@ -67,7 +67,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js?v=14"></script>
+<script defer src="assets/game.js?v=15"></script>
 <script>
 /* === HW:PURE START === (DOM-free question banks; node-tested before deploy)
    One bank per lesson page. Every generator takes an rng and returns {text, ans, why} with
@@ -166,6 +166,13 @@ HW.TRACKS = [
         function (rng) { var s = [10, 15, 20, 25][HW.ri(rng, 0, 3)]; return { text: "A glove factory's sheets disagree " + s + "% at 0°vs30° and " + s + "% at 30°vs60°. At MOST what percent can they disagree at 0°vs60°?", ans: 2 * s, why: "a flip must happen at one of the two steps: " + s + " + " + s + " = " + (2 * s) + "%" }; },
         function (rng) { return { text: "The universe's actual disagreement at 0° vs 60°, in percent — the number no answer sheet can reach?", ans: 75, why: "sin²(60°) = 75%, but sheets cap at 25+25 = 50% — that's the Bell surprise" }; },
         function (rng) { return { text: "Your friend wiggles their far-away dial (or unplugs it). What percent of 1s do YOU see on your own tape, whatever they do?", ans: 50, why: "always a fair coin — no message can ride the spookiness" }; }
+      ] },
+    { id: "cs7", icon: "🔌", title: "CS·7 · Circuits", href: "cs07-circuits.html",
+      gens: [
+        function (rng) { var a = HW.ri(rng, 0, 1), b = HW.ri(rng, 0, 1), c = HW.ri(rng, 0, 1), t = a + b + c, wantSum = rng() < 0.5; return { text: "A full adder gets a = " + a + ", b = " + b + ", carry-in = " + c + ". What is its " + (wantSum ? "SUM" : "CARRY-OUT") + " bit?", ans: wantSum ? t % 2 : (t >= 2 ? 1 : 0), why: a + "+" + b + "+" + c + " = " + t + " = binary " + (t >= 2 ? 1 : 0) + "" + (t % 2) + " → sum " + (t % 2) + ", carry out " + (t >= 2 ? 1 : 0) }; },
+        function (rng) { var n = HW.ri(rng, 2, 6); return { text: "A circuit chunk has " + n + " input wires. How many rows does its truth table need?", ans: Math.pow(2, n), why: "every extra wire doubles the combos: 2^" + n + " = " + Math.pow(2, n) }; },
+        function (rng) { var g = ["NAND", "NOR"][HW.ri(rng, 0, 1)], a = HW.ri(rng, 0, 1), b = HW.ri(rng, 0, 1), base = g === "NAND" ? (a && b ? 1 : 0) : (a || b ? 1 : 0); return { text: g + "(" + a + ", " + b + ") = ?", ans: 1 - base, why: g + " is " + (g === "NAND" ? "AND" : "OR") + " flipped upside down: " + (g === "NAND" ? "AND" : "OR") + " says " + base + ", so " + g + " says " + (1 - base) }; },
+        function (rng) { var x = HW.ri(rng, 5, 15), y = HW.ri(rng, 5, 15); return { text: "The 4-bit adding machine adds " + x + " + " + y + ". Does a carry pop out the top into the 16-lamp? (1 yes, 0 no)", ans: x + y > 15 ? 1 : 0, why: x + " + " + y + " = " + (x + y) + (x + y > 15 ? " — more than 15, the 16-lamp must light" : " — fits in four bits, the top stays dark") }; }
       ] }
   ] },
 

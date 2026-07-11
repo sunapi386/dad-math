@@ -67,6 +67,12 @@ client-side, so this is a trust-and-verify aid for a present parent, not tamper-
   sits exactly ON the Bell limit; 📞 badge for 3 in a row) and a **no-signaling** widget showing
   why the spooky phone can't text (your marginal stays 50/50 whatever the far dial does).
   → `cs06-entanglement.html`
+- **💻 CS·7 Circuits: The Adding Machine** — truth tables as gate ID cards (n wires → 2ⁿ rows),
+  NAND/NOR and universality (the Apollo computer was ~5,600 NOR chips), a **mystery-box detective
+  game** (probe an unlabelled gate, watch the suspects fall — 🔌 badge for 3 unmaskings in a row),
+  the **full adder** (sum = odd number of ones, carry = majority) with a live-highlighting 8-row
+  table, and an operable **4-bit ripple-carry adder** with star challenges (show 21, light all four
+  carries, ride the 15+1 domino ripple). → `cs07-circuits.html`
 - **🕸️ G·1 The Seven Bridges** — playable Königsberg + envelope trace + Euler's degree
   rule. → `gt01-bridges.html`
 - **🕸️ G·2 Six Handshakes to Anyone** — small-world networks: reach grows like **kᵈ**
