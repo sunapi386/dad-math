@@ -92,7 +92,8 @@
     "gt-small":    { icon: "🌍", name: "World Shrinker",   desc: "Shrink the 48-person ring world below 3.9 average handshakes with just 5 bridges." },
     "gt-color":    { icon: "🎨", name: "Four-Crayon Artist", desc: "Colour three maps in a row using the fewest crayons possible." },
     "story-pirate":{ icon: "🏴‍☠️", name: "Pirate Captain",   desc: "Finish the pirate story — and learn to think from the last splash backwards." },
-    "story-bits":  { icon: "❓", name: "Question Master",  desc: "Finish the twenty-questions story — every secret is just bits." }
+    "story-bits":  { icon: "❓", name: "Question Master",  desc: "Finish the twenty-questions story — every secret is just bits." },
+    "hw-scholar":  { icon: "🧑‍🎓", name: "Professor",       desc: "Pass the homework check for every single lesson on the site." }
   };
 
   // [starsNeeded, icon, title]

@@ -4,11 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>📓 Homework Check — Math in Half an Hour</title>
-<meta name="description" content="Prove you've learned each lesson: a short randomized check per lesson. Pass with 4 of 5 and it's marked complete on this device — fresh questions every time.">
+<meta name="description" content="Prove you've learned every lesson: a short randomized check per page — math, computer science, graphs, game theory, the Game Lab and the stories. Pass with 4 of 5 and it's marked complete — fresh questions every time.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
 <link rel="stylesheet" href="assets/style.css?v=4">
   <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.trackhead { margin: 1.6em 0 .2em; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.trackhead h2 { margin: 0; }
+.trackhead .muted { font-size: .9rem; }
+</style>
 </head>
 <body>
 
@@ -26,9 +31,10 @@
   <header class="hero" style="padding-bottom:10px">
     <div class="eyebrow">Prove it</div>
     <h1 style="font-size:clamp(1.9rem,5vw,3rem)">📓 The Homework Check</h1>
-    <p class="lede">Did the lesson stick? Each check asks <b>5 fresh random questions</b> — get
-      <b>4 or more</b> right and that lesson is marked ✅ on this device (worth ⭐⭐ the first time).
-      Pass all five for the 🎓 <b>Homework Hero</b> badge. You can retake any check, any day —
+    <p class="lede">Did the lesson stick? <b>Every page on the site has a check here</b> — 5 fresh
+      random questions, get <b>4 or more</b> right and that lesson is marked ✅ on your progress
+      (worth ⭐⭐ the first time). Pass all five <em>math</em> checks for the 🎓 <b>Homework Hero</b>
+      badge — and every check on this page for 🧑‍🎓 <b>Professor</b>. Retake any check, any day:
       the questions are always new, so there's nothing to memorize.</p>
   </header>
 
@@ -44,13 +50,13 @@
     <div id="parentPanel" style="display:none; margin-top:12px"></div>
   </div>
 
-  <div class="hwstatus" id="hwstatus"></div>
-
   <div id="checks"></div>
 
   <hr class="rule">
-  <p class="muted small">Checks cover the five math lessons. CS, graph theory and story-mode quizzes live
-    inside their own pages.</p>
+  <p class="muted small">Two checks live elsewhere on purpose: 🐛 Aim &amp; Hitboxes is a <em>skill
+    challenge</em> on <a href="gl06-hitboxes.html">its own page</a> (you have to actually hit the
+    weak points), and the 🌳 <a href="gamedev.html">Builder's Tree</a> nodes are unlocked by their
+    own principles tests.</p>
 
 </div>
 
@@ -61,72 +67,256 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js?v=13"></script>
+<script defer src="assets/game.js?v=14"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  function ri(lo, hi) { return lo + Math.floor(Math.random() * (hi - lo + 1)); }
-  function T(n) { return n * (n + 1) / 2; }
-  var F = [1, 1]; for (var i = 2; i < 16; i++) F.push(F[i - 1] + F[i - 2]);
+/* === HW:PURE START === (DOM-free question banks; node-tested before deploy)
+   One bank per lesson page. Every generator takes an rng and returns {text, ans, why} with
+   fresh random numbers — answers are always a single number so the same input UI works for
+   every track (yes/no questions say "1 yes, 0 no" in the text). Facts are drawn from each
+   page's own claims (payoff matrices, cold numbers, cos² match rule, chunk width, etc.). */
+var HW = {};
+HW.ri = function (rng, lo, hi) { return lo + Math.floor(rng() * (hi - lo + 1)); };
+HW.T = function (n) { return n * (n + 1) / 2; };
+HW.FIB = (function () { var F = [1, 1]; for (var i = 2; i < 16; i++) F.push(F[i - 1] + F[i - 2]); return F; })();
 
-  /* Each generator returns {text, ans, why} with fresh random numbers. */
-  var LESSONS = [
+HW.TRACKS = [
+  { name: "∑ The math track", note: "all five = the 🎓 Homework Hero badge", items: [
     { id: "l1", icon: "∑", title: "Lesson 1 · The Gauss Formula", href: "01-gauss.html",
       gens: [
-        function () { var n = ri(6, 20); return { text: "1 + 2 + 3 + ⋯ + " + n + " = ?", ans: T(n), why: n + "×" + (n + 1) + "÷2 = " + T(n) }; },
-        function () { var n = ri(3, 10) * 2; return { text: "Pair the numbers 1 to " + n + " outside-in (1+" + n + ", 2+" + (n - 1) + "…). What does EACH pair add up to?", ans: n + 1, why: "first + last = " + n + " + 1 = " + (n + 1) }; },
-        function () { var n = ri(3, 10) * 2; return { text: "Pairing 1 to " + n + " outside-in — how MANY pairs are there?", ans: n / 2, why: n + " numbers make " + (n / 2) + " pairs" }; },
-        function () { var n = ri(4, 12) * 10; return { text: "Quick, with the formula: 1 + 2 + ⋯ + " + n + " = ?", ans: T(n), why: n + "×" + (n + 1) + "÷2 = " + T(n) }; }
+        function (rng) { var n = HW.ri(rng, 6, 20); return { text: "1 + 2 + 3 + ⋯ + " + n + " = ?", ans: HW.T(n), why: n + "×" + (n + 1) + "÷2 = " + HW.T(n) }; },
+        function (rng) { var n = HW.ri(rng, 3, 10) * 2; return { text: "Pair the numbers 1 to " + n + " outside-in (1+" + n + ", 2+" + (n - 1) + "…). What does EACH pair add up to?", ans: n + 1, why: "first + last = " + n + " + 1 = " + (n + 1) }; },
+        function (rng) { var n = HW.ri(rng, 3, 10) * 2; return { text: "Pairing 1 to " + n + " outside-in — how MANY pairs are there?", ans: n / 2, why: n + " numbers make " + (n / 2) + " pairs" }; },
+        function (rng) { var n = HW.ri(rng, 4, 12) * 10; return { text: "Quick, with the formula: 1 + 2 + ⋯ + " + n + " = ?", ans: HW.T(n), why: n + "×" + (n + 1) + "÷2 = " + HW.T(n) }; }
       ] },
     { id: "l2", icon: "🟧", title: "Lesson 2 · Odd Numbers Make Squares", href: "02-squares.html",
       gens: [
-        function () { var n = ri(3, 9); return { text: "Add the first " + n + " odd numbers (1 + 3 + 5 + …). Total?", ans: n * n, why: n + " odds → " + n + "² = " + (n * n) }; },
-        function () { var k = ri(4, 12); return { text: (k * k) + " is a perfect square. How many odd numbers add up to it?", ans: k, why: (k * k) + " = " + k + "², so " + k + " odds" }; },
-        function () { var n = ri(3, 10); return { text: "What is the " + n + "th odd number?", ans: 2 * n - 1, why: "2n − 1 = 2×" + n + " − 1 = " + (2 * n - 1) }; },
-        function () { var n = ri(3, 9); return { text: "A " + n + "×" + n + " dot square grows to " + (n + 1) + "×" + (n + 1) + ". How many dots does the L-shaped border add?", ans: 2 * n + 1, why: "the next odd number: 2×" + (n + 1) + " − 1 = " + (2 * n + 1) }; }
+        function (rng) { var n = HW.ri(rng, 3, 9); return { text: "Add the first " + n + " odd numbers (1 + 3 + 5 + …). Total?", ans: n * n, why: n + " odds → " + n + "² = " + (n * n) }; },
+        function (rng) { var k = HW.ri(rng, 4, 12); return { text: (k * k) + " is a perfect square. How many odd numbers add up to it?", ans: k, why: (k * k) + " = " + k + "², so " + k + " odds" }; },
+        function (rng) { var n = HW.ri(rng, 3, 10); return { text: "What is the " + n + "th odd number?", ans: 2 * n - 1, why: "2n − 1 = 2×" + n + " − 1 = " + (2 * n - 1) }; },
+        function (rng) { var n = HW.ri(rng, 3, 9); return { text: "A " + n + "×" + n + " dot square grows to " + (n + 1) + "×" + (n + 1) + ". How many dots does the L-shaped border add?", ans: 2 * n + 1, why: "the next odd number: 2×" + (n + 1) + " − 1 = " + (2 * n + 1) }; }
       ] },
     { id: "l3", icon: "🔺", title: "Lesson 3 · Triangular Numbers", href: "03-triangles.html",
       gens: [
-        function () { var n = ri(4, 12); return { text: "A pin triangle has " + n + " rows. Total pins?", ans: T(n), why: "T(" + n + ") = " + n + "×" + (n + 1) + "÷2 = " + T(n) }; },
-        function () { var p = ri(4, 12); return { text: p + " people each shake hands once with everyone else. How many handshakes?", ans: T(p - 1), why: "T(" + (p - 1) + ") = " + (p - 1) + "×" + p + "÷2 = " + T(p - 1) }; },
-        function () { var n = ri(4, 12); return { text: T(n) + " pins form a perfect triangle. How many rows?", ans: n, why: "T(" + n + ") = " + T(n) }; },
-        function () { var n = ri(3, 8); return { text: "Two copies of the " + n + "-row staircase triangle snap into a rectangle. How many dots in that rectangle?", ans: n * (n + 1), why: n + "×" + (n + 1) + " = " + (n * (n + 1)) }; }
+        function (rng) { var n = HW.ri(rng, 4, 12); return { text: "A pin triangle has " + n + " rows. Total pins?", ans: HW.T(n), why: "T(" + n + ") = " + n + "×" + (n + 1) + "÷2 = " + HW.T(n) }; },
+        function (rng) { var p = HW.ri(rng, 4, 12); return { text: p + " people each shake hands once with everyone else. How many handshakes?", ans: HW.T(p - 1), why: "T(" + (p - 1) + ") = " + (p - 1) + "×" + p + "÷2 = " + HW.T(p - 1) }; },
+        function (rng) { var n = HW.ri(rng, 4, 12); return { text: HW.T(n) + " pins form a perfect triangle. How many rows?", ans: n, why: "T(" + n + ") = " + HW.T(n) }; },
+        function (rng) { var n = HW.ri(rng, 3, 8); return { text: "Two copies of the " + n + "-row staircase triangle snap into a rectangle. How many dots in that rectangle?", ans: n * (n + 1), why: n + "×" + (n + 1) + " = " + (n * (n + 1)) }; }
       ] },
     { id: "l4", icon: "⚖️", title: "Lesson 4 · Evens & the Parity Trick", href: "04-evens.html",
       gens: [
-        function () { var a = ri(100, 999), b = ri(100, 999); return { text: a + " + " + b + " — odd or even? (type 1 for odd, 0 for even)", ans: (a + b) % 2, why: (a % 2 ? "odd" : "even") + " + " + (b % 2 ? "odd" : "even") + " = " + ((a + b) % 2 ? "odd" : "even") }; },
-        function () { var a = ri(11, 99), b = ri(11, 99); return { text: a + " × " + b + " — odd or even? (type 1 for odd, 0 for even)", ans: (a * b) % 2, why: (a % 2 ? "odd" : "even") + " × " + (b % 2 ? "odd" : "even") + " = " + ((a * b) % 2 ? "odd" : "even") }; },
-        function () { var n = ri(4, 10); return { text: "2 + 4 + 6 + ⋯ + " + (2 * n) + " = ? (sum of the first " + n + " even numbers)", ans: n * (n + 1), why: "n(n+1) = " + n + "×" + (n + 1) + " = " + (n * (n + 1)) }; },
-        function () { var n = ri(5, 30); return { text: "n = " + n + ": is n × (n+1) odd or even? (type 1 for odd, 0 for even)", ans: 0, why: "neighbours — one of them is always even, so the product is always even" }; }
+        function (rng) { var a = HW.ri(rng, 100, 999), b = HW.ri(rng, 100, 999); return { text: a + " + " + b + " — odd or even? (type 1 for odd, 0 for even)", ans: (a + b) % 2, why: (a % 2 ? "odd" : "even") + " + " + (b % 2 ? "odd" : "even") + " = " + ((a + b) % 2 ? "odd" : "even") }; },
+        function (rng) { var a = HW.ri(rng, 11, 99), b = HW.ri(rng, 11, 99); return { text: a + " × " + b + " — odd or even? (type 1 for odd, 0 for even)", ans: (a * b) % 2, why: (a % 2 ? "odd" : "even") + " × " + (b % 2 ? "odd" : "even") + " = " + ((a * b) % 2 ? "odd" : "even") }; },
+        function (rng) { var n = HW.ri(rng, 4, 10); return { text: "2 + 4 + 6 + ⋯ + " + (2 * n) + " = ? (sum of the first " + n + " even numbers)", ans: n * (n + 1), why: "n(n+1) = " + n + "×" + (n + 1) + " = " + (n * (n + 1)) }; },
+        function (rng) { var n = HW.ri(rng, 5, 30); return { text: "n = " + n + ": is n × (n+1) odd or even? (type 1 for odd, 0 for even)", ans: 0, why: "neighbours — one of them is always even, so the product is always even" }; }
       ] },
     { id: "l5", icon: "🐰", title: "Lesson 5 · Fibonacci", href: "05-fib.html",
       gens: [
-        function () { var i = ri(4, 11); return { text: "Fibonacci: … " + F[i - 3] + ", " + F[i - 2] + ", " + F[i - 1] + ", ? — what's next?", ans: F[i], why: F[i - 2] + " + " + F[i - 1] + " = " + F[i] }; },
-        function () { var i = ri(4, 11); return { text: "Fill the Fibonacci gap: " + F[i - 2] + ", ?, " + F[i], ans: F[i - 1], why: F[i] + " − " + F[i - 2] + " = " + F[i - 1] }; },
-        function () { var m = ri(5, 10); return { text: "The rabbit farm (1 baby pair at month 1) — how many pairs at month " + m + "?", ans: F[m - 1], why: "F" + m + " = " + F[m - 1] }; },
-        function () { var i = ri(3, 8); return { text: "Add the first " + i + " Fibonacci numbers (" + F.slice(0, i).join("+") + "). Total?", ans: F[i + 1] - 1, why: "F" + (i + 2) + " − 1 = " + F[i + 1] + " − 1 = " + (F[i + 1] - 1) }; }
+        function (rng) { var F = HW.FIB, i = HW.ri(rng, 4, 11); return { text: "Fibonacci: … " + F[i - 3] + ", " + F[i - 2] + ", " + F[i - 1] + ", ? — what's next?", ans: F[i], why: F[i - 2] + " + " + F[i - 1] + " = " + F[i] }; },
+        function (rng) { var F = HW.FIB, i = HW.ri(rng, 4, 11); return { text: "Fill the Fibonacci gap: " + F[i - 2] + ", ?, " + F[i], ans: F[i - 1], why: F[i] + " − " + F[i - 2] + " = " + F[i - 1] }; },
+        function (rng) { var F = HW.FIB, m = HW.ri(rng, 5, 10); return { text: "The rabbit farm (1 baby pair at month 1) — how many pairs at month " + m + "?", ans: F[m - 1], why: "F" + m + " = " + F[m - 1] }; },
+        function (rng) { var F = HW.FIB, i = HW.ri(rng, 3, 8); return { text: "Add the first " + i + " Fibonacci numbers (" + F.slice(0, i).join("+") + "). Total?", ans: F[i + 1] - 1, why: "F" + (i + 2) + " − 1 = " + F[i + 1] + " − 1 = " + (F[i + 1] - 1) }; }
       ] }
-  ];
+  ] },
 
-  var NEED = 4, COUNT = 5;
+  { name: "💻 Computer science", note: "", items: [
+    { id: "cs1", icon: "💡", title: "CS·1 · Binary", href: "cs01-binary.html",
+      gens: [
+        function (rng) { var n = HW.ri(rng, 3, 8); return { text: n + " switches (bits): how many different patterns can they show?", ans: Math.pow(2, n), why: "each bit doubles it: 2^" + n + " = " + Math.pow(2, n) }; },
+        function (rng) { var n = HW.ri(rng, 5, 15); return { text: "What number is binary " + n.toString(2) + "?", ans: n, why: n.toString(2).split("").reverse().map(function (b, i) { return b === "1" ? Math.pow(2, i) : 0; }).filter(Boolean).reverse().join(" + ") + " = " + n }; },
+        function (rng) { var n = HW.ri(rng, 3, 8); return { text: "Counting in binary on " + n + " fingers — what's the highest number you can show?", ans: Math.pow(2, n) - 1, why: "all " + n + " fingers up: 2^" + n + " − 1 = " + (Math.pow(2, n) - 1) }; },
+        function (rng) { var n = HW.ri(rng, 3, 15); return { text: "Write " + n + " in binary (type just the 0s and 1s).", ans: +n.toString(2), why: n + " = " + n.toString(2) + " in binary" }; }
+      ] },
+    { id: "cs2", icon: "🕵️", title: "CS·2 · Secret Codes", href: "cs02-secret-codes.html",
+      gens: [
+        function (rng) { var p = HW.ri(rng, 1, 26), k = HW.ri(rng, 1, 25), c = ((p - 1 + k) % 26) + 1; return { text: "Caesar cipher, letters numbered A=1 … Z=26. Letter #" + p + " shifted forward by " + k + " (wrap past 26 back to 1) becomes letter #?", ans: c, why: p + " + " + k + (p + k > 26 ? " − 26" : "") + " = " + c }; },
+        function (rng) { var p = HW.ri(rng, 1, 26), k = HW.ri(rng, 1, 25), c = ((p - 1 + k) % 26) + 1; return { text: "You intercept coded letter #" + c + " and know the shift is " + k + " (A=1 … Z=26, wrapping). What letter number was the original?", ans: p, why: c + " − " + k + (c - k < 1 ? " + 26" : "") + " = " + p }; },
+        function (rng) { return { text: "A Caesar message with an unknown shift: how many different shifts does a brute-forcer have to try (not counting the do-nothing shift)?", ans: 25, why: "shifts 1 through 25 — that's why Caesar falls in seconds" }; },
+        function (rng) { var n = HW.ri(rng, 2, 6); return { text: "A secret code is " + n + " digits long (each digit 0–9). How many possible codes must a brute-forcer be ready to try?", ans: Math.pow(10, n), why: "10 choices per digit: 10^" + n + " = " + Math.pow(10, n) + " — real keys use 77-digit numbers for a reason" }; }
+      ] },
+    { id: "cs3", icon: "🔑", title: "CS·3 · How Logins Keep Secrets", href: "cs03-logins.html",
+      gens: [
+        function (rng) { return { text: "A website stores the HASH of your password. Can anyone run the hash backwards to get the password out? (1 yes, 0 no)", ans: 0, why: "hashing is a one-way street — that's its whole job" }; },
+        function (rng) { return { text: "Two users pick the SAME password, but each gets a different random salt. Do the two stored hashes match? (1 yes, 0 no)", ans: 0, why: "salt makes every stored hash unique — so a leaked list can't be cracked in bulk" }; },
+        function (rng) { return { text: "You change ONE letter of the password. Roughly what percent of the hash's bits flip?", ans: 50, why: "the avalanche effect — a tiny change scrambles about half of everything" }; },
+        function (rng) { var n = HW.ri(rng, 3, 6); return { text: "A PIN is " + n + " digits (0–9 each). How many guesses does a patient thief need at worst?", ans: Math.pow(10, n), why: "10^" + n + " = " + Math.pow(10, n) + " — short secrets are guessable, which is why the site stores nothing worth stealing" }; }
+      ] },
+    { id: "cs4", icon: "📚", title: "CS·4 · Sorting", href: "cs04-sorting.html",
+      gens: [
+        function (rng) {
+          var arr = [], pool = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+          for (var i = 0; i < 4; i++) arr.push(pool.splice(Math.floor(rng() * pool.length), 1)[0]);
+          var inv = 0;
+          for (var a = 0; a < 4; a++) for (var b = a + 1; b < 4; b++) if (arr[a] > arr[b]) inv++;
+          return { text: "Books on a shelf: [" + arr.join(", ") + "]. Fewest neighbour-swaps to sort them?", ans: inv, why: "count the out-of-order pairs (inversions): " + inv + " — bubble sort's swaps can't beat that" };
+        },
+        function (rng) { var n = HW.ri(rng, 4, 12); return { text: "To compare every pair of " + n + " books, how many comparisons?", ans: HW.T(n - 1), why: "the handshake formula: " + n + "×" + (n - 1) + "÷2 = " + HW.T(n - 1) }; },
+        function (rng) { var k = HW.ri(rng, 4, 10); return { text: "The mind reader guesses a secret number from 1 to " + Math.pow(2, k) + " by halving. Worst-case guesses?", ans: k, why: "each guess halves the range: 2^" + k + " = " + Math.pow(2, k) + " → " + k + " guesses" }; },
+        function (rng) { var k = HW.ri(rng, 3, 10); return { text: "Merge sort keeps splitting a pile of " + Math.pow(2, k) + " books in half. How many split-rounds until every pile is a single book?", ans: k, why: "halve " + k + " times: " + Math.pow(2, k) + " → … → 1" }; }
+      ] },
+    { id: "cs5", icon: "🌀", title: "CS·5 · Qubits", href: "cs05-qubits.html",
+      gens: [
+        function (rng) { var n = HW.ri(rng, 3, 10); return { text: "A quantum computer puts " + n + " qubits into full superposition. How many numbers is it holding at once?", ans: Math.pow(2, n), why: "2^" + n + " = " + Math.pow(2, n) }; },
+        function (rng) { var pick = [[0, 0], [45, 50], [90, 100]][HW.ri(rng, 0, 2)]; return { text: "The qubit's arrow leans " + pick[0] + "° toward 1. Chance of measuring 1, in percent?", ans: pick[1], why: "chance = (lean)² — at " + pick[0] + "° that's " + pick[1] + "%" }; },
+        function (rng) { var s = [0, 45, 90][HW.ri(rng, 0, 2)]; return { text: "The X gate's rule: new angle = 90° − old. Arrow at " + s + "° — where does X send it?", ans: 90 - s, why: "90 − " + s + " = " + (90 - s) + "° (the flipper swaps 0-ness and 1-ness)" }; },
+        function (rng) { return { text: "Start at 0, apply H then H again, then measure. Chance of seeing 1, in percent?", ans: 0, why: "the two maybe-paths to 1 cancel — interference UN-flips the coin" }; }
+      ] },
+    { id: "cs6", icon: "📞", title: "CS·6 · Entanglement", href: "cs06-entanglement.html",
+      gens: [
+        function (rng) { var pick = [[0, 100], [30, 75], [45, 50], [60, 25], [90, 0]][HW.ri(rng, 0, 4)]; return { text: "Spooky-phone dials twisted " + pick[0] + "° apart: chance the two answers MATCH, in percent?", ans: pick[1], why: "match = cos²(" + pick[0] + "°) = " + pick[1] + "%" }; },
+        function (rng) { var s = [10, 15, 20, 25][HW.ri(rng, 0, 3)]; return { text: "A glove factory's sheets disagree " + s + "% at 0°vs30° and " + s + "% at 30°vs60°. At MOST what percent can they disagree at 0°vs60°?", ans: 2 * s, why: "a flip must happen at one of the two steps: " + s + " + " + s + " = " + (2 * s) + "%" }; },
+        function (rng) { return { text: "The universe's actual disagreement at 0° vs 60°, in percent — the number no answer sheet can reach?", ans: 75, why: "sin²(60°) = 75%, but sheets cap at 25+25 = 50% — that's the Bell surprise" }; },
+        function (rng) { return { text: "Your friend wiggles their far-away dial (or unplugs it). What percent of 1s do YOU see on your own tape, whatever they do?", ans: 50, why: "always a fair coin — no message can ride the spookiness" }; }
+      ] }
+  ] },
 
-  function paintStatus() {
-    var st = document.getElementById("hwstatus");
-    st.innerHTML = "";
-    LESSONS.forEach(function (L) {
-      var c = document.createElement("span");
-      var done = DadMath.hwDone(L.id);
-      c.className = "hwchip" + (done ? " pass" : "");
-      c.textContent = (done ? "✅ " : "◻︎ ") + L.icon + " " + L.title.split("·")[0].trim();
-      st.appendChild(c);
-    });
-  }
-  paintStatus();
+  { name: "🕸️ Graph theory", note: "", items: [
+    { id: "g1", icon: "🌉", title: "G·1 · The Seven Bridges", href: "gt01-bridges.html",
+      gens: [
+        function (rng) { return { text: "A stroll crossing every bridge exactly once: at MOST how many corners may have an ODD number of bridges?", ans: 2, why: "only the start and the end may be odd — everywhere else you enter and leave in pairs" }; },
+        function (rng) { var e = HW.ri(rng, 4, 12); return { text: "A graph has " + e + " lines. Add up the line-counts (degrees) of ALL its dots — what's the total?", ans: 2 * e, why: "every line touches exactly 2 dots: 2×" + e + " = " + (2 * e) }; },
+        function (rng) { return { text: "In old Königsberg, how many of the 4 land areas had an ODD number of bridges?", ans: 4, why: "all four — more than 2, so the famous stroll is impossible" }; },
+        function (rng) { var b = HW.ri(rng, 3, 9); return { text: "An island touched by " + b + " bridges — what is its degree?", ans: b, why: "degree just counts the lines touching a dot: " + b }; }
+      ] },
+    { id: "g2", icon: "🌍", title: "G·2 · Six Handshakes", href: "gt02-handshakes.html",
+      gens: [
+        function (rng) { var k = HW.ri(rng, 3, 6), d = HW.ri(rng, 2, 4); return { text: "Everyone knows exactly " + k + " people (all new faces). About how many people do " + d + " handshakes reach?", ans: Math.pow(k, d), why: "each handshake multiplies: " + k + "^" + d + " = " + Math.pow(k, d) }; },
+        function (rng) { var m = HW.ri(rng, 3, 24); return { text: "48 people in a circle, each knowing 2 neighbours per side. How many hops does news take to reach the person " + m + " seats away?", ans: Math.ceil(m / 2), why: "each hop covers at most 2 seats: ⌈" + m + "/2⌉ = " + Math.ceil(m / 2) }; },
+        function (rng) { return { text: "Milgram's 1967 letter experiment: the letters that arrived took a median of how many mailings?", ans: 6, why: "six — where “six degrees of separation” comes from" }; },
+        function (rng) { return { text: "On the plain ring world a meme takes 12 days to cross. Do a few random shortcut bridges make that number bigger or smaller? (1 smaller, 0 bigger)", ans: 1, why: "smaller — a handful of shortcuts collapses distances for everyone (small-world effect)" }; }
+      ] },
+    { id: "g3", icon: "🎨", title: "G·3 · The Map-Colouring War", href: "gt03-map-coloring.html",
+      gens: [
+        function (rng) { return { text: "The four-colour theorem: how many crayons are ALWAYS enough for any flat map?", ans: 4, why: "four — asked in 1852, proved (by computer) in 1976" }; },
+        function (rng) { var n = HW.ri(rng, 4, 12); return { text: "A ring of " + n + " countries, each touching its two ring neighbours. Fewest crayons?", ans: n % 2 === 0 ? 2 : 3, why: n % 2 === 0 ? "even ring: alternate 2 colours cleanly" : "odd ring: alternating breaks at the end, a 3rd crayon is forced" }; },
+        function (rng) { var d = HW.ri(rng, 3, 7); return { text: "Every region on some map touches at most " + d + " others. The lazy greedy painter needs at most how many crayons?", ans: d + 1, why: "at most " + d + " are forbidden at each step, so crayon " + (d + 1) + " is always free" }; },
+        function (rng) { return { text: "How many countries can you draw on flat paper so that EVERY pair shares a border?", ans: 4, why: "4 works (three around one) — the 5th connection always gets trapped" }; }
+      ] }
+  ] },
+
+  { name: "🎲 Game theory", note: "", items: [
+    { id: "gm1", icon: "🥢", title: "GT·1 · How to Win Every Game", href: "gm01-winning-games.html",
+      gens: [
+        function (rng) { var r = HW.ri(rng, 1, 3), n = 4 * HW.ri(rng, 2, 5) + r; return { text: "Stick game (take 1–3, last stick wins): " + n + " sticks, your turn. How many do you take?", ans: r, why: "leave a multiple of 4: take " + r + " → " + (n - r) + " left, a cold number" }; },
+        function (rng) { var cold = rng() < 0.5, n = 4 * HW.ri(rng, 2, 6) + (cold ? 0 : HW.ri(rng, 1, 3)); return { text: "It's your turn with " + n + " sticks. Is that a COLD number for you (you lose against perfect play)? (1 yes, 0 no)", ans: n % 4 === 0 ? 1 : 0, why: n + (n % 4 === 0 ? " is a multiple of 4 — every move you make, the robot restores it" : " isn't a multiple of 4 — take " + (n % 4) + " and YOU hand back the cold number") }; },
+        function (rng) { return { text: "The full game starts at 21 sticks and you go first. How many do you take?", ans: 1, why: "21 − 1 = 20, a multiple of 4 — then mirror the robot to keep it cold" }; },
+        function (rng) { return { text: "Against a pattern-sniffing rock-paper-scissors bot, champions pick each move equally often. Out of 99 rounds, about how many rocks?", ans: 33, why: "a third each — true randomness leaves nothing to sniff" }; }
+      ] },
+    { id: "gm2", icon: "🤝", title: "GT·2 · The Prisoner's Dilemma", href: "gm02-prisoners-dilemma.html",
+      gens: [
+        function (rng) {
+          var mine = rng() < 0.5, theirs = rng() < 0.5;   // true = share
+          var pay = mine ? (theirs ? 3 : 0) : (theirs ? 5 : 1);
+          return { text: "One round: you " + (mine ? "SHARE" : "CHEAT") + ", they " + (theirs ? "SHARE" : "CHEAT") + ". How many coins do YOU get?", ans: pay, why: (mine ? "share" : "cheat") + " vs " + (theirs ? "share" : "cheat") + " pays you " + pay + " (the machine's exact table)" };
+        },
+        function (rng) { var n = HW.ri(rng, 5, 15); return { text: "You and Copycat SHARE every round for " + n + " rounds. Your total coins?", ans: 3 * n, why: "3 per round × " + n + " = " + (3 * n) + " — cooperation compounds" }; },
+        function (rng) { var n = HW.ri(rng, 5, 15); return { text: "Two cheaters cheat every round for " + n + " rounds. Each one's total?", ans: n, why: "1 per round × " + n + " = " + n + " — the trap: both “logical”, both poor" }; },
+        function (rng) { var cheated = rng() < 0.5; return { text: "You " + (cheated ? "CHEATED" : "SHARED") + " last round. What does 🪞 Copycat play THIS round? (1 cheat, 0 share)", ans: cheated ? 1 : 0, why: "tit-for-tat: it simply repeats your last move back at you" }; }
+      ] },
+    { id: "gm3", icon: "🚜", title: "GT·3 · Rock, Paper, Scissors… SCV!", href: "gm03-rps-scv.html",
+      gens: [
+        function (rng) { var n = HW.ri(rng, 4, 9); return { text: "A game with " + n + " moves, every pair fighting: how many arrows (matchups) on the diagram?", ans: HW.T(n - 1), why: n + "×" + (n - 1) + "÷2 = " + HW.T(n - 1) + " — the handshake formula again" }; },
+        function (rng) { var n = [3, 5, 7, 9][HW.ri(rng, 0, 3)]; return { text: "For a " + n + "-move game to be perfectly fair, each move should BEAT how many others?", ans: (n - 1) / 2, why: "half of its " + (n - 1) + " matchups: " + ((n - 1) / 2) + " — only possible when n is odd" }; },
+        function (rng) { return { text: "In a 4-move game each move has 3 matchups. Can a move win exactly as many as it loses? (1 yes, 0 no)", ans: 0, why: "3 is odd — wins and losses can't split evenly, so no fair 4-move game exists" }; },
+        function (rng) { return { text: "The fixed 5-move circle (Rock→SCV→Scissors→Paper→Zergling): each move beats exactly how many?", ans: 2, why: "each beats the next 2 around the circle — fair, and zero coin flips" }; }
+      ] }
+  ] },
+
+  { name: "🎮 Game Lab", note: "🐛 Aim & Hitboxes is a skill challenge on its own page; the 🌳 Builder's Tree has its own tests", items: [
+    { id: "gl1", icon: "🎮", title: "Game Lab · The Game Loop", href: "gl01-game-loop.html",
+      gens: [
+        function (rng) { var x = HW.ri(rng, 10, 60), v = HW.ri(rng, 2, 9), t = HW.ri(rng, 3, 9); return { text: "A sprite at x = " + x + " moves " + v + " pixels per frame. Where is it after " + t + " frames?", ans: x + v * t, why: x + " + " + v + "×" + t + " = " + (x + v * t) + " — position += velocity, every frame" }; },
+        function (rng) { var s = HW.ri(rng, 2, 6); return { text: "The game loop runs 60 updates every second. How many updates in " + s + " seconds?", ans: 60 * s, why: "60 × " + s + " = " + (60 * s) }; },
+        function (rng) { var v = HW.ri(rng, 3, 9); return { text: "A ball moving at velocity +" + v + " bounces off a wall. Its new velocity?", ans: -v, why: "bounce = flip the sign: −" + v }; },
+        function (rng) { var v = HW.ri(rng, 2, 6), t = HW.ri(rng, 4, 9), gap = v * t; return { text: "Your miner moves " + v + " pixels per frame toward a crystal " + gap + " pixels away. Frames to reach it?", ans: t, why: gap + " ÷ " + v + " = " + t + " frames" }; }
+      ] },
+    { id: "gl2", icon: "🧭", title: "Game Lab · Pathfinding", href: "gl02-pathfinding.html",
+      gens: [
+        function (rng) { var dx = HW.ri(rng, 2, 7), dy = HW.ri(rng, 2, 7); return { text: "Open grid, no diagonals: the target is " + dx + " tiles across and " + dy + " tiles up. Shortest path length?", ans: dx + dy, why: dx + " + " + dy + " = " + (dx + dy) + " — count across and up separately" }; },
+        function (rng) { var d = HW.ri(rng, 3, 9); return { text: "The BFS flood spreads one ring per step. A tile " + d + " steps away gets its number on which step?", ans: d, why: "the flood reaches distance " + d + " on step " + d + " — that's why the first arrival is the shortest path" }; },
+        function (rng) { var a = HW.ri(rng, 4, 9), b = a + HW.ri(rng, 1, 5); return { text: "Two routes to the goal: one " + a + " steps, one " + b + " steps. The flood arrives by which one? (answer with its length)", ans: a, why: "BFS explores near-to-far, so the " + a + "-step route wins the race" }; },
+        function (rng) { var w = HW.ri(rng, 3, 8), h = HW.ri(rng, 3, 8); return { text: "A StarCraft unit walks corner to corner of a " + w + "×" + h + " tile map (no diagonals, nothing in the way). Shortest path in tiles?", ans: (w - 1) + (h - 1), why: "(" + w + "−1) + (" + h + "−1) = " + ((w - 1) + (h - 1)) }; }
+      ] },
+    { id: "gl3", icon: "⚙️", title: "Game Lab · Factory Logic", href: "gl03-factory.html",
+      gens: [
+        function (rng) { var a = HW.ri(rng, 2, 5), m = HW.ri(rng, 2, 4); return { text: "A smelter makes " + a + " plates/s; an assembler eats " + (a * m) + " plates/s. Smelters needed per assembler?", ans: m, why: (a * m) + " ÷ " + a + " = " + m + " — balance the ratio or the belt starves" }; },
+        function (rng) {
+          var g = ["AND", "OR", "XOR"][HW.ri(rng, 0, 2)], p = HW.ri(rng, 0, 1), q = HW.ri(rng, 0, 1);
+          var out = g === "AND" ? (p & q) : g === "OR" ? (p | q) : (p ^ q);
+          return { text: "A " + g + " gate gets inputs " + p + " and " + q + ". Output?", ans: out, why: g + "(" + p + "," + q + ") = " + out };
+        },
+        function (rng) { var p = HW.ri(rng, 0, 1), q = HW.ri(rng, 0, 1); return { text: "Half adder: adding bits " + p + " + " + q + " — what is the CARRY bit?", ans: p & q, why: "carry = AND: only 1+1 carries" }; },
+        function (rng) { var a = HW.ri(rng, 2, 4), b = HW.ri(rng, 2, 3); return { text: "Each drill feeds " + a + " furnaces, each furnace feeds " + b + " belts. Belts per drill?", ans: a * b, why: a + " × " + b + " = " + (a * b) + " — ratios chain by multiplying" }; }
+      ] },
+    { id: "gl4", icon: "🗺️", title: "Game Lab · Random Worlds", href: "gl04-worlds.html",
+      gens: [
+        function (rng) { var r = HW.ri(rng, 5, 40), s = HW.ri(rng, 2, 99); return { text: "Seed " + s + " grew a cave with " + r + " rooms yesterday. You regrow with seed " + s + " today — how many rooms?", ans: r, why: "same seed, same recipe, same world — exactly " + r }; },
+        function (rng) { return { text: "Deep Rock never repeats a cave, yet how many caves does it keep in storage?", ans: 0, why: "zero — it stores only the recipe and the seed, and grows caves on demand" }; },
+        function (rng) {
+          var steps = [], pos = 0;
+          for (var i = 0; i < 6; i++) { var st = rng() < 0.5 ? 1 : -1; steps.push(st > 0 ? "+1" : "−1"); pos += st; }
+          return { text: "A random walk starts at 0 and steps: " + steps.join(", ") + ". Where does it end?", ans: pos, why: "add them up: " + pos };
+        },
+        function (rng) { return { text: "Two players type the same seed into the same game. Same world? (1 yes, 0 no)", ans: 1, why: "yes — that's how friends share worlds with just a number" }; }
+      ] },
+    { id: "gl5", icon: "🐦", title: "Game Lab · Projectiles", href: "gl05-projectiles.html",
+      gens: [
+        function (rng) { return { text: "No air resistance: which launch angle (in degrees) flies the FARTHEST?", ans: 45, why: "45° — the perfect split between height and speed" }; },
+        function (rng) { var a = [15, 20, 25, 30, 35, 40][HW.ri(rng, 0, 5)]; return { text: "A bird launched at " + a + "° lands at the same distance as one launched at what angle?", ans: 90 - a, why: "complementary angles tie: " + a + "° and " + (90 - a) + "°" }; },
+        function (rng) { var vx = HW.ri(rng, 3, 9), t = HW.ri(rng, 2, 6); return { text: "Sideways speed " + vx + " m/s never changes in flight. How far sideways after " + t + " seconds?", ans: vx * t, why: vx + " × " + t + " = " + (vx * t) + " m — steady sideways, gravity only pulls down" }; },
+        function (rng) { var v0 = 10 * HW.ri(rng, 3, 6), t = HW.ri(rng, 1, v0 / 10); return { text: "Upward speed starts at " + v0 + " m/s and gravity removes 10 every second. Upward speed after " + t + " seconds?", ans: v0 - 10 * t, why: v0 + " − 10×" + t + " = " + (v0 - 10 * t) }; }
+      ] },
+    { id: "gl7", icon: "🧱", title: "Game Lab · Minecraft Worlds", href: "gl07-minecraft-worlds.html",
+      gens: [
+        function (rng) { var n = HW.ri(rng, 17, 127); return { text: "The world is cut into chunks 16 blocks wide (chunk 0 holds blocks 0–15). Block #" + n + " is in which chunk?", ans: Math.floor(n / 16), why: n + " ÷ 16 = chunk " + Math.floor(n / 16) }; },
+        function (rng) { var a = 2 * HW.ri(rng, 1, 20), b = 2 * HW.ri(rng, 1, 20); return { text: "Smooth hills: anchors at height " + a + " and " + b + ". The height exactly halfway between them?", ans: (a + b) / 2, why: "lerp the middle: (" + a + " + " + b + ")÷2 = " + ((a + b) / 2) }; },
+        function (rng) { return { text: "Same seed, same chunk number, computed on two different days — same terrain? (1 yes, 0 no)", ans: 1, why: "f(seed, chunk) is pure math: your house is always where you left it, though nothing is stored" }; },
+        function (rng) { return { text: "An INFINITE Minecraft-style world: how many chunks does it store before you visit them?", ans: 0, why: "zero — chunks are computed from f(seed, chunk) the moment you walk near" }; }
+      ] }
+  ] },
+
+  { name: "📖 Story mode", note: "", items: [
+    { id: "qm1", icon: "🐱", title: "Story · The Cat in the Box", href: "qm01-quantum-story.html",
+      gens: [
+        function (rng) { return { text: "While Grandpa's coin hums (superposition), how many answers is it holding at once?", ans: 2, why: "both — genuinely heads AND tails until a look forces the choice" }; },
+        function (rng) { return { text: "The two-door toy with the detector ON: how many piles grow on the screen?", ans: 2, why: "watched balls act like balls — one pile per door; switch it off and stripes appear" }; },
+        function (rng) { return { text: "After Nova LOOKS at the coin (collapse), how many possibilities remain?", ans: 1, why: "one — looking is the event that makes it choose" }; },
+        function (rng) { return { text: "The entangled-gloves experiments won the Nobel Prize in Physics in what year?", ans: 2022, why: "2022 — Clauser, Aspect and Zeilinger" }; }
+      ] },
+    { id: "st1", icon: "🏴‍☠️", title: "Story · The Pirate Split", href: "st01-pirates.html",
+      gens: [
+        function (rng) { return { text: "Five perfectly logical pirates, 100 coins: how many does Captain Greybeard keep?", ans: 98, why: "98 — buy the two pirates who expect NOTHING for 1 coin each" }; },
+        function (rng) { var n = HW.ri(rng, 2, 5); return { text: "With " + n + " pirates voting (ties pass), how many AYE votes does a proposal need?", ans: Math.ceil(n / 2), why: "half or more of " + n + ": ⌈" + n + "/2⌉ = " + Math.ceil(n / 2) }; },
+        function (rng) { var who = [["Silver", 0], ["Bones", 1], ["Patch", 0], ["Pegleg", 1]][HW.ri(rng, 0, 3)]; return { text: "In the captain's winning plan, how many coins does " + who[0] + " get?", ans: who[1], why: "98 · 0 · 1 · 0 · 1 — bribe only the pirates whose imaginary future pays zero" }; },
+        function (rng) { return { text: "Two pirates left, the vote splits 1–1. Does the proposal pass? (1 yes, 0 no)", ans: 1, why: "ties pass under the Code — which is why Patch keeps all 100" }; }
+      ] },
+    { id: "st2", icon: "❓", title: "Story · Twenty Questions", href: "st02-twenty-questions.html",
+      gens: [
+        function (rng) { return { text: "2 to the power 20 — the number that just beats a million?", ans: 1048576, why: "2²⁰ = 1,048,576 — why Uncle Max only needed 20 questions" }; },
+        function (rng) { return { text: "Any number from 1 to 1,000,000: how many perfect yes/no questions corner it, worst case?", ans: 20, why: "each question halves the crowd; 20 halvings beat a million" }; },
+        function (rng) { var k = HW.ri(rng, 6, 12); return { text: "One PERFECT question is asked about " + Math.pow(2, k) + " suspects. How many remain?", ans: Math.pow(2, k - 1), why: "a perfect question divides: " + Math.pow(2, k) + " ÷ 2 = " + Math.pow(2, k - 1) }; },
+        function (rng) { return { text: "16 monsters, each a different combo of 4 features: a perfect detective needs exactly how many questions?", ans: 4, why: "2⁴ = 16 — each feature question splits the suspects exactly in half" }; }
+      ] }
+  ] }
+];
+
+/* flat views used by the page and by the tests */
+HW.ALL = (function () {
+  var out = [];
+  HW.TRACKS.forEach(function (t) { t.items.forEach(function (L) { out.push(L); }); });
+  return out;
+})();
+HW.MATH_IDS = ["l1", "l2", "l3", "l4", "l5"];
+HW.NEED = 4;
+HW.COUNT = 5;
+/* === HW:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
 
   // ---------- Assignments + Parent chore chart ----------
-  var ASSIGNABLE = LESSONS.map(function (L) {
-    return { id: L.id, icon: L.icon, label: L.title.replace(/^Lesson\s*\d+\s*·\s*/, ""), href: L.href, here: true };
+  var ASSIGNABLE = HW.ALL.map(function (L) {
+    return { id: L.id, icon: L.icon, label: L.title.replace(/^[^·]*·\s*/, ""), href: L.href, here: true };
   });
-  ASSIGNABLE.push({ id: "gl6", icon: "🐛", label: "Deep Rock · Aim & Hitboxes", href: "gl06-hitboxes.html", here: false });
+  ASSIGNABLE.push({ id: "gl6", icon: "🐛", label: "Deep Rock · Aim & Hitboxes (skill)", href: "gl06-hitboxes.html", here: false });
   // Builder's Tree nodes (gamedev.html) — assignable like any homework
   [["gd1", "🎮", "The Loop"], ["gd2", "🎯", "Hitboxes"], ["gd3", "💣", "The Arc"],
    ["gd4", "🧭", "Pathfinding"], ["gd5", "🗺️", "Random Worlds"], ["gd6", "🤖", "The Sentry"]].forEach(function (n) {
@@ -153,7 +343,7 @@ document.addEventListener("DOMContentLoaded", function () {
       var done = DadMath.assignmentDone(a.id);
       var status = done
         ? "<span class='hwchip pass'>✅ done " + fmtTime(DadMath.hwPassedAt(a.id)) + "</span>"
-        : "<span class='hwchip'>◻︎ to do</span> <a href='" + a.href + "'>" + (a.here ? "start check →" : "go do it →") + "</a>";
+        : "<span class='hwchip'>◻︎ to do</span> <a href='" + (a.here ? "#chk-" + a.id : a.href) + "'>" + (a.here ? "start check →" : "go do it →") + "</a>";
       return "<div style='display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0'><b>" +
              a.icon + " " + a.label + "</b> " + status + "</div>";
     }).join("");
@@ -214,66 +404,95 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   renderAssignments();
 
+  // ---------- the checks, one track at a time ----------
+  function maybeProfessor() {
+    if (HW.ALL.every(function (L) { return DadMath.hwDone(L.id); })) DadMath.badge("hw-scholar");
+  }
+
   var root = document.getElementById("checks");
-  LESSONS.forEach(function (L) {
-    var panel = document.createElement("div");
-    panel.className = "panel";
-    panel.innerHTML =
-      "<div class='ptitle'><span class='ic'>" + L.icon + "</span> " + L.title +
-      " <span class='badge' style='margin-left:6px; display:none' data-pass>✅ passed</span></div>" +
-      "<p class='phint'>5 questions · need " + NEED + " to pass · <a href='" + L.href + "'>revisit the lesson</a></p>" +
-      "<div class='bigq' data-q style='display:none'></div>" +
-      "<div class='controls'>" +
-      "  <input class='answer' data-in type='number' inputmode='numeric' placeholder='?' style='display:none'>" +
-      "  <button class='btn' data-go>▶ Start check</button>" +
-      "  <span class='qcount' data-count></span>" +
-      "</div>" +
-      "<div class='result' data-res>Fresh random questions every attempt.</div>";
-    root.appendChild(panel);
+  HW.TRACKS.forEach(function (track) {
+    var head = document.createElement("div");
+    head.className = "trackhead";
+    head.innerHTML = "<h2>" + track.name + "</h2>" + (track.note ? "<span class='muted'>" + track.note + "</span>" : "");
+    root.appendChild(head);
 
-    var qEl = panel.querySelector("[data-q]"), inEl = panel.querySelector("[data-in]"),
-        goBtn = panel.querySelector("[data-go]"), cnt = panel.querySelector("[data-count]"),
-        res = panel.querySelector("[data-res]"), passBadge = panel.querySelector("[data-pass]");
-    if (DadMath.hwDone(L.id)) { passBadge.style.display = "inline-flex"; goBtn.textContent = "▶ Retake"; }
-
-    var qi = 0, right = 0, cur = null;
-    function ask() {
-      cur = L.gens[Math.floor(Math.random() * L.gens.length)]();
-      qEl.textContent = cur.text;
-      cnt.textContent = "question " + (qi + 1) + "/" + COUNT + " · " + right + " right";
-      inEl.value = ""; inEl.focus();
+    var status = document.createElement("div");
+    status.className = "hwstatus";
+    root.appendChild(status);
+    function paintStatus() {
+      status.innerHTML = "";
+      track.items.forEach(function (L) {
+        var c = document.createElement("span");
+        var done = DadMath.hwDone(L.id);
+        c.className = "hwchip" + (done ? " pass" : "");
+        c.textContent = (done ? "✅ " : "◻︎ ") + L.icon + " " + L.title.split("·").pop().trim();
+        status.appendChild(c);
+      });
     }
-    function finish() {
-      qEl.style.display = "none"; inEl.style.display = "none";
-      goBtn.style.display = ""; cnt.textContent = "";
-      if (right >= NEED) {
-        res.className = "result win";
-        res.innerHTML = "🎉 <b>" + right + "/" + COUNT + " — passed!</b> This lesson is checked off.";
-        DadMath.hwPass(L.id);
-        passBadge.style.display = "inline-flex";
-        goBtn.textContent = "▶ Retake";
-        paintStatus();
-        renderAssignments();
-      } else {
-        res.className = "result miss";
-        res.innerHTML = "📖 <b>" + right + "/" + COUNT + "</b> — not yet. Replay the lesson's widgets, then try again (new questions).";
-        goBtn.textContent = "▶ Try again";
+    paintStatus();
+
+    track.items.forEach(function (L) {
+      var panel = document.createElement("div");
+      panel.className = "panel";
+      panel.id = "chk-" + L.id;
+      panel.innerHTML =
+        "<div class='ptitle'><span class='ic'>" + L.icon + "</span> " + L.title +
+        " <span class='badge' style='margin-left:6px; display:none' data-pass>✅ passed</span></div>" +
+        "<p class='phint'>5 questions · need " + HW.NEED + " to pass · <a href='" + L.href + "'>revisit the lesson</a></p>" +
+        "<div class='bigq' data-q style='display:none'></div>" +
+        "<div class='controls'>" +
+        "  <input class='answer' data-in type='number' inputmode='numeric' placeholder='?' style='display:none'>" +
+        "  <button class='btn' data-go>▶ Start check</button>" +
+        "  <span class='qcount' data-count></span>" +
+        "</div>" +
+        "<div class='result' data-res>Fresh random questions every attempt.</div>";
+      root.appendChild(panel);
+
+      var qEl = panel.querySelector("[data-q]"), inEl = panel.querySelector("[data-in]"),
+          goBtn = panel.querySelector("[data-go]"), cnt = panel.querySelector("[data-count]"),
+          res = panel.querySelector("[data-res]"), passBadge = panel.querySelector("[data-pass]");
+      if (DadMath.hwDone(L.id)) { passBadge.style.display = "inline-flex"; goBtn.textContent = "▶ Retake"; }
+
+      var qi = 0, right = 0, cur = null;
+      function ask() {
+        cur = L.gens[Math.floor(Math.random() * L.gens.length)](Math.random);
+        qEl.textContent = cur.text;
+        cnt.textContent = "question " + (qi + 1) + "/" + HW.COUNT + " · " + right + " right";
+        inEl.value = ""; inEl.focus();
       }
-    }
-    goBtn.addEventListener("click", function () {
-      qi = 0; right = 0;
-      qEl.style.display = ""; inEl.style.display = "";
-      goBtn.style.display = "none";
-      res.className = "result"; res.innerHTML = "Answer with a number, press <kbd>Enter</kbd>.";
-      ask();
-    });
-    inEl.addEventListener("keydown", function (e) {
-      if (e.key !== "Enter" || inEl.value === "") return;
-      var good = +inEl.value === cur.ans;
-      if (good) { right++; res.className = "result win"; res.innerHTML = "✅ " + cur.why; }
-      else { res.className = "result miss"; res.innerHTML = "❌ It's <b>" + cur.ans + "</b> — " + cur.why; }
-      qi++;
-      if (qi >= COUNT) finish(); else ask();
+      function finish() {
+        qEl.style.display = "none"; inEl.style.display = "none";
+        goBtn.style.display = ""; cnt.textContent = "";
+        if (right >= HW.NEED) {
+          res.className = "result win";
+          res.innerHTML = "🎉 <b>" + right + "/" + HW.COUNT + " — passed!</b> This lesson is checked off.";
+          DadMath.hwPass(L.id);
+          passBadge.style.display = "inline-flex";
+          goBtn.textContent = "▶ Retake";
+          paintStatus();
+          renderAssignments();
+          maybeProfessor();
+        } else {
+          res.className = "result miss";
+          res.innerHTML = "📖 <b>" + right + "/" + HW.COUNT + "</b> — not yet. Replay the lesson's widgets, then try again (new questions).";
+          goBtn.textContent = "▶ Try again";
+        }
+      }
+      goBtn.addEventListener("click", function () {
+        qi = 0; right = 0;
+        qEl.style.display = ""; inEl.style.display = "";
+        goBtn.style.display = "none";
+        res.className = "result"; res.innerHTML = "Answer with a number, press <kbd>Enter</kbd>.";
+        ask();
+      });
+      inEl.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter" || inEl.value === "") return;
+        var good = +inEl.value === cur.ans;
+        if (good) { right++; res.className = "result win"; res.innerHTML = "✅ " + cur.why; }
+        else { res.className = "result miss"; res.innerHTML = "❌ It's <b>" + cur.ans + "</b> — " + cur.why; }
+        qi++;
+        if (qi >= HW.COUNT) finish(); else ask();
+      });
     });
   });
 });
