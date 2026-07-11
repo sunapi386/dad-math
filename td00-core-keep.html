@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core Keep — the Tower Lab game — Math in Half an Hour</title>
+<meta name="description" content="A tower defense game you can open up: place turrets, survive ten waves — then investigate the distance math, DPS arithmetic, exponential curves and targeting algorithms running under the hood.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+#keep { display: block; margin: 10px auto; max-width: 100%; border: 1px solid var(--line); border-radius: 12px; background: #eee7d3; touch-action: manipulation; cursor: crosshair; }
+.hud { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; font-family: var(--mono); font-weight: 700; font-size: 1.05rem; margin: 6px 0; }
+.hud b { font-size: 1.15rem; }
+.shop { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 10px 0; }
+.shopbtn { border: 2px solid var(--line); border-radius: 12px; background: var(--panel); padding: 8px 12px; cursor: pointer; text-align: center; font: inherit; color: inherit; min-width: 118px; }
+.shopbtn:hover { border-color: var(--accent); }
+.shopbtn.armed { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.shopbtn .big { font-size: 1.5rem; }
+.shopbtn .stats { font-family: var(--mono); font-size: .72rem; color: var(--muted); line-height: 1.5; }
+.twpanel { border: 1.5px dashed var(--line); border-radius: 12px; padding: 10px 14px; margin: 10px auto; max-width: 560px; text-align: center; }
+.modebtn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.qgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 14px 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Tower Lab · The Game · play first, investigate after</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">🏰 Core Keep</h1>
+    <p class="lede">The bugs are marching on your crystal core. Build turrets beside the road, survive
+      <b>ten waves</b>, and the keep is yours. Then comes the real level: every single thing this game
+      does — knowing what's in range, pricing the turrets, growing the waves, choosing who to shoot —
+      is math you can open up. <b>Play first. Ask questions after.</b></p>
+    <p style="margin-top:14px"><span class="badge">🕹️ a full game</span> &nbsp; <span class="badge amber">no luck — pure clockwork</span> &nbsp; <span class="badge green">🏰 hold all 10 waves</span></p>
+  </header>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🏰</span> Defend the core</div>
+    <p class="phint">Pick a turret from the shop, then click a grass cell to build (you can't build on the
+      road). Click a placed turret to change who it shoots — or sell it. When you're ready: <b>Start wave</b>.</p>
+    <div class="hud">
+      <span>💰 <b id="hud-money">50</b></span>
+      <span>❤️ <b id="hud-lives">10</b></span>
+      <span>🌊 wave <b id="hud-wave">1</b>/10</span>
+      <span>☠️ <b id="hud-kills">0</b></span>
+      <span>🏆 best <b id="hud-best">–</b></span>
+    </div>
+    <canvas id="keep" width="624" height="432" aria-label="the Core Keep battlefield"></canvas>
+    <div class="shop" id="shop"></div>
+    <div class="twpanel" id="twpanel" style="display:none"></div>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="btn" id="go">▶ Start wave 1</button>
+      <button class="btn ghost" id="speed">⏩ 1×</button>
+      <button class="btn ghost" id="restart">🔁 restart</button>
+    </div>
+    <div class="result" id="msg">Build a turret or two, then send in wave 1.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Field manual:</span> corners are gold — a turret tucked inside a bend of the road
+    keeps bugs in range around <em>two</em> sides. The 🔫 Gunner is your bread and butter. ❄️ Cryo
+    barely scratches, but everything it touches walks at half speed through your other guns. 💣 Mortar
+    shells splash — they hit the <em>clump</em>, not the bug. And if a turret is in a bad spot, sell it:
+    you get 75% back (why 75%? sell one and check the refund — that's a percent problem you're living in).
+  </div>
+
+  <h2 id="hood">🔍 Open the hood</h2>
+  <p>Beating the game is level one. Level two is <b>knowing why</b>. Each of these questions has a whole
+    lesson behind it — with the game's <em>actual numbers and actual code</em> inside, and a badge at
+    the end of each.</p>
+  <div class="qgrid">
+    <a class="card" href="td01-range.html">
+      <div class="num">TD·1</div>
+      <h3>📡 How does a turret KNOW a bug is in range?</h3>
+      <p>There's a circle around every turret that's never drawn wrong. One line of math checks it —
+        and that line never takes a square root. Pythagoras runs this game.</p>
+      <div class="go">Investigate →</div>
+    </a>
+    <a class="card" href="td02-dps.html">
+      <div class="num">TD·2</div>
+      <h3>⚔️ Which turret is the best deal?</h3>
+      <p>The Mortar hits 14, the Gunner only 3 — so why do Gunners win games? Damage-per-second,
+        time-to-kill, overkill, and value per coin: the arithmetic of every shop screen ever.</p>
+      <div class="go">Investigate →</div>
+    </a>
+    <a class="card" href="td03-waves.html">
+      <div class="num">TD·3</div>
+      <h3>📈 Why do the waves ALWAYS win in the end?</h3>
+      <p>Bug health grows by 25% every wave. Your income doesn't. One curve is a line, the other is a
+        rocket — the doom curve is the same math as viruses, and interest, and why endless games end.</p>
+      <div class="go">Investigate →</div>
+    </a>
+    <a class="card" href="td04-targeting.html">
+      <div class="num">TD·4</div>
+      <h3>🎯 First? Strongest? Closest? Who should you shoot?</h3>
+      <p>Each targeting mode is a one-line algorithm. Race all four on the real game engine, headless,
+        in this site — and discover that the “obvious” answer loses to measurement.</p>
+      <div class="go">Investigate →</div>
+    </a>
+  </div>
+
+  <p class="muted small">tower defense · squared distance · DPS · exponential growth · targeting = argmax · deterministic simulation</p>
+
+  <div class="lessonnav">
+    <a href="index.html#tower">← Tower Lab</a>
+    <a href="td01-range.html">TD 1: The Range Ring →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="assets/site.js"></script>
+<script defer src="assets/td.js?v=1"></script>
+<script defer src="assets/game.js?v=17"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  var CV = document.getElementById("keep"), ctx = CV.getContext("2d");
+  var TILE = 48;
+  var g = TD.newGame();
+  var armed = null;          // shop type ready to place
+  var selected = -1;         // index of selected tower
+  var hover = null;          // [c, r] under the pointer
+  var speed = 1, running = false, acc = 0, last = 0;
+  var flashUntil = 0, flashText = "";
+  var wonToastShown = false;
+
+  var msg = document.getElementById("msg");
+
+  // ---------- shop ----------
+  var shopEl = document.getElementById("shop");
+  Object.keys(TD.TOWERS).forEach(function (k) {
+    var s = TD.TOWERS[k];
+    var b = document.createElement("button");
+    b.className = "shopbtn"; b.id = "shop-" + k;
+    b.innerHTML = "<div class='big'>" + s.icon + "</div><b>" + s.name + "</b> · 💰" + s.cost +
+      "<div class='stats'>dmg " + s.dmg + " · " + s.rate + "/s · dps " + (s.dmg * s.rate) +
+      "<br>range " + s.range + (s.splash ? " · splash " + s.splash : "") + (s.slow ? " · slows ½" : "") + "</div>";
+    b.addEventListener("click", function () {
+      armed = armed === k ? null : k;
+      selected = -1;
+      refreshShop(); refreshPanel();
+    });
+    shopEl.appendChild(b);
+  });
+  function refreshShop() {
+    Object.keys(TD.TOWERS).forEach(function (k) {
+      var b = document.getElementById("shop-" + k);
+      b.classList.toggle("armed", armed === k);
+      b.disabled = g.money < TD.TOWERS[k].cost;
+      b.style.opacity = b.disabled ? 0.45 : 1;
+    });
+  }
+
+  // ---------- selected-tower panel ----------
+  var panel = document.getElementById("twpanel");
+  function refreshPanel() {
+    var t = g.towers[selected];
+    if (!t) { panel.style.display = "none"; return; }
+    var s = TD.TOWERS[t.type];
+    var html = s.icon + " <b>" + s.name + "</b> — shoots the <b id='modename'>" + t.mode + "</b> bug in range &nbsp;·&nbsp; ";
+    TD.MODES.forEach(function (m) {
+      html += "<button class='btn ghost modebtn" + (t.mode === m ? " on" : "") + "' data-m='" + m + "' style='padding:4px 10px;margin:2px'>" + m + "</button>";
+    });
+    html += "<br><button class='btn ghost' id='sellbtn' style='margin-top:8px'>🪙 sell for " + Math.floor(t.spent * TD.SELLBACK) + " (75% of " + t.spent + ")</button>";
+    panel.innerHTML = html; panel.style.display = "block";
+    panel.querySelectorAll(".modebtn").forEach(function (b) {
+      b.addEventListener("click", function () { t.mode = b.dataset.m; refreshPanel(); });
+    });
+    document.getElementById("sellbtn").addEventListener("click", function () {
+      TD.sell(g, selected); selected = -1; refreshPanel(); refreshShop(); hud();
+    });
+  }
+
+  // ---------- HUD ----------
+  function hud() {
+    document.getElementById("hud-money").textContent = g.money;
+    document.getElementById("hud-lives").textContent = g.lives;
+    document.getElementById("hud-wave").textContent = Math.min(TD.WAVES, g.wave + 1) + (g.wave >= TD.WAVES ? "+" + (g.wave - TD.WAVES + 1) : "");
+    document.getElementById("hud-kills").textContent = g.kills;
+    var best = window.DadMath ? (DadMath.getBest("td-wave") || 0) : 0;
+    document.getElementById("hud-best").textContent = best ? "wave " + best : "–";
+    document.getElementById("go").textContent = g.phase === "wave" ? "🌊 wave incoming…" : "▶ Start wave " + (g.wave + 1);
+    document.getElementById("go").disabled = g.phase === "wave" || g.over;
+  }
+
+  // ---------- pointer → cell ----------
+  function cellAt(ev) {
+    var r = CV.getBoundingClientRect();
+    var x = (ev.clientX - r.left) * (CV.width / r.width), y = (ev.clientY - r.top) * (CV.height / r.height);
+    return [Math.floor(x / TILE), Math.floor(y / TILE)];
+  }
+  CV.addEventListener("mousemove", function (ev) { hover = cellAt(ev); });
+  CV.addEventListener("mouseleave", function () { hover = null; });
+  CV.addEventListener("click", function (ev) {
+    var cr = cellAt(ev), c = cr[0], r = cr[1];
+    // click an existing tower → select it
+    for (var i = 0; i < g.towers.length; i++) {
+      if (g.towers[i].c === c && g.towers[i].r === r) {
+        selected = selected === i ? -1 : i; armed = null;
+        refreshShop(); refreshPanel(); return;
+      }
+    }
+    if (armed) {
+      if (TD.place(g, armed, c, r)) {
+        say("Built a " + TD.TOWERS[armed].name + " at (" + c + "," + r + ").", "");
+        if (g.money < TD.TOWERS[armed].cost) armed = null;
+      } else {
+        say(TD.PATHCELLS[c + "," + r] ? "That's the road — bugs walk there, turrets can't." : "Can't build there (or not enough coins).", "miss");
+      }
+      refreshShop(); refreshPanel(); hud();
+    } else { selected = -1; refreshPanel(); }
+  });
+
+  function say(text, cls) { msg.className = "result " + (cls || ""); msg.innerHTML = text; }
+
+  // ---------- controls ----------
+  document.getElementById("go").addEventListener("click", function () {
+    if (TD.startWave(g)) { say("🌊 Wave " + (g.wave + 1) + " is on the road — hold the line.", ""); hud(); }
+  });
+  document.getElementById("speed").addEventListener("click", function () {
+    speed = speed === 1 ? 2 : speed === 2 ? 4 : 1;
+    this.textContent = "⏩ " + speed + "×";
+  });
+  document.getElementById("restart").addEventListener("click", function () {
+    g = TD.newGame(); armed = null; selected = -1; wonToastShown = false;
+    refreshShop(); refreshPanel(); hud();
+    say("Fresh keep, fresh coins. Build!", "");
+  });
+
+  // ---------- wave-end + win/lose hooks (checked when phase flips back) ----------
+  var lastPhase = "build", lastWave = 0;
+  function checkEvents() {
+    if (g.phase === "build" && lastPhase === "wave") {
+      // a wave was cleared
+      say("✅ Wave " + g.wave + " cleared! Paycheck: +" + (10 + g.wave) + " coins. Reinforce, then hit start.", "win");
+      if (window.DadMath) {
+        if (g.wave > (DadMath.getBest("td-wave") || 0)) DadMath.best("td-wave", g.wave);
+        if (g.wave === 3) DadMath.star("td0", 1, "Core Keep — held the first three waves");
+        if (g.wave === 7) DadMath.star("td0", 1, "Core Keep — held seven waves");
+      }
+      if (g.won && !wonToastShown) {
+        wonToastShown = true;
+        say("🏰 <b>THE KEEP HOLDS!</b> All ten waves beaten. The core is safe — and endless mode is open: how far can you get? Now <a href='#hood'>open the hood</a> and find out why you won.", "win");
+        if (window.DadMath) {
+          DadMath.hwPass("td0", "Held Core Keep through all ten waves");
+          if (DadMath.badge("td-hold")) DadMath.star("td0", 3, "Keep Holder — survived all ten waves");
+        }
+      }
+    }
+    if (g.phase === "lost" && lastPhase === "wave") {
+      say("💥 The core fell on wave " + (g.wave + 1) + ". No luck was involved — which means it's fixable. Where did the bugs get through? (Hint: <a href='td01-range.html'>coverage</a> and <a href='td02-dps.html'>DPS per coin</a>.) 🔁 restart and re-plan.", "miss");
+      if (window.DadMath && g.wave > (DadMath.getBest("td-wave") || 0)) DadMath.best("td-wave", g.wave);
+    }
+    lastPhase = g.phase; lastWave = g.wave;
+  }
+
+  // ---------- render ----------
+  function draw() {
+    var c, r, i;
+    // ground
+    for (c = 0; c < TD.COLS; c++) for (r = 0; r < TD.ROWS; r++) {
+      ctx.fillStyle = TD.PATHCELLS[c + "," + r] ? "#d9c893" : ((c + r) % 2 ? "#b7cf9a" : "#aec790");
+      ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
+    }
+    // core + cave
+    ctx.font = "30px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("🕳️", 14, 1.5 * TILE);
+    ctx.fillText("💎", 12.5 * TILE, 7.5 * TILE);
+
+    // placement preview ring
+    if (armed && hover && g.phase !== "lost") {
+      var ok = TD.canPlace(g, hover[0], hover[1]) && g.money >= TD.TOWERS[armed].cost;
+      ring(hover[0] + 0.5, hover[1] + 0.5, TD.TOWERS[armed].range, ok ? "rgba(46,125,50,.75)" : "rgba(198,40,40,.75)");
+      ctx.globalAlpha = 0.6;
+      ctx.fillText(TD.TOWERS[armed].icon, (hover[0] + 0.5) * TILE, (hover[1] + 0.5) * TILE);
+      ctx.globalAlpha = 1;
+    }
+
+    // towers
+    g.towers.forEach(function (t, idx) {
+      if (idx === selected) ring(t.c + 0.5, t.r + 0.5, TD.TOWERS[t.type].range, "rgba(21,101,192,.8)");
+      ctx.font = "26px serif";
+      ctx.fillText(TD.TOWERS[t.type].icon, (t.c + 0.5) * TILE, (t.r + 0.5) * TILE);
+    });
+
+    // shots
+    g.shots.forEach(function (s) {
+      ctx.strokeStyle = s.type === "cryo" ? "rgba(0,172,193,.9)" : s.type === "mortar" ? "rgba(230,81,0,.9)" : "rgba(251,192,45,.9)";
+      ctx.lineWidth = s.type === "mortar" ? 3 : 2;
+      ctx.beginPath();
+      ctx.moveTo(s.from[0] * TILE, s.from[1] * TILE);
+      ctx.lineTo(s.to[0] * TILE, s.to[1] * TILE);
+      ctx.stroke();
+      if (s.type === "mortar") {
+        ctx.beginPath();
+        ctx.arc(s.to[0] * TILE, s.to[1] * TILE, TD.TOWERS.mortar.splash * TILE * (1 - s.ttl / 0.12 * 0.5), 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(230,81,0,.45)"; ctx.stroke();
+      }
+    });
+
+    // enemies
+    g.enemies.forEach(function (e) {
+      var p = TD.posAt(e.s), x = p[0] * TILE, y = p[1] * TILE;
+      if (g.tclock < e.slowUntil) {
+        ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0,172,193,.25)"; ctx.fill();
+      }
+      ctx.font = e.type === "brute" ? "26px serif" : "20px serif";
+      ctx.fillText(TD.ENEMIES[e.type].icon, x, y);
+      // hp bar
+      var w = 26, f = Math.max(0, e.hp / e.maxhp);
+      ctx.fillStyle = "#00000055"; ctx.fillRect(x - w / 2, y - 18, w, 4);
+      ctx.fillStyle = f > 0.4 ? "#43a047" : "#e53935"; ctx.fillRect(x - w / 2, y - 18, w * f, 4);
+    });
+
+    // lost overlay
+    if (g.phase === "lost") {
+      ctx.fillStyle = "rgba(0,0,0,.45)"; ctx.fillRect(0, 0, CV.width, CV.height);
+      ctx.fillStyle = "#fff"; ctx.font = "bold 30px system-ui";
+      ctx.fillText("💥 The core fell — wave " + (g.wave + 1), CV.width / 2, CV.height / 2 - 14);
+      ctx.font = "18px system-ui";
+      ctx.fillText("hit 🔁 restart and re-plan (no luck involved — it's fixable)", CV.width / 2, CV.height / 2 + 22);
+    }
+  }
+  function ring(cx, cy, rad, color) {
+    ctx.beginPath();
+    ctx.arc(cx * TILE, cy * TILE, rad * TILE, 0, Math.PI * 2);
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash([6, 5]);
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+
+  // ---------- the loop: fixed timestep, like gl01 taught ----------
+  var DT = 1 / 30;
+  function frame(ts) {
+    if (!last) last = ts;
+    var el = Math.min(0.25, (ts - last) / 1000); last = ts;
+    if (g.phase === "wave") {
+      acc += el * speed;
+      while (acc >= DT) { TD.step(g, DT); acc -= DT; }
+      hud();
+    }
+    checkEvents();
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  refreshShop(); hud();
+  requestAnimationFrame(frame);
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

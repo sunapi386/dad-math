@@ -77,6 +77,13 @@
    page's own claims (payoff matrices, cold numbers, cos² match rule, chunk width, etc.). */
 var HW = {};
 HW.ri = function (rng, lo, hi) { return lo + Math.floor(rng() * (hi - lo + 1)); };
+HW.shuffle = function (rng, arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(rng() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+};
 HW.T = function (n) { return n * (n + 1) / 2; };
 HW.FIB = (function () { var F = [1, 1]; for (var i = 2; i < 16; i++) F.push(F[i - 1] + F[i - 2]); return F; })();
 
@@ -335,6 +342,37 @@ HW.TRACKS = [
         function (rng) { var t = [10, 20, 25, 50][HW.ri(rng, 0, 3)]; return { text: "Strokes 1 unit wide, single layer: what spacing gives exactly " + t + "% gray?", ans: 100 / t, why: "spacing = 100 ÷ " + t + " = " + (100 / t) }; },
         function (rng) { return { text: "The engine wobbles a stroke with seed 7, then re-draws it with seed 7. Identical wiggle? (1 yes, 0 no)", ans: 1, why: "seeded noise is deterministic — same seed, same wiggle (that's why animations don't boil)" }; }
       ] }
+  ] },
+
+  { name: "🏰 Tower Lab", note: "🏰 Core Keep itself checks off when you hold all ten waves in the game", items: [
+    { id: "td1", icon: "📡", title: "TD·1 · The Range Ring", href: "td01-range.html",
+      gens: [
+        function (rng) { var dx = HW.ri(rng, 1, 6), dy = HW.ri(rng, 1, 6); return { text: "A bug sits " + dx + " across and " + dy + " up from a turret. Squared distance d²?", ans: dx * dx + dy * dy, why: "d² = " + dx + "² + " + dy + "² = " + (dx * dx + dy * dy) + " — and no square root is ever needed" }; },
+        function (rng) { var dx = HW.ri(rng, 1, 5), dy = HW.ri(rng, 0, 5), r = HW.ri(rng, 2, 6), d2 = dx * dx + dy * dy; return { text: "Bug at (dx " + dx + ", dy " + dy + "), turret range " + r + " (so r² = " + (r * r) + "). In range? (1 yes, 0 no)", ans: d2 <= r * r ? 1 : 0, why: "d² = " + d2 + " vs r² = " + (r * r) + " → " + (d2 <= r * r ? "in range" : "out of reach") }; },
+        function (rng) { var p = [[3, 4, 5], [6, 8, 10], [2, 3, 4], [1, 4, 5], [4, 4, 6], [2, 2, 3]][HW.ri(rng, 0, 5)]; return { text: "A bug camps at (dx " + p[0] + ", dy " + p[1] + "). Smallest whole-number range that reaches it?", ans: p[2], why: "d² = " + (p[0] * p[0] + p[1] * p[1]) + ", and " + p[2] + "² = " + (p[2] * p[2]) + " is the first square big enough" }; },
+        function (rng) { return { text: "The game compares d ≤ r by checking d² ≤ r² instead. Does that ever give a different answer? (1 yes, 0 no)", ans: 0, why: "never — both sides are positive, so squaring keeps the comparison exactly the same (and skips the slow square root)" }; }
+      ] },
+    { id: "td2", icon: "⚔️", title: "TD·2 · The Damage Budget", href: "td02-dps.html",
+      gens: [
+        function (rng) { var dmg = [2, 3, 4, 5, 6, 14][HW.ri(rng, 0, 5)], rate = [0.5, 1, 2, 4][HW.ri(rng, 0, 3)]; return { text: "A turret hits for " + dmg + " at " + rate + " shots per second. DPS?", ans: dmg * rate, why: "DPS = dmg × rate = " + dmg + " × " + rate + " = " + (dmg * rate) }; },
+        function (rng) { var dmg = [3, 4, 5, 14][HW.ri(rng, 0, 3)], hp = HW.ri(rng, 10, 85); return { text: "A bug has " + hp + " HP; each shot deals " + dmg + ". Shots to kill it?", ans: Math.ceil(hp / dmg), why: hp + " ÷ " + dmg + " rounded UP (no fractional bullets) = " + Math.ceil(hp / dmg) }; },
+        function (rng) { var dmg = [5, 14][HW.ri(rng, 0, 1)], hp = HW.ri(rng, 10, 70), s = Math.ceil(hp / dmg); return { text: "Each shot deals " + dmg + "; the bug has " + hp + " HP. Damage WASTED as overkill?", ans: s * dmg - hp, why: s + " shots deal " + (s * dmg) + "; " + (s * dmg) + " − " + hp + " = " + (s * dmg - hp) + " wasted" }; },
+        function (rng) { var flip = HW.ri(rng, 0, 1), a = flip ? [6, 20] : [7, 45], b = flip ? [7, 45] : [6, 20]; return { text: "Turret 1: " + a[0] + " DPS for " + a[1] + " coins. Turret 2: " + b[0] + " DPS for " + b[1] + " coins. Better deal per coin? (1 or 2)", ans: a[0] / a[1] > b[0] / b[1] ? 1 : 2, why: (Math.round(a[0] / a[1] * 100) / 100) + " vs " + (Math.round(b[0] / b[1] * 100) / 100) + " DPS per coin" }; }
+      ] },
+    { id: "td3", icon: "📈", title: "TD·3 · The Doom Curve", href: "td03-waves.html",
+      gens: [
+        function (rng) { var h = [16, 24, 32, 40, 48, 60, 80][HW.ri(rng, 0, 6)]; return { text: "Grunts have " + h + " HP this wave and grow +25% next wave. New HP?", ans: h * 1.25, why: "a quarter of " + h + " is " + (h / 4) + "; " + h + " + " + (h / 4) + " = " + (h * 1.25) }; },
+        function (rng) { var h = [10, 14, 20][HW.ri(rng, 0, 2)], k = HW.ri(rng, 2, 4); return { text: "Bug HP doubles every 3 waves. Wave 1: " + h + " HP. Around wave " + (1 + 3 * k) + "?", ans: h * Math.pow(2, k), why: k + " doublings: " + h + " × 2^" + k + " = " + (h * Math.pow(2, k)) }; },
+        function (rng) { var p = [[6, 12], [8, 9], [9, 8], [12, 6], [24, 3]][HW.ri(rng, 0, 4)]; return { text: "A swarm grows " + p[0] + "% per wave. Rule of 72: about how many waves to double?", ans: p[1], why: "72 ÷ " + p[0] + " = " + p[1] }; },
+        function (rng) { return { text: "Bug HP grows by a fixed PERCENT each wave; your income grows by a fixed AMOUNT. Does the swarm always overtake eventually? (1 yes, 0 no)", ans: 1, why: "an exponential curve crosses ANY straight line eventually — that's why endless tower defense games always end" }; }
+      ] },
+    { id: "td4", icon: "🎯", title: "TD·4 · Who to Shoot?", href: "td04-targeting.html",
+      gens: [
+        function (rng) { var s = HW.shuffle(rng, [4, 11, 19, 26]).slice(0, 3); return { text: "Bugs have walked " + s[0] + ", " + s[1] + " and " + s[2] + " cells of road. FIRST mode shoots the one at how many cells?", ans: Math.max(s[0], s[1], s[2]), why: "First = farthest along the road = max(" + s.join(", ") + ") = " + Math.max(s[0], s[1], s[2]) }; },
+        function (rng) { var h = HW.shuffle(rng, [12, 34, 57, 80]).slice(0, 3); return { text: "Bugs in range have " + h[0] + ", " + h[1] + " and " + h[2] + " HP. STRONG mode shoots the one with how much HP?", ans: Math.max(h[0], h[1], h[2]), why: "Strong = biggest health bar = " + Math.max(h[0], h[1], h[2]) }; },
+        function (rng) { var d = HW.shuffle(rng, [5, 13, 25, 36]).slice(0, 3); return { text: "Bugs sit at squared distances d² = " + d[0] + ", " + d[1] + " and " + d[2] + ". CLOSE mode shoots the one at which d²?", ans: Math.min(d[0], d[1], d[2]), why: "Close = smallest d² = " + Math.min(d[0], d[1], d[2]) + " (squared distance again — still no square roots)" }; },
+        function (rng) { return { text: "Five turrets all on STRONG focus one fat bug; 4 of the 5 shots land after it's already dead. Is that wasted overkill? (1 yes, 0 no)", ans: 1, why: "yes — focus fire overkills, which is why Strong lost the strategy-lab races" }; }
+      ] }
   ] }
 ];
 
@@ -357,6 +395,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   ASSIGNABLE.push({ id: "gl6", icon: "🐛", label: "Deep Rock · Aim & Hitboxes (skill)", href: "gl06-hitboxes.html", here: false });
   ASSIGNABLE.push({ id: "sk5", icon: "🖋️", label: "Sketch Studio · render all five scenes", href: "sk05-studio.html", here: false });
+  ASSIGNABLE.push({ id: "td0", icon: "🏰", label: "Core Keep · hold all ten waves", href: "td00-core-keep.html", here: false });
   // Builder's Tree nodes (gamedev.html) — assignable like any homework
   [["gd1", "🎮", "The Loop"], ["gd2", "🎯", "Hitboxes"], ["gd3", "💣", "The Arc"],
    ["gd4", "🧭", "Pathfinding"], ["gd5", "🗺️", "Random Worlds"], ["gd6", "🤖", "The Sentry"]].forEach(function (n) {

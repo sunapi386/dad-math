@@ -99,7 +99,12 @@
     "sk-rim":      { icon: "🌒", name: "Rim Finder",       desc: "Graze three balls in a row with perfect tangent math." },
     "sk-xray":     { icon: "🩻", name: "X-Ray Eyes",       desc: "Count the surviving stroke pieces right three times in a row." },
     "sk-tone":     { icon: "✏️", name: "Tone Master",      desc: "Mix three target grays in a row from spacing and layers alone." },
-    "sk-studio":   { icon: "🖋️", name: "Studio Artist",    desc: "Render every scene in the Sketch Studio with the real Krbn engine." }
+    "sk-studio":   { icon: "🖋️", name: "Studio Artist",    desc: "Render every scene in the Sketch Studio with the real Krbn engine." },
+    "td-hold":     { icon: "🏰", name: "Keep Holder",      desc: "Hold Core Keep through all ten waves — the crystal core never fell." },
+    "td-range":    { icon: "📡", name: "Ring Ranger",      desc: "Get a 5 streak judging in-range with squared distance — no roots taken." },
+    "td-dps":      { icon: "⚔️", name: "Damage Accountant", desc: "Referee three turret-vs-bug duels in a row with DPS math." },
+    "td-curve":    { icon: "📈", name: "Doom Prophet",     desc: "Get a 3 streak forecasting the exponential wave curve." },
+    "td-brain":    { icon: "🎯", name: "Target Master",    desc: "Run the targeting comparison in your head — three perfect picks in a row." }
   };
 
   // [starsNeeded, icon, title]

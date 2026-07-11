@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TD 4 · Who to Shoot? — Math in Half an Hour</title>
+<meta name="description" content="Targeting strategies as one-line algorithms: first, last, strongest, closest — raced against each other on the real Core Keep engine, headless, with deterministic results.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.codebit { font-family: var(--mono); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; margin: 10px auto; max-width: 620px; font-size: .85rem; overflow-x: auto; }
+.labtable { margin: 12px auto; border-collapse: collapse; font-family: var(--mono); font-size: .9rem; }
+.labtable td, .labtable th { border: 1px solid var(--line); padding: 5px 12px; text-align: center; }
+.labtable th { background: var(--panel); }
+.labtable tr.winner td { background: rgba(46,125,50,.14); font-weight: 700; }
+.snaptable { margin: 10px auto; border-collapse: collapse; font-family: var(--mono); font-size: .9rem; }
+.snaptable td, .snaptable th { border: 1px solid var(--line); padding: 4px 12px; text-align: center; }
+.snaptable th { background: var(--panel); }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Tower Lab · Investigation 04 · under the hood of Core Keep</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Who to Shoot?</h1>
+    <p class="lede">Ten bugs in range, one barrel. Every tower defense game ever made offers the same
+      four choices — <b>First, Last, Strongest, Closest</b> — and most players never touch them.
+      Tonight you'll see that each one is a single line of code, then race all four <em>on the actual
+      Core Keep engine, right here on this page</em> — no graphics, thousands of steps, instant
+      verdicts. Your gut has opinions. The lab has numbers.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">algorithms · argmax</span> &nbsp; <span class="badge green">🎯 out-think your gut</span></p>
+  </header>
+
+  <!-- 1 THE ALGORITHM -->
+  <h2>1 · A strategy is one comparison</h2>
+  <p>“Strategy” sounds like wisdom, but inside the machine each mode is just: <em>walk the list of
+    bugs in range, keep whichever wins one comparison</em>. Mathematicians call it
+    <b>argmax</b> — “the argument that maximizes.” Here's the real engine code you played against:</p>
+  <div class="codebit">if (mode === "first"&nbsp;&nbsp;&& e.s&nbsp;&gt; best.s)&nbsp;&nbsp;best = e;&nbsp;&nbsp;// farthest along the road<br>
+else if (mode === "last"&nbsp;&nbsp; && e.s&nbsp;&lt; best.s)&nbsp;&nbsp;best = e;&nbsp;&nbsp;// most recently spawned<br>
+else if (mode === "strong" && e.hp &gt; best.hp) best = e;&nbsp;&nbsp;// biggest health bar<br>
+else if (mode === "close"&nbsp; && e.d2 &lt; best.d2) best = e;&nbsp;&nbsp;// smallest d² (TD·1!)</div>
+  <p>Four personalities from four comparisons: <b>First</b> is the firefighter (stop whoever's nearest
+    the exit), <b>Last</b> is the farmer (start damage early, harvest later), <b>Strong</b> is the
+    duelist (focus the scariest), <b>Close</b> is the sniper (shortest shot — and yes, that's the
+    squared distance from TD·1 again, still root-free).</p>
+
+  <!-- 2 THE LAB -->
+  <h2>2 · The strategy lab</h2>
+  <p>Which personality wins? Don't argue — <b>measure</b>. The buttons below run the real engine
+    headless: same towers, same wave, only the mode changes. And because Core Keep has zero luck in
+    it, these numbers are <em>exact</em> — run it a thousand times, get the same answer a thousand
+    times. That's what “deterministic” buys you: experiments you can trust.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧪</span> Scenario 1 — the swarm</div>
+    <p class="phint">Five Gunners at good spots vs wave 5 (grunts, runners and a brute). Pick a mode —
+      or race all four.</p>
+    <div class="ctrlrow" style="justify-content:center" id="s1-btns"></div>
+    <div id="s1-out"><table class="labtable" id="s1-table" style="display:none"></table></div>
+    <div class="result" id="s1-read">Place your bet first: which mode leaks fewest bugs?</div>
+  </div>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧪</span> Scenario 2 — the mortar mix</div>
+    <p class="phint">Same five Gunners <b>plus a Mortar</b>, vs the bigger wave 7. Before you click:
+      surely the winner is the same mode as Scenario 1… right?</p>
+    <div class="ctrlrow" style="justify-content:center" id="s2-btns"></div>
+    <div id="s2-out"><table class="labtable" id="s2-table" style="display:none"></table></div>
+    <div class="result" id="s2-read">…</div>
+  </div>
+
+  <p>If your lab matches ours: <b>First</b> crushes Scenario 1 (a leak of 1 vs Last's ELEVEN — the
+    firefighter saves the day), but in Scenario 2 <b>Close</b> edges First out. Why would “shortest
+    shot” ever win? A hint: the Mortar's shell splashes, and the road passes <em>closest</em> to a
+    turret exactly where bugs bunch up in its ring the longest. The deep lesson isn't “Close is
+    good” — it's that <b>adding one tower changed which rule was best</b>. In systems with moving
+    parts, the answer to “what's the best strategy?” is usually “<em>best at what, alongside
+    what?</em>” — so measure, don't assume.</p>
+
+  <div class="note try">
+    <span class="t">Overkill corner:</span> notice Strong losing badly in both scenarios? Every Gunner
+    piles onto the fattest bug — 5 turrets × 3 damage arrive at once, and a bug with 2 HP left still
+    soaks all 15 (<a href="td02-dps.html">overkill</a>, ×5). Meanwhile the skinny bugs stroll home.
+    Rules that sound heroic can waste the most.</div>
+
+  <!-- 3 GAME -->
+  <h2>3 · Be the turret</h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎯</span> Snapshot quiz</div>
+    <p class="phint">Three bugs in range, one mode. Run the comparison in your head. Streak of 3 =
+      the 🎯 <b>Target Master</b> badge.</p>
+    <div id="sq-table"></div>
+    <p class="qcount" id="sq-q">…</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="btn" id="sq-1">Bug 1</button>
+      <button class="btn" id="sq-2">Bug 2</button>
+      <button class="btn" id="sq-3">Bug 3</button>
+      <button class="btn ghost" id="sq-new">new snapshot</button>
+    </div>
+    <div class="result" id="sq-read">…</div>
+  </div>
+
+  <h2>Try this tonight</h2>
+  <ul>
+    <li><strong>Back in the game:</strong> replay wave 5 of <a href="td00-core-keep.html">Core Keep</a>
+      with all turrets on Last, then all on First. You now know the gap is real — feel it.</li>
+    <li><strong>Invent mode five:</strong> what would YOU compare? Lowest HP (“free bounty”)? Fastest?
+      Closest-to-dying-anyway? Say it as one comparison line, like the code above. (Real games ship
+      “weakest” — you just reinvented it.)</li>
+  </ul>
+
+  <p class="muted small">argmax · one comparison per mode · deterministic experiments · focus fire · overkill · best-at-what-alongside-what</p>
+
+  <div class="lessonnav">
+    <a href="td03-waves.html">← TD 3: The Doom Curve</a>
+    <a href="td00-core-keep.html">🏰 Back to Core Keep — go win properly →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="assets/site.js"></script>
+<script defer src="assets/td.js?v=1"></script>
+<script defer src="assets/game.js?v=17"></script>
+<script>
+/* === TD4:PURE START === (DOM-free strategy-lab plumbing; node-tested before deploy)
+   Scenarios are pinned builds run on the REAL engine (assets/td.js) with a fixed dt,
+   so every number the page shows is reproducible to the digit. */
+var TD4 = {};
+TD4.SCEN = {
+  s1: { build: [["gunner",5,5],["gunner",7,2],["gunner",5,6],["gunner",7,3],["gunner",4,5]], wave: 5 },
+  s2: { build: [["gunner",5,5],["gunner",7,2],["gunner",5,6],["gunner",7,3],["gunner",4,5],["mortar",8,2]], wave: 7 }
+};
+/* run one scenario under one mode; TD must be in scope (browser: global; node: injected) */
+TD4.run = function (TDref, key, mode) {
+  var sc = TD4.SCEN[key];
+  var g = TDref.newGame();
+  g.money = 9999; g.lives = 99;
+  sc.build.forEach(function (b) { TDref.place(g, b[0], b[1], b[2]); });
+  g.money = 0; g.wave = sc.wave - 1;
+  g.towers.forEach(function (t) { t.mode = mode; });
+  var res = TDref.runWave(g, 1 / 30);
+  return { mode: mode, leaked: res.leaked, kills: res.kills, time: res.time };
+};
+
+/* snapshot generator for the quiz: 3 bugs with distinct stats + a mode to apply */
+TD4.snapshot = function (rng) {
+  function distinct3(lo, hi) {
+    var out = [];
+    while (out.length < 3) {
+      var v = lo + Math.floor(rng() * (hi - lo + 1));
+      if (out.indexOf(v) === -1) out.push(v);
+    }
+    return out;
+  }
+  var s = distinct3(2, 30), hp = distinct3(5, 90), d2 = distinct3(2, 40);
+  var bugs = [0, 1, 2].map(function (i) { return { s: s[i], hp: hp[i], d2: d2[i] }; });
+  var mode = ["first", "last", "strong", "close"][Math.floor(rng() * 4)];
+  return { bugs: bugs, mode: mode };
+};
+/* which bug (1-based) does the mode pick? mirrors TD.pick exactly */
+TD4.pickIndex = function (snap) {
+  var best = 0;
+  for (var i = 1; i < snap.bugs.length; i++) {
+    var e = snap.bugs[i], b = snap.bugs[best];
+    if (snap.mode === "first" && e.s > b.s) best = i;
+    else if (snap.mode === "last" && e.s < b.s) best = i;
+    else if (snap.mode === "strong" && e.hp > b.hp) best = i;
+    else if (snap.mode === "close" && e.d2 < b.d2) best = i;
+  }
+  return best + 1;
+};
+/* === TD4:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  var MODENAMES = { first: "🚒 First", last: "🌱 Last", strong: "🥊 Strong", close: "🔭 Close" };
+
+  // ---------- §2 strategy lab ----------
+  function wireScenario(key) {
+    var btnrow = document.getElementById(key + "-btns");
+    var table = document.getElementById(key + "-table");
+    var read = document.getElementById(key + "-read");
+    var results = {};
+    function render() {
+      var modes = Object.keys(results);
+      if (!modes.length) return;
+      table.style.display = "";
+      var minLeak = Math.min.apply(null, modes.map(function (m) { return results[m].leaked; }));
+      table.innerHTML = "<tr><th>mode</th><th>leaked 🏃</th><th>killed ☠️</th><th>wave time</th></tr>" +
+        TD.MODES.filter(function (m) { return results[m]; }).map(function (m) {
+          var r = results[m];
+          return "<tr class='" + (r.leaked === minLeak && modes.length > 1 ? "winner" : "") + "'><td>" + MODENAMES[m] + "</td><td>" + r.leaked + "</td><td>" + r.kills + "</td><td>" + r.time + " s</td></tr>";
+        }).join("");
+      if (modes.length === 4) {
+        var winner = TD.MODES.reduce(function (a, b) { return results[a].leaked <= results[b].leaked ? a : b; });
+        read.className = "result win";
+        read.innerHTML = "🏆 <b>" + MODENAMES[winner] + "</b> leaks least here (" + results[winner].leaked + "). Same towers, same bugs — only the comparison changed.";
+      } else {
+        read.className = "result";
+        read.innerHTML = "Ran " + modes.length + "/4 modes. Race the rest!";
+      }
+    }
+    TD.MODES.forEach(function (m) {
+      var b = document.createElement("button");
+      b.className = "btn ghost"; b.textContent = MODENAMES[m];
+      b.addEventListener("click", function () { results[m] = TD4.run(TD, key, m); render(); });
+      btnrow.appendChild(b);
+    });
+    var all = document.createElement("button");
+    all.className = "btn"; all.textContent = "⚡ race all four";
+    all.addEventListener("click", function () {
+      TD.MODES.forEach(function (m) { results[m] = TD4.run(TD, key, m); });
+      render();
+    });
+    btnrow.appendChild(all);
+  }
+  wireScenario("s1");
+  wireScenario("s2");
+
+  // ---------- §3 snapshot quiz ----------
+  (function () {
+    var streak = 0, snap = null, ans = 0;
+    var read = document.getElementById("sq-read");
+    function newSnap() {
+      snap = TD4.snapshot(Math.random);
+      ans = TD4.pickIndex(snap);
+      document.getElementById("sq-table").innerHTML =
+        "<table class='snaptable'><tr><th></th><th>road walked (s)</th><th>HP</th><th>d² to turret</th></tr>" +
+        snap.bugs.map(function (b, i) {
+          return "<tr><td>🐛 Bug " + (i + 1) + "</td><td>" + b.s + "</td><td>" + b.hp + "</td><td>" + b.d2 + "</td></tr>";
+        }).join("") + "</table>";
+      document.getElementById("sq-q").innerHTML = "Mode: <b>" + MODENAMES[snap.mode] + "</b> — which bug takes the hit?";
+      read.className = "result"; read.innerHTML = "Streak: <b>" + streak + "</b>";
+    }
+    function why() {
+      var m = snap.mode;
+      var col = m === "strong" ? "HP" : (m === "close" ? "d²" : "s");
+      var dir = (m === "first" || m === "strong") ? "biggest" : "smallest";
+      return MODENAMES[m] + " takes the " + dir + " " + col;
+    }
+    function answer(v) {
+      if (v === ans) {
+        streak++;
+        read.className = "result win";
+        read.innerHTML = "✅ " + why() + " — Bug " + ans + ". Streak: <b>" + streak + "</b>";
+        if (window.DadMath) {
+          DadMath.best("td4-picks", Math.max(DadMath.getBest("td4-picks") || 0, streak));
+          if (streak === 3 && DadMath.badge("td-brain")) {
+            DadMath.star("td4", 2, "Target Master — three perfect picks in a row");
+            read.innerHTML += " &nbsp;🎯 <b>Badge earned: Target Master!</b>";
+          }
+        }
+        setTimeout(newSnap, 1400);
+      } else {
+        streak = 0;
+        read.className = "result miss";
+        read.innerHTML = "❌ " + why() + " — that's Bug " + ans + ". (streak reset)";
+        setTimeout(newSnap, 2600);
+      }
+    }
+    [1, 2, 3].forEach(function (n) {
+      document.getElementById("sq-" + n).addEventListener("click", function () { answer(n); });
+    });
+    document.getElementById("sq-new").addEventListener("click", newSnap);
+    newSnap();
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>
