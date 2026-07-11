@@ -194,6 +194,48 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
     </a>
   </div>
 
+  <h2 id="tower">🏰 Tower Lab</h2>
+  <p class="muted">A full tower defense game — and every gear inside it exposed. Play Core Keep first,
+    then open the hood: the distance math, the damage arithmetic, the doom curve and the targeting
+    brains each get a lesson built from the game's real numbers and real code.</p>
+  <div class="grid">
+    <a class="card" href="td00-core-keep.html" style="border-color:var(--accent)">
+      <div class="num">🏰</div>
+      <h3>Core Keep</h3>
+      <p>The bugs are marching on your crystal core. Three turret types, ten waves, zero luck — pure
+        deterministic clockwork. Hold the keep, then come back to ask why you won.</p>
+      <div class="go" style="color:var(--accent)">Play the game →</div>
+    </a>
+    <a class="card" href="td01-range.html" style="border-color:var(--good)">
+      <div class="num">TD·1</div>
+      <h3>The Range Ring</h3>
+      <p>How a turret knows a bug is in range: Pythagoras, thirty times a second — and the famous trick
+        where the game never takes a square root. Compare d² to r² and skip the mess.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+    <a class="card" href="td02-dps.html" style="border-color:var(--good)">
+      <div class="num">TD·2</div>
+      <h3>The Damage Budget</h3>
+      <p>The Mortar hits 14, the Gunner hits 3 — and the Gunner's the better buy. DPS, time-to-kill,
+        overkill and value-per-coin: the arithmetic behind every shop screen ever made.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+    <a class="card" href="td03-waves.html" style="border-color:var(--good)">
+      <div class="num">TD·3</div>
+      <h3>The Doom Curve</h3>
+      <p>Bug HP grows +25% a wave; your income only adds. An exponential crosses ANY line eventually —
+        and the rule of 72 predicts the wave where every defense must fall.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+    <a class="card" href="td04-targeting.html" style="border-color:var(--good)">
+      <div class="num">TD·4</div>
+      <h3>Who to Shoot?</h3>
+      <p>First, Last, Strongest, Closest — each targeting mode is a one-line algorithm. Race all four
+        on the real game engine, headless, and watch the “obvious” answer lose to measurement.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+  </div>
+
   <h2 id="sketch">✏️ Sketch Lab</h2>
   <p class="muted">Teach a robot to draw like an artist — outlines solved as equations, hidden lines
     bitten out, shading from pure fractions, and imperfection added on purpose. Four lessons, then a
@@ -339,7 +381,7 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js?v=16"></script>
+<script defer src="assets/game.js?v=17"></script>
 <script>
   // render the tiny inline snippets used in cards
   document.addEventListener("DOMContentLoaded", function () {
@@ -387,6 +429,11 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
         ["sk03-hidden-lines.html",   "badge", "sk-xray",      "✅ done"],
         ["sk04-hatching.html",       "badge", "sk-tone",      "✅ done"],
         ["sk05-studio.html",         "badge", "sk-studio",    "✅ rendered"],
+        ["td00-core-keep.html",      "badge", "td-hold",      "✅ held"],
+        ["td01-range.html",          "badge", "td-range",     "✅ done"],
+        ["td02-dps.html",            "badge", "td-dps",       "✅ done"],
+        ["td03-waves.html",          "badge", "td-curve",     "✅ done"],
+        ["td04-targeting.html",      "badge", "td-brain",     "✅ done"],
         ["cs01-binary.html",         "hw",    "cs1",          "✅ checked"],
         ["cs02-secret-codes.html",   "hw",    "cs2",          "✅ checked"],
         ["cs03-logins.html",         "hw",    "cs3",          "✅ checked"],
@@ -414,7 +461,12 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
         ["sk02-silhouettes.html",    "hw",    "sk2",          "✅ checked"],
         ["sk03-hidden-lines.html",   "hw",    "sk3",          "✅ checked"],
         ["sk04-hatching.html",       "hw",    "sk4",          "✅ checked"],
-        ["sk05-studio.html",         "hw",    "sk5",          "✅ rendered"]
+        ["sk05-studio.html",         "hw",    "sk5",          "✅ rendered"],
+        ["td00-core-keep.html",      "hw",    "td0",          "✅ held"],
+        ["td01-range.html",          "hw",    "td1",          "✅ checked"],
+        ["td02-dps.html",            "hw",    "td2",          "✅ checked"],
+        ["td03-waves.html",          "hw",    "td3",          "✅ checked"],
+        ["td04-targeting.html",      "hw",    "td4",          "✅ checked"]
       ].forEach(function (row) {
         var card = document.querySelector('a.card[href="' + row[0] + '"]');
         if (!card || card.classList.contains("done")) return;

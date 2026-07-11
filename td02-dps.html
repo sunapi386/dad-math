@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TD 2 · The Damage Budget — Math in Half an Hour</title>
+<meta name="description" content="DPS, time-to-kill, overkill and value-per-coin: the shop-screen arithmetic inside every tower defense game, with the real Core Keep turret stats.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.stage { display: block; margin: 10px auto; background: #faf9f5; border: 1px solid var(--line); border-radius: 12px; max-width: 100%; }
+.statgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 12px 0; }
+.statcard { border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 14px; text-align: center; }
+.statcard .big { font-size: 1.6rem; }
+.statcard table { margin: 6px auto 0; font-family: var(--mono); font-size: .82rem; border-collapse: collapse; }
+.statcard td { padding: 1px 7px; text-align: left; }
+.statcard td:first-child { color: var(--muted); }
+.readrow { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; font-size: .95rem; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Tower Lab · Investigation 02 · under the hood of Core Keep</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">The Damage Budget</h1>
+    <p class="lede">The 💣 Mortar hits for 14. The 🔫 Gunner hits for 3. So the Mortar is better…
+      right? Wrong — and the reason is the most useful arithmetic in all of gaming. Tonight:
+      <b>damage per second</b>, <b>time-to-kill</b>, wasted <b>overkill</b>, and the shopkeeper's
+      question — <em>what does one coin actually buy?</em></p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">rates, ceilings, value</span> &nbsp; <span class="badge green">⚔️ referee the duels</span></p>
+  </header>
+
+  <!-- 1 DPS -->
+  <h2>1 · Damage per second</h2>
+  <p>A single hit number lies to you, because it hides <em>time</em>. The honest number multiplies in
+    the firing rate:</p>
+  <p>$$\text{DPS} = \text{damage per shot} \times \text{shots per second}$$</p>
+  <p>Here are the <em>real cards</em> from the game you played — with the DPS the shop screen
+    quietly showed you all along:</p>
+  <div class="statgrid" id="cards"></div>
+  <p>Surprise: the mighty Mortar (7 DPS) barely beats the humble Gunner (6 DPS) — it just bunches its
+    damage into rare, huge packets. And the Cryo is a joke at 1 DPS… hold that thought for §4.</p>
+
+  <!-- 2 TTK -->
+  <h2>2 · Time-to-kill, and the wasted bite</h2>
+  <p>A wave-5 grunt has 34 HP. How long does a Gunner (3 dmg, 2 shots/s) need?
+    First: <b>how many shots?</b> 34 ÷ 3 = 11.33… and you can't fire a third of a bullet, so round
+    <em>up</em>:</p>
+  <p>$$\text{shots} = \left\lceil \frac{\text{HP}}{\text{dmg}} \right\rceil = \lceil 34/3 \rceil = 12$$</p>
+  <p>Those 12 shots deal 36 damage to a 34 HP bug — <b>2 damage wasted</b>. That waste is called
+    <b>overkill</b>, and big-hit turrets suffer it worst: a Mortar (14 dmg) killing a 15 HP bug spends
+    28 damage — nearly half thrown away. Second: <b>how long?</b> The first shot fires the instant the
+    bug enters the ring — it's free! — and then you wait between shots. With 12 shots at 2 per second:
+    11 waits × 0.5 s = <b>5.5 seconds</b>.</p>
+  <p>$$\text{kill time} = \frac{\text{shots} - 1}{\text{rate}}$$</p>
+  <p>(Count the <em>gaps</em>, not the shots — the same fencepost trick as trees along a road.)</p>
+
+  <!-- 3 DUEL -->
+  <h2>3 · The escape window</h2>
+  <p>Here's where TD·1 crashes back in. A bug isn't in range forever — it walks a <b>chord</b> across
+    the ring and leaves. Road offset <span class="katex-inline">b</span> from the turret, range
+    <span class="katex-inline">r</span>: half the chord is a right-triangle leg again, so window length
+    = <span class="katex-inline">2\sqrt{r^2-b^2}</span>. The whole duel is one comparison:
+    <b>kill time ≤ window time?</b></p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">⚔️</span> The duel bench</div>
+    <p class="phint">One turret, one bug walking a road past it (speed 1 cell/s). Slide the road closer
+      or farther, fatten the bug, switch turrets — the math referees instantly.</p>
+    <svg class="stage" id="du-svg" viewBox="0 0 440 260" width="440" height="260" aria-label="range ring with a road crossing it as a chord"></svg>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="btn" id="du-gun">🔫 Gunner (3 dmg, 2/s)</button>
+      <button class="btn ghost" id="du-mor">💣 Mortar (14 dmg, 0.5/s)</button>
+    </div>
+    <div class="ctrlrow" style="justify-content:center">
+      <label style="font-weight:700">road offset b <input type="range" id="du-b" min="0" max="4" step="1" value="3" style="width:130px; vertical-align:middle"> <span id="du-bv" style="font-family:var(--mono)">3</span></label>
+      <label style="font-weight:700">bug HP <input type="range" id="du-hp" min="10" max="90" step="2" value="34" style="width:130px; vertical-align:middle"> <span id="du-hpv" style="font-family:var(--mono)">34</span></label>
+    </div>
+    <div class="readrow"><span id="du-math">…</span></div>
+    <div class="result" id="du-read">…</div>
+  </div>
+
+  <!-- 4 VALUE -->
+  <h2>4 · What does one coin buy?</h2>
+  <p>Now be the shopkeeper. Divide the DPS by the price:</p>
+  <div class="statgrid">
+    <div class="statcard"><div class="big">🔫</div><b>Gunner</b><table>
+      <tr><td>6 DPS ÷ 20💰</td><td><b>0.30</b>/coin</td></tr></table></div>
+    <div class="statcard"><div class="big">💣</div><b>Mortar</b><table>
+      <tr><td>7 DPS ÷ 45💰</td><td><b>0.16</b>/coin</td></tr></table></div>
+    <div class="statcard"><div class="big">❄️</div><b>Cryo</b><table>
+      <tr><td>1 DPS ÷ 30💰</td><td><b>0.03</b>/coin</td></tr></table></div>
+  </div>
+  <p>Per coin, the Gunner is nearly <b>twice</b> the Mortar and <b>ten times</b> the Cryo. So why do
+    the other two exist? Because raw DPS isn't the whole story: the Mortar's shell <b>splashes</b> —
+    hit a clump of three bugs and it's really dealing 21 DPS. And the Cryo doesn't sell damage at all —
+    it sells <b>time</b>: a chilled bug walks at half speed, so it spends <em>twice as long</em> inside
+    every other turret's window. The Cryo doubles your <em>other</em> turrets. Judging helpers by their
+    own damage is how shoppers get fooled — a lesson that works outside games too.</p>
+
+  <!-- 5 GAME -->
+  <h2>5 · Duel Referee</h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🥊</span> Dies or escapes?</div>
+    <p class="phint">A turret and a bug walk into your courtroom. Compute shots, kill time, window —
+      then rule. Streak of 3 = the ⚔️ <b>Damage Accountant</b> badge.</p>
+    <p class="qcount" id="dr-q">…</p>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="btn" id="dr-die">☠️ Bug dies</button>
+      <button class="btn" id="dr-esc">🏃 Bug escapes</button>
+      <button class="btn ghost" id="dr-new">next case</button>
+    </div>
+    <div class="result" id="dr-read">…</div>
+  </div>
+
+  <!-- 6 PUZZLE -->
+  <h2>6 · Puzzle</h2>
+  <p>Shop-screen arithmetic. Streak of 3 = ⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> The accountant's drills</div>
+    <p class="qcount" id="pz-prompt">…</p>
+    <div class="ctrlrow">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="answer" aria-label="your answer" style="width:10ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">show working</button>
+      <button class="btn ghost" id="pz-new">new question</button>
+    </div>
+    <div class="result" id="pz-result">…</div>
+  </div>
+
+  <h2>Try this tonight</h2>
+  <ul>
+    <li><strong>In the game:</strong> beat wave 5 twice — once buying only Gunners, once spending the same
+      coins on Mortars. Count the leaks. Your 0.30-vs-0.16 prediction just became data.</li>
+    <li><strong>At the store:</strong> next time you shop, find the unit price on two sizes of the same
+      snack. Big packs are “Mortars” — are they actually the better deal per coin? Sometimes no!</li>
+  </ul>
+
+  <p class="muted small">DPS = dmg × rate · shots = ⌈HP ÷ dmg⌉ · kill time counts the gaps · overkill · value = DPS ÷ cost · slows sell time</p>
+
+  <div class="lessonnav">
+    <a href="td01-range.html">← TD 1: The Range Ring</a>
+    <a href="td03-waves.html">TD 3: The Doom Curve →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=17"></script>
+<script>
+/* === TD2:PURE START === (DOM-free damage math; node-tested before deploy)
+   shots = ceil(hp/dmg); first shot free → kill time = (shots-1)/rate;
+   escape window = chord 2√(r²-b²) at speed 1. */
+var TD2 = {};
+TD2.dps = function (dmg, rate) { return dmg * rate; };
+TD2.shots = function (hp, dmg) { return Math.ceil(hp / dmg); };
+TD2.overkill = function (hp, dmg) { return TD2.shots(hp, dmg) * dmg - hp; };
+TD2.killTime = function (hp, dmg, rate) { return (TD2.shots(hp, dmg) - 1) / rate; };
+TD2.windowLen = function (r, b) { return 2 * Math.sqrt(r * r - b * b); };
+TD2.dies = function (hp, dmg, rate, windowSec) { return TD2.killTime(hp, dmg, rate) <= windowSec ? 1 : 0; };
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+TD2.GENS = [
+  function (rng) {   // dps
+    var dmg = [2, 3, 4, 5, 6, 14][Math.floor(rng() * 6)], rate = [0.5, 1, 2, 4][Math.floor(rng() * 4)];
+    return { text: "A turret hits for " + dmg + ", firing " + rate + " shots per second. DPS?",
+             ans: dmg * rate,
+             why: "DPS = dmg × rate = " + dmg + " × " + rate + " = " + (dmg * rate) };
+  },
+  function (rng) {   // shots to kill (ceiling)
+    var dmg = [3, 4, 5, 14][Math.floor(rng() * 4)];
+    var hp = 10 + Math.floor(rng() * 76);
+    return { text: "A bug has " + hp + " HP; each shot deals " + dmg + ". How many shots to kill it?",
+             ans: Math.ceil(hp / dmg),
+             why: hp + " ÷ " + dmg + " = " + (Math.round(hp / dmg * 100) / 100) + " → round UP (no fractional bullets): " + Math.ceil(hp / dmg) };
+  },
+  function (rng) {   // overkill
+    var dmg = [5, 14][Math.floor(rng() * 2)];
+    var hp = 10 + Math.floor(rng() * 60);
+    var s = Math.ceil(hp / dmg);
+    return { text: "Each shot deals " + dmg + "; the bug has " + hp + " HP. How much damage is WASTED (overkill)?",
+             ans: s * dmg - hp,
+             why: "⌈" + hp + "/" + dmg + "⌉ = " + s + " shots deal " + (s * dmg) + " total; " + (s * dmg) + " − " + hp + " = " + (s * dmg - hp) + " wasted" };
+  },
+  function (rng) {   // kill time (fencepost)
+    var pick = [[15, 3, 2], [30, 3, 2], [28, 14, 0.5], [20, 5, 1], [12, 3, 1], [42, 14, 0.5]][Math.floor(rng() * 6)];
+    var hp = pick[0], dmg = pick[1], rate = pick[2], s = Math.ceil(hp / dmg);
+    return { text: "Turret: " + dmg + " dmg at " + rate + "/s (first shot instant). Bug: " + hp + " HP. Kill time in seconds?",
+             ans: (s - 1) / rate,
+             why: s + " shots = " + (s - 1) + " gaps of " + (1 / rate) + " s → " + ((s - 1) / rate) + " s (count the gaps, not the shots)" };
+  },
+  function (rng) {   // value per coin
+    var flip = rng() < 0.5;
+    var a = flip ? [6, 20] : [7, 45], b = flip ? [7, 45] : [6, 20];
+    var ans = (a[0] / a[1] > b[0] / b[1]) ? 1 : 2;
+    return { text: "Turret 1: " + a[0] + " DPS for " + a[1] + " coins. Turret 2: " + b[0] + " DPS for " + b[1] + " coins. Which is the better deal per coin? (1 or 2)",
+             ans: ans,
+             why: a[0] + "/" + a[1] + " = " + (Math.round(a[0] / a[1] * 100) / 100) + " vs " + b[0] + "/" + b[1] + " = " + (Math.round(b[0] / b[1] * 100) / 100) + " DPS per coin" };
+  }
+];
+/* === TD2:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ---------- §1 real cards ----------
+  (function () {
+    var DATA = [
+      ["🔫", "Gunner", 20, 3, 2],
+      ["💣", "Mortar", 45, 14, 0.5],
+      ["❄️", "Cryo", 30, 1, 1]
+    ];
+    document.getElementById("cards").innerHTML = DATA.map(function (d) {
+      return "<div class='statcard'><div class='big'>" + d[0] + "</div><b>" + d[1] + "</b><table>" +
+        "<tr><td>cost</td><td>💰" + d[2] + "</td></tr>" +
+        "<tr><td>damage</td><td>" + d[3] + "</td></tr>" +
+        "<tr><td>rate</td><td>" + d[4] + "/s</td></tr>" +
+        "<tr><td>DPS</td><td><b>" + TD2.dps(d[3], d[4]) + "</b></td></tr></table></div>";
+    }).join("");
+  })();
+
+  // ---------- §3 duel bench ----------
+  (function () {
+    var turret = { dmg: 3, rate: 2, name: "Gunner", icon: "🔫" };
+    var R = 5;
+    var svg = document.getElementById("du-svg");
+    function paint() {
+      var b = +document.getElementById("du-b").value;
+      var hp = +document.getElementById("du-hp").value;
+      document.getElementById("du-bv").textContent = b;
+      document.getElementById("du-hpv").textContent = hp;
+      var S = 22, cx = 220, cy = 130;   // px scale, centre
+      var half = Math.sqrt(R * R - b * b), w = TD2.windowLen(R, b);
+      var h = "";
+      h += "<circle cx='" + cx + "' cy='" + cy + "' r='" + (R * S) + "' fill='rgba(46,125,50,.08)' stroke='#2e7d32' stroke-width='2' stroke-dasharray='7 5'/>";
+      var ry = cy - b * S;
+      h += "<line x1='10' y1='" + ry + "' x2='430' y2='" + ry + "' stroke='#d9c893' stroke-width='14' stroke-linecap='round'/>";
+      h += "<line x1='" + (cx - half * S) + "' y1='" + ry + "' x2='" + (cx + half * S) + "' y2='" + ry + "' stroke='#c62828' stroke-width='4'/>";
+      if (b > 0) {
+        h += "<line x1='" + cx + "' y1='" + cy + "' x2='" + cx + "' y2='" + ry + "' stroke='#1565c0' stroke-width='2'/>";
+        h += "<text x='" + (cx + 6) + "' y='" + ((cy + ry) / 2) + "' font-size='13' font-weight='700' fill='#1565c0'>b=" + b + "</text>";
+      }
+      h += "<line x1='" + cx + "' y1='" + cy + "' x2='" + (cx + half * S) + "' y2='" + ry + "' stroke='#1565c0' stroke-width='2'/>";
+      h += "<text x='" + (cx + half * S / 2 + 8) + "' y='" + (cy - b * S / 2 + 16) + "' font-size='13' font-weight='700' fill='#1565c0'>r=5</text>";
+      h += "<text x='" + cx + "' y='" + (cy + 1) + "' text-anchor='middle' dominant-baseline='middle' font-size='24'>" + turret.icon + "</text>";
+      h += "<text x='" + (cx - half * S - 16) + "' y='" + ry + "' text-anchor='middle' dominant-baseline='middle' font-size='18'>🐛</text>";
+      svg.innerHTML = h;
+      var shots = TD2.shots(hp, turret.dmg), kt = TD2.killTime(hp, turret.dmg, turret.rate);
+      document.getElementById("du-math").innerHTML =
+        "window = 2√(25−" + (b * b) + ") = <b>" + (Math.round(w * 100) / 100) + " s</b> &nbsp;·&nbsp; shots = ⌈" + hp + "/" + turret.dmg + "⌉ = <b>" + shots + "</b> &nbsp;·&nbsp; kill time = " + (shots - 1) + "÷" + turret.rate + " = <b>" + (Math.round(kt * 100) / 100) + " s</b>";
+      var read = document.getElementById("du-read");
+      var dies = TD2.dies(hp, turret.dmg, turret.rate, w);
+      read.className = "result " + (dies ? "win" : "miss");
+      read.innerHTML = dies
+        ? "☠️ <b>The bug dies</b> — kill time " + (Math.round(kt * 100) / 100) + " s fits inside the " + (Math.round(w * 100) / 100) + " s window." + (TD2.overkill(hp, turret.dmg) ? " (Overkill wasted: " + TD2.overkill(hp, turret.dmg) + ".)" : "")
+        : "🏃 <b>It escapes</b> — kill time " + (Math.round(kt * 100) / 100) + " s doesn't fit the " + (Math.round(w * 100) / 100) + " s window. Slide the road closer, or bring more DPS.";
+    }
+    document.getElementById("du-gun").addEventListener("click", function () {
+      turret = { dmg: 3, rate: 2, name: "Gunner", icon: "🔫" };
+      this.className = "btn"; document.getElementById("du-mor").className = "btn ghost"; paint();
+    });
+    document.getElementById("du-mor").addEventListener("click", function () {
+      turret = { dmg: 14, rate: 0.5, name: "Mortar", icon: "💣" };
+      this.className = "btn"; document.getElementById("du-gun").className = "btn ghost"; paint();
+    });
+    document.getElementById("du-b").addEventListener("input", paint);
+    document.getElementById("du-hp").addEventListener("input", paint);
+    paint();
+  })();
+
+  // ---------- §5 duel referee ----------
+  (function () {
+    var streak = 0, cur = null;
+    var read = document.getElementById("dr-read");
+    function newCase() {
+      var t = [[3, 2, "🔫 Gunner"], [14, 0.5, "💣 Mortar"], [5, 1, "🏹 turret"]][Math.floor(Math.random() * 3)];
+      var hp = [12, 15, 20, 28, 30, 42, 45, 60][Math.floor(Math.random() * 8)];
+      var w = 2 + Math.floor(Math.random() * 9);
+      cur = { dmg: t[0], rate: t[1], name: t[2], hp: hp, w: w, ans: TD2.dies(hp, t[0], t[1], w) };
+      document.getElementById("dr-q").innerHTML =
+        cur.name + ": <b>" + cur.dmg + " dmg</b> at <b>" + cur.rate + "/s</b> (first shot instant) &nbsp;vs&nbsp; a bug with <b>" + hp + " HP</b> in range for <b>" + w + " s</b>.";
+      read.className = "result"; read.innerHTML = "Streak: <b>" + streak + "</b>";
+    }
+    function answer(v) {
+      var s = TD2.shots(cur.hp, cur.dmg), kt = TD2.killTime(cur.hp, cur.dmg, cur.rate);
+      var working = "⌈" + cur.hp + "/" + cur.dmg + "⌉ = " + s + " shots → kill time " + (s - 1) + "÷" + cur.rate + " = " + (Math.round(kt * 100) / 100) + " s vs window " + cur.w + " s";
+      if (v === cur.ans) {
+        streak++;
+        read.className = "result win";
+        read.innerHTML = "✅ " + working + " — correct ruling. Streak: <b>" + streak + "</b>";
+        if (window.DadMath) {
+          DadMath.best("td2-duels", Math.max(DadMath.getBest("td2-duels") || 0, streak));
+          if (streak === 3 && DadMath.badge("td-dps")) {
+            DadMath.star("td2", 2, "Damage Accountant — three duels refereed perfectly");
+            read.innerHTML += " &nbsp;⚔️ <b>Badge earned: Damage Accountant!</b>";
+          }
+        }
+        setTimeout(newCase, 1500);
+      } else {
+        streak = 0;
+        read.className = "result miss";
+        read.innerHTML = "❌ " + working + " → the bug " + (cur.ans ? "dies" : "escapes") + ". (streak reset)";
+        setTimeout(newCase, 3000);
+      }
+    }
+    document.getElementById("dr-die").addEventListener("click", function () { answer(1); });
+    document.getElementById("dr-esc").addEventListener("click", function () { answer(0); });
+    document.getElementById("dr-new").addEventListener("click", newCase);
+    newCase();
+  })();
+
+  // ---------- §6 puzzle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    var booted = false;
+    function newQ() {
+      q = TD2.GENS[Math.floor(Math.random() * TD2.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; if (booted) input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ Balanced books. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath && streak % 3 === 0) DadMath.star("td2", 1, "Damage drills — streak " + streak);
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ(); booted = true;
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

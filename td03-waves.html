@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TD 3 · The Doom Curve — Math in Half an Hour</title>
+<meta name="description" content="Why tower defense waves always win eventually: percent growth compounds into an exponential curve, your income is only a line, and the rule of 72 tells you when doom arrives.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.stage { display: block; margin: 10px auto; background: #faf9f5; border: 1px solid var(--line); border-radius: 12px; max-width: 100%; }
+.hptable { margin: 12px auto; border-collapse: collapse; font-family: var(--mono); font-size: .85rem; }
+.hptable td, .hptable th { border: 1px solid var(--line); padding: 4px 9px; text-align: center; }
+.hptable th { background: var(--panel); }
+.readrow { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; font-size: .95rem; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Tower Lab · Investigation 03 · under the hood of Core Keep</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">The Doom Curve</h1>
+    <p class="lede">You may have noticed something unfair about <a href="td00-core-keep.html">Core Keep</a>:
+      the bugs get tougher <em>faster</em> than you get richer. That's not a bug — it's THE design.
+      Tonight: how “+25% per wave” quietly becomes a rocket, why your coin income is merely a line,
+      and the one-division trick that predicts the wave where every defense on Earth must fall.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">percent growth · exponentials</span> &nbsp; <span class="badge green">📈 predict the doom wave</span></p>
+  </header>
+
+  <!-- 1 THE RULE -->
+  <h2>1 · The game's actual rule</h2>
+  <p>Here is the line from the engine, word for word: <span style="font-family:var(--mono)">hp = 14 × 1.25<sup>wave−1</sup></span>.
+    Multiplying by 1.25 is the same as <b>adding 25%</b> — a quarter more, every wave, <em>of the new
+    amount</em>. That “of the new amount” is everything. Watch it feed on itself:</p>
+  <table class="hptable">
+    <tr><th>wave</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr>
+    <tr><th>grunt HP</th><td>14</td><td>18</td><td>22</td><td>27</td><td>34</td><td>43</td><td>53</td><td>67</td><td>83</td><td>104</td></tr>
+  </table>
+  <p>From 14 to 104 — more than <b>7×</b> — in ten waves, and no single step ever looked scary.
+    Check the table: the HP roughly <b>doubles every 3 waves</b> (14 → 27 → 53 → 104). That's because
+    <span class="katex-inline">1.25^3 \approx 1.95 \approx 2</span>. Growth that multiplies is called
+    <b>exponential</b>, and its superpower is exactly this disguise: each step looks tame, the total
+    is a monster.</p>
+
+  <!-- 2 THE RACE -->
+  <h2>2 · The race you cannot win</h2>
+  <p>Meanwhile your side grows by <em>addition</em>: each wave's bounty buys you roughly one more
+    Gunner — a fixed +6 DPS. Adding the same amount each step draws a straight <b>line</b>. And here
+    is the theorem that runs every endless game: <b>an exponential curve eventually crosses ANY
+    line</b>. Any slope. Always. The only question is <em>when</em>.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">📈</span> The doom chart</div>
+    <p class="phint">Red: the swarm's total HP each wave (grows by a percent). Blue: the damage your
+      army can pour out during a wave (grows by a fixed amount). Slide both — can you make the
+      crossing disappear?</p>
+    <svg class="stage" id="dm-svg" viewBox="0 0 460 260" width="460" height="260" aria-label="exponential swarm HP versus linear damage capacity"></svg>
+    <div class="ctrlrow" style="justify-content:center">
+      <label style="font-weight:700">HP growth <input type="range" id="dm-g" min="0" max="40" step="5" value="25" style="width:130px; vertical-align:middle"> <span id="dm-gv" style="font-family:var(--mono)">25%</span></label>
+      <label style="font-weight:700">new gunners/wave <input type="range" id="dm-k" min="1" max="3" step="1" value="1" style="width:100px; vertical-align:middle"> <span id="dm-kv" style="font-family:var(--mono)">1</span></label>
+    </div>
+    <div class="result" id="dm-read">…</div>
+  </div>
+  <p>Notice the two ways out: set growth to <b>0%</b> (the bugs give up on percents — now it's line
+    vs line, and the faster line wins forever), or… there is no “or”. As long as the percent is
+    positive, doom has a date. The designers of Core Keep chose +25% precisely so that date lands
+    <em>just past wave 10</em> — you're meant to win the war seconds before it becomes unwinnable.
+    Now you know why endless modes are called “endless”: it's a joke at your expense.</p>
+
+  <!-- 3 RULE OF 72 -->
+  <h2>3 · The banker's shortcut</h2>
+  <p>Want the doubling time without a calculator? Bankers have used one division for centuries:</p>
+  <p>$$\text{waves to double} \approx \frac{72}{\text{percent growth}}$$</p>
+  <p>72 ÷ 25 ≈ 3 — our every-3-waves doubling, instantly. This <b>rule of 72</b> is the same math as
+    money earning interest (8% → doubles in ~9 years), a virus spreading (+25% a day → cases double
+    every 3 days — remember?), and populations growing. One game rule, half the news explained.</p>
+
+  <!-- 4 GAME -->
+  <h2>4 · The Doom Oracle</h2>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🔮</span> Prophesy the curve</div>
+    <p class="phint">Forecast doubling chains, growth steps and crossing points. Streak of 3 = the
+      📈 <b>Doom Prophet</b> badge.</p>
+    <p class="qcount" id="pz-prompt">…</p>
+    <div class="ctrlrow">
+      <input class="answer" id="pz-input" type="text" inputmode="numeric" placeholder="answer" aria-label="your answer" style="width:10ch">
+      <button class="btn" id="pz-check">Check</button>
+      <button class="btn ghost" id="pz-reveal">show working</button>
+      <button class="btn ghost" id="pz-new">new question</button>
+    </div>
+    <div class="result" id="pz-result">…</div>
+  </div>
+
+  <h2>Try this tonight</h2>
+  <ul>
+    <li><strong>The chessboard legend:</strong> 1 grain of rice on square one, doubled every square.
+      Guess square 64 out loud first — then compute a few doublings. (It's about 500× all the rice
+      humanity grows in a year.)</li>
+    <li><strong>In the game:</strong> reach endless mode and watch wave 13 — HP ≈ 204, doubled again from
+      wave 10, right on schedule. Feel the line lose.</li>
+    <li><strong>Ask a grown-up</strong> what interest rate their savings earn, then hit it with the rule
+      of 72. Watch their face when you announce the doubling year.</li>
+  </ul>
+
+  <p class="muted small">percent growth · compounding · exponential vs linear · hp = 14 × 1.25ⁿ⁻¹ · rule of 72 · doubling time</p>
+
+  <div class="lessonnav">
+    <a href="td02-dps.html">← TD 2: The Damage Budget</a>
+    <a href="td04-targeting.html">TD 4: Who to Shoot? →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=17"></script>
+<script>
+/* === TD3:PURE START === (DOM-free growth math; node-tested before deploy)
+   swarmHP(n) = grunt count × grunt HP (exponential); capacity(n) = wave time × army DPS (linear).
+   Doom = first wave the red curve tops the blue line. */
+var TD3 = {};
+TD3.hpAt = function (n, growth) { return Math.round(14 * Math.pow(1 + growth / 100, n - 1)); };
+TD3.swarmHP = function (n, growth) { return (5 + 2 * n) * TD3.hpAt(n, growth); };
+/* your army: start with 2 gunners, add k per wave; a wave gives you ~40s of shooting at 6 DPS each */
+TD3.capacity = function (n, k) { return 40 * 6 * (2 + k * n); };
+TD3.doomWave = function (growth, k, maxN) {
+  for (var n = 1; n <= (maxN || 40); n++) if (TD3.swarmHP(n, growth) > TD3.capacity(n, k)) return n;
+  return 0;   // no doom within the horizon
+};
+TD3.doubleTime72 = function (pct) { return 72 / pct; };
+
+/* puzzle generators: {text, ans, why} — answers re-verified in node by parsing the text */
+TD3.GENS = [
+  function (rng) {   // one +25% step
+    var h = [16, 24, 32, 40, 48, 60, 80][Math.floor(rng() * 7)];
+    return { text: "This wave the grunts have " + h + " HP. Next wave they grow +25%. New HP?",
+             ans: h * 1.25,
+             why: "a quarter of " + h + " is " + (h / 4) + "; " + h + " + " + (h / 4) + " = " + (h * 1.25) };
+  },
+  function (rng) {   // doubling chain
+    var h = [10, 14, 20][Math.floor(rng() * 3)], k = 2 + Math.floor(rng() * 3);
+    return { text: "Bug HP doubles every 3 waves. Wave 1: " + h + " HP. What is it around wave " + (1 + 3 * k) + "?",
+             ans: h * Math.pow(2, k),
+             why: k + " doublings: " + h + " × 2^" + k + " = " + (h * Math.pow(2, k)) };
+  },
+  function (rng) {   // exponential crosses the line
+    var pick = Math.floor(rng() * 2);
+    if (pick === 0) return { text: "Bug: 10 HP, DOUBLING every wave. Hero: 20 damage, +20 more per wave (20, 40, 60…). First wave the bug survives the hero? ",
+                             ans: 5, why: "bug 10,20,40,80,160 vs hero 20,40,60,80,100 — wave 4 ties, wave 5 the rocket clears the line" };
+    return { text: "Bug: 5 HP, DOUBLING every wave. Hero: 20 damage, +20 more per wave. First wave the bug survives?",
+             ans: 6, why: "bug 5,10,20,40,80,160 vs hero 20,40,60,80,100,120 — at wave 6, 160 > 120: the line never had a chance" };
+  },
+  function (rng) {   // rule of 72
+    var p = [[6, 12], [8, 9], [9, 8], [12, 6], [24, 3]][Math.floor(rng() * 5)];
+    return { text: "A swarm grows " + p[0] + "% per wave. Using the rule of 72, about how many waves until its HP doubles?",
+             ans: p[1],
+             why: "72 ÷ " + p[0] + " = " + p[1] + " waves (the banker's shortcut)" };
+  }
+];
+/* === TD3:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+  // ---------- §2 doom chart ----------
+  (function () {
+    var svg = document.getElementById("dm-svg");
+    var N = 14, W = 460, H = 260, L = 44, B = 226;
+    function paint() {
+      var g = +document.getElementById("dm-g").value, k = +document.getElementById("dm-k").value;
+      document.getElementById("dm-gv").textContent = g + "%";
+      document.getElementById("dm-kv").textContent = k;
+      var swarm = [], cap = [], max = 0, n;
+      for (n = 1; n <= N; n++) {
+        swarm.push(TD3.swarmHP(n, g)); cap.push(TD3.capacity(n, k));
+        max = Math.max(max, swarm[n - 1], cap[n - 1]);
+      }
+      var doom = TD3.doomWave(g, k, 40);
+      function X(n) { return L + (n - 1) / (N - 1) * (W - L - 14); }
+      function Y(v) { return B - v / max * (B - 22); }
+      var h = "<line x1='" + L + "' y1='" + B + "' x2='" + (W - 10) + "' y2='" + B + "' stroke='#999'/>" +
+              "<line x1='" + L + "' y1='14' x2='" + L + "' y2='" + B + "' stroke='#999'/>";
+      for (n = 1; n <= N; n++) h += "<text x='" + X(n) + "' y='" + (B + 14) + "' text-anchor='middle' font-size='10' fill='#888'>" + n + "</text>";
+      function path(arr, color) {
+        var d = arr.map(function (v, i) { return (i ? "L" : "M") + X(i + 1).toFixed(1) + " " + Y(v).toFixed(1); }).join(" ");
+        return "<path d='" + d + "' fill='none' stroke='" + color + "' stroke-width='2.5'/>";
+      }
+      h += path(cap, "#1565c0") + path(swarm, "#c62828");
+      if (doom && doom <= N) {
+        h += "<line x1='" + X(doom) + "' y1='14' x2='" + X(doom) + "' y2='" + B + "' stroke='#c62828' stroke-dasharray='5 4'/>" +
+             "<text x='" + X(doom) + "' y='12' text-anchor='middle' font-size='12' font-weight='700' fill='#c62828'>💀 wave " + doom + "</text>";
+      }
+      h += "<text x='" + (W - 14) + "' y='" + (Y(swarm[N - 1]) - 8) + "' text-anchor='end' font-size='12' font-weight='700' fill='#c62828'>swarm HP</text>";
+      h += "<text x='" + (W - 14) + "' y='" + (Y(cap[N - 1]) + 16) + "' text-anchor='end' font-size='12' font-weight='700' fill='#1565c0'>your damage</text>";
+      svg.innerHTML = h;
+      var read = document.getElementById("dm-read");
+      if (!doom) { read.className = "result win"; read.innerHTML = "🎉 No doom within 40 waves — with 0% growth the exponential gave up its superpower. (This is exactly why no real game lets you have this.)"; }
+      else { read.className = "result " + (doom > 10 ? "" : "miss"); read.innerHTML = "💀 Doom arrives at <b>wave " + doom + "</b> — the first wave the swarm's HP tops the damage you can deal. " + (doom > 10 ? "Past wave 10: the designers left you room to win first." : "Before wave 10 — this setting would make Core Keep unwinnable!"); }
+    }
+    document.getElementById("dm-g").addEventListener("input", paint);
+    document.getElementById("dm-k").addEventListener("input", paint);
+    paint();
+  })();
+
+  // ---------- §4 doom oracle ----------
+  (function () {
+    var streak = 0, best = 0, q = null;
+    var promptEl = document.getElementById("pz-prompt"), input = document.getElementById("pz-input"), resEl = document.getElementById("pz-result");
+    var booted = false;
+    function newQ() {
+      q = TD3.GENS[Math.floor(Math.random() * TD3.GENS.length)](Math.random);
+      promptEl.innerHTML = q.text;
+      input.value = ""; if (booted) input.focus();
+      resEl.className = "result"; resEl.innerHTML = "Streak: <b>" + streak + "</b> &nbsp;·&nbsp; Best: <b>" + best + "</b>";
+    }
+    function check() {
+      var v = input.value.trim();
+      if (v === "") return;
+      if (+v === q.ans) {
+        streak++; best = Math.max(best, streak);
+        resEl.className = "result win";
+        resEl.innerHTML = "✅ The curve obeys you. &nbsp;Streak: <b>" + streak + "</b> · Best: <b>" + best + "</b>";
+        if (window.DadMath) {
+          DadMath.best("td3-oracle", Math.max(DadMath.getBest("td3-oracle") || 0, streak));
+          if (streak === 3 && DadMath.badge("td-curve")) {
+            DadMath.star("td3", 2, "Doom Prophet — three curve prophecies in a row");
+            resEl.innerHTML += " &nbsp;📈 <b>Badge earned: Doom Prophet!</b>";
+          } else if (streak % 3 === 0) DadMath.star("td3", 1, "Curve drills — streak " + streak);
+        }
+      } else {
+        streak = 0;
+        resEl.className = "result miss";
+        resEl.innerHTML = "❌ " + q.why + ". (streak reset)";
+      }
+    }
+    document.getElementById("pz-check").addEventListener("click", check);
+    document.getElementById("pz-reveal").addEventListener("click", function () {
+      resEl.className = "result"; resEl.innerHTML = "Working: <span style='font-family:var(--mono)'>" + q.why + "</span>";
+    });
+    document.getElementById("pz-new").addEventListener("click", newQ);
+    input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+    newQ(); booted = true;
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

@@ -148,6 +148,36 @@ pencil-style SVG rendering, which is **vendored and embedded live** in the final
   (curved vs flat) / hidden-line style / camera orbit, live stroke counts, and **download as
   SVG**. Render all five = Studio Artist badge + the homework check. → `sk05-studio.html`
 
+## 🏰 Tower Lab
+
+A full tower defense game, plus a four-lesson series that pries the game open and shows the
+arithmetic running underneath. Everything is built on a single shared, DOM-free engine
+(`assets/td.js`) — pure functions and state, node-testable in isolation, that also power TD·4's
+headless strategy races. The game itself, `td00-core-keep.html`, is a real playable defense: three
+turret types with real DPS economics, ten waves growing at +25% HP each, four targeting modes, sell
+at 75% refund, and a fixed-timestep deterministic simulation (same seed, same run, every time).
+
+- **🏰 TD·0 Core Keep** — the game. Hold the crystal core through all ten waves with zero luck
+  involved. Badge: Keep Holder. Also self-checks the homework bank (`td0`) the moment you win.
+  → `td00-core-keep.html`
+- **📡 TD·1 The Range Ring** — how a turret knows a bug is in range, thirty times a second:
+  Pythagoras, and the classic trick of comparing squared distance to squared radius so the game
+  never takes a square root. Touches the Gauss circle problem along the way. Badge: Ring Ranger.
+  → `td01-range.html`
+- **⚔️ TD·2 The Damage Budget** — DPS, ⌈HP ÷ damage⌉ shots to kill, why kill time counts the *gaps*
+  between shots, overkill waste, the escape window 2√(r²−b²), and value-per-coin — the arithmetic
+  behind every shop screen ever made. Badge: Damage Accountant. → `td02-dps.html`
+- **📈 TD·3 The Doom Curve** — bug HP follows hp = 14 × 1.25^(wave−1) while your income only adds;
+  an exponential crosses any straight line eventually, and the rule of 72 predicts exactly which
+  wave breaks any fixed defense. Badge: Doom Prophet. → `td03-waves.html`
+- **🎯 TD·4 Who to Shoot?** — First, Last, Strongest, Closest: each targeting mode is a one-line
+  comparison or argmax. Race all four head-to-head on the real game engine, headless, and watch
+  the "obvious" answer lose to measurement. Ends in a snapshot quiz. Badge: Target Master.
+  → `td04-targeting.html`
+
+Tower Lab adds homework banks `td1`–`td4` (checked the normal way) plus `td0`, a self-passing
+Core Keep check that marks itself off the moment you hold all ten waves in the game.
+
 ## 🎮 Game Lab
 
 The games the kid already loves (Factorio, StarCraft, Deep Rock Galactic), taken apart and rebuilt
