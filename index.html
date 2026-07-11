@@ -81,7 +81,7 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
     <a class="card" href="homework.html">
       <div class="num">📓</div>
       <h3>The Homework Check</h3>
-      <p>Prove each lesson stuck: 5 fresh random questions, pass with 4. Checked-off lessons stay ✅ on this device. All five = the 🎓 badge.</p>
+      <p>Prove each lesson stuck — <b>every page on the site has a check</b>: 5 fresh random questions, pass with 4 and it's ✅ here. All five math checks = 🎓; every check = 🧑‍🎓 Professor.</p>
       <div class="go">Take a check →</div>
     </a>
 
@@ -296,15 +296,16 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 <script defer src="assets/site.js"></script>
-<script defer src="assets/game.js?v=13"></script>
+<script defer src="assets/game.js?v=14"></script>
 <script>
   // render the tiny inline snippets used in cards
   document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".katex-inline").forEach(function (el) {
       if (window.katex) katex.render(el.textContent, el, { throwOnError: false });
     });
-    // completion ticks on lesson cards: math lessons complete via their homework check,
-    // everything else via its lesson badge (each page's main achievement)
+    // completion ticks on lesson cards: a card is done when EITHER its homework check is
+    // passed (on homework.html) OR its page's main badge is earned. First matching row
+    // ticks the card; later rows for the same card are skipped.
     if (window.DadMath) {
       var P = DadMath.data();
       [
@@ -336,12 +337,34 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
         ["gm03-rps-scv.html",        "badge", "gm-scv",       "✅ done"],
         ["qm01-quantum-story.html",  "badge", "qm-story",     "✅ read"],
         ["st01-pirates.html",        "badge", "story-pirate", "✅ read"],
-        ["st02-twenty-questions.html","badge","story-bits",   "✅ read"]
+        ["st02-twenty-questions.html","badge","story-bits",   "✅ read"],
+        ["cs01-binary.html",         "hw",    "cs1",          "✅ checked"],
+        ["cs02-secret-codes.html",   "hw",    "cs2",          "✅ checked"],
+        ["cs03-logins.html",         "hw",    "cs3",          "✅ checked"],
+        ["cs04-sorting.html",        "hw",    "cs4",          "✅ checked"],
+        ["cs05-qubits.html",         "hw",    "cs5",          "✅ checked"],
+        ["cs06-entanglement.html",   "hw",    "cs6",          "✅ checked"],
+        ["gt01-bridges.html",        "hw",    "g1",           "✅ checked"],
+        ["gt02-handshakes.html",     "hw",    "g2",           "✅ checked"],
+        ["gt03-map-coloring.html",   "hw",    "g3",           "✅ checked"],
+        ["gm01-winning-games.html",  "hw",    "gm1",          "✅ checked"],
+        ["gm02-prisoners-dilemma.html","hw",  "gm2",          "✅ checked"],
+        ["gm03-rps-scv.html",        "hw",    "gm3",          "✅ checked"],
+        ["gl01-game-loop.html",      "hw",    "gl1",          "✅ checked"],
+        ["gl02-pathfinding.html",    "hw",    "gl2",          "✅ checked"],
+        ["gl03-factory.html",        "hw",    "gl3",          "✅ checked"],
+        ["gl04-worlds.html",         "hw",    "gl4",          "✅ checked"],
+        ["gl05-projectiles.html",    "hw",    "gl5",          "✅ checked"],
+        ["gl06-hitboxes.html",       "hw",    "gl6",          "✅ checked"],
+        ["gl07-minecraft-worlds.html","hw",   "gl7",          "✅ checked"],
+        ["qm01-quantum-story.html",  "hw",    "qm1",          "✅ checked"],
+        ["st01-pirates.html",        "hw",    "st1",          "✅ checked"],
+        ["st02-twenty-questions.html","hw",   "st2",          "✅ checked"]
       ].forEach(function (row) {
+        var card = document.querySelector('a.card[href="' + row[0] + '"]');
+        if (!card || card.classList.contains("done")) return;
         var earned = row[1] === "hw" ? DadMath.hwDone(row[2]) : !!P.badges[row[2]];
         if (!earned) return;
-        var card = document.querySelector('a.card[href="' + row[0] + '"]');
-        if (!card) return;
         card.classList.add("done");
         var h = card.querySelector("h3");
         if (h) h.insertAdjacentHTML("beforeend", " <span class='hwtick'>" + row[3] + "</span>");
