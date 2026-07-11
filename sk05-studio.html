@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SK 5 · The Sketch Studio — Math in Half an Hour</title>
+<meta name="description" content="Drive a real open-source sketch-rendering engine (Krbn): pick a scene, dial wobble, hatch mode, x-ray ghosting and camera orbit, and it draws exact pencil-style SVG before your eyes — plotter food included.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+.canvaswrap { background: #faf9f5; border: 1px solid var(--line); border-radius: 14px; padding: 8px; margin: 10px 0; min-height: 200px; display: flex; align-items: center; justify-content: center; }
+.canvaswrap svg { max-width: 100%; height: auto; display: block; }
+.knobs { display: flex; gap: 14px 22px; flex-wrap: wrap; justify-content: center; align-items: center; margin: 10px 0; }
+.knobs label { font-weight: 700; font-size: .92rem; }
+.knobs select { font: inherit; font-weight: 700; padding: 6px 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--panel-2); color: inherit; }
+.presetrow { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 10px 0; }
+.presetbtn { font-weight: 800; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--panel-2); cursor: pointer; transition: transform .1s ease, border-color .1s ease; }
+.presetbtn:hover { transform: translateY(-2px); border-color: var(--primary); }
+.presetbtn.on { border-color: var(--primary); }
+.presetbtn.rendered { border-color: var(--good); }
+.statrow { display: flex; gap: 18px; justify-content: center; font-family: var(--mono); font-weight: 700; flex-wrap: wrap; margin: 8px 0; font-size: .9rem; }
+.quote { border-left: 4px solid var(--accent); padding: 6px 14px; margin: 12px 0; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">Sketch Lab · Topic 05 · The robot artist, complete</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">The Sketch Studio</h1>
+    <p class="lede">Everything from the last four lessons, running for real. This page carries an actual
+      open-source rendering engine — <b>Krbn</b>, by Valeriu Paloș — that does live what you learned in
+      theory: it <a href="sk01-flatten.html">flattens 3D onto glass</a>, <em>solves equations</em> for the
+      <a href="sk02-silhouettes.html">exact outlines</a>, <a href="sk03-hidden-lines.html">bites out or
+      ghosts the hidden pieces</a>, and <a href="sk04-hatching.html">hatches and wobbles on purpose</a>.
+      Your knobs. Its math. Go.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ open-ended</span> &nbsp; <span class="badge amber">finish SK·1–SK·4 first, then every knob makes sense</span> &nbsp; <span class="badge green">🖋️ render all five scenes = badge</span></p>
+  </header>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🖋️</span> The studio</div>
+    <p class="phint">Pick a scene, turn the knobs, hit <b>Sketch it</b>. Rendered scenes turn green —
+      all five earn the 🖋️ <b>Studio Artist</b> badge (and check the homework box). The space-time well
+      takes a few seconds: it's ~8,000 triangles of real math, be kind.</p>
+    <div class="presetrow" id="st-presets"></div>
+    <div class="knobs">
+      <label>wobble <input type="range" id="st-wobble" min="0" max="100" value="35" style="width:130px; vertical-align:middle"> <span id="st-wv" style="font-family:var(--mono)">35%</span></label>
+      <label>hatching <select id="st-hatch">
+        <option value="off">off (outlines only)</option>
+        <option value="single" selected>single</option>
+        <option value="cross">cross</option>
+        <option value="triple">triple</option>
+      </select></label>
+      <label>grain <select id="st-field">
+        <option value="curved" selected>curved (follows surface)</option>
+        <option value="flat">flat parallels</option>
+      </select></label>
+      <label>hidden lines <select id="st-hidden">
+        <option value="ghost" selected>ghost (x-ray)</option>
+        <option value="drop">drop (paper)</option>
+      </select></label>
+      <label>orbit <input type="range" id="st-orbit" min="0" max="360" value="30" step="5" style="width:130px; vertical-align:middle"> <span id="st-ov" style="font-family:var(--mono)">30°</span></label>
+    </div>
+    <div class="ctrlrow" style="justify-content:center">
+      <button class="btn" id="st-render">✏️ Sketch it</button>
+      <button class="btn ghost" id="st-download" disabled>⬇ download SVG</button>
+    </div>
+    <div class="canvaswrap" id="st-out"><span class="muted">press <b>&nbsp;Sketch it&nbsp;</b> — the engine draws right here</span></div>
+    <div class="statrow"><span>time <b id="st-ms">–</b></span><span>strokes <b id="st-strokes">–</b></span><span>rendered <b id="st-count">0/5</b></span></div>
+    <div class="result" id="st-read">The studio is warmed up.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Knob experiments from the lessons:</span> ① set hatching <b>cross</b> and flip
+    <b>grain</b> between curved and flat — watch the snowman turn from round to printed (SK·4 §2).
+    ② set hidden lines to <b>ghost</b> and orbit the donut — the far side shows through as faint
+    dashes (SK·3). ③ wobble 0 vs 80 — ruler vs hand (SK·4 §3). ④ orbit any scene 180° — outlines
+    get re-<em>solved</em>, not re-photographed (SK·2).
+  </div>
+
+  <h2>Plotter food</h2>
+  <p>The download button gives you the drawing as an <b>SVG</b> — not a grid of pixels but a list of
+    exact strokes. That's a file a <b>pen plotter</b> (a robot arm holding a real pen) can draw on real
+    paper with real ink. It's also why you can zoom the sketch forever and it never goes blocky.
+    Keep your favourites — if we ever get hands on a plotter, your renders are ready for it.</p>
+
+  <h2>Genesis imperfecta</h2>
+  <p>Krbn is open source (MIT licensed) and was built by <b>Valeriu Paloș</b> —
+    <a href="https://github.com/vpalos/krbn">github.com/vpalos/krbn</a>. It was his childhood dream
+    project, and the reason it exists is the same question this whole Lab has been circling:</p>
+  <div class="quote">
+    “A human being can convey far more meaning in a drawing than any machine-like photorealistic
+    render — precisely by being willing to go the other way: to renounce detail, to drop precision,
+    even to deliberately introduce impurities and imperfections. Ah — but which detail to drop?
+    Which imperfections to introduce? That is the fascinating part.”
+  </div>
+  <p>You now know his engine's current answers: drop what's hidden (SK·3), keep outlines exact but
+    optional details quiet, add wobble that's secretly deterministic (SK·4). Maybe someday you'll
+    have better answers — the code is right there, free, for anyone to improve.</p>
+
+  <h2>Try this tonight</h2>
+  <ul>
+    <li><strong>Art show:</strong> render the same scene three ways (wobble 0 / 40 / 90), print or
+      screenshot them, and ask the family which drawing has the most <em>life</em>. Tally the votes.</li>
+    <li><strong>Spot the lessons:</strong> in one render, point at: a silhouette the engine solved,
+      a stroke that got bitten, a ghost line, hatching that follows the grain. One example each.</li>
+    <li><strong>Dream a scene:</strong> the engine also knows cones, helixes and imported 3D files.
+      Sketch (with a pencil!) the scene you'd build if you wrote code for it. That drawing is a plan.</li>
+  </ul>
+
+  <p class="muted small">rendering engine · SVG · strokes not pixels · plotter · open source · MIT · genesis imperfecta</p>
+
+  <div class="lessonnav">
+    <a href="sk04-hatching.html">← SK 4: Shading with Lines</a>
+    <a href="index.html#sketch">Sketch Lab home →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math ·
+  sketching by <a href="https://github.com/vpalos/krbn">Krbn</a> (MIT)
+</footer>
+
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=16"></script>
+<script defer src="assets/krbn.js?v=1"></script>
+<script>
+/* === SK5:PURE START === (scene builders for the Krbn engine; node-tested against the
+   vendored bundle before deploy. Each preset returns a fresh Scene; SK5.build renders it
+   with the user's knob settings applied as the scene-wide default style.) */
+var SK5 = {};
+SK5.W = 560; SK5.H = 420;
+SK5.PRESETS = [
+  { key: "snowman", label: "⛄ Snowman", dist: 7.5, elev: 2.4, target: [0, 0, 1.1], scale: Math.PI / 5.5,
+    note: "three spheres, a cone nose, a proper hat — all exact primitives",
+    build: function (K, scene) {
+      scene.add(K.sphere([0, 0, 0], 1)).setImportance(1, { role: "subject" });
+      scene.add(K.sphere([0, 0, 1.25], 0.72));
+      scene.add(K.sphere([0, 0, 2.25], 0.5));
+      scene.add(new K.Cone([0, -1.06, 2.28], [0, 0.58, 0], 0.13)).style({ hatch: null });
+      scene.add(new K.Cylinder([0, 0, 2.6], [0, 0, 0.07], 0.44)).style({ hatch: null });
+      scene.add(new K.Cylinder([0, 0, 2.67], [0, 0, 0.42], 0.28));
+      scene.add(new K.Line([0.62, 0, 1.45], [1.7, 0, 2.05]));
+      scene.add(new K.Line([-0.62, 0, 1.45], [-1.7, 0, 2.05]));
+      scene.add(new K.Point([0.17, -0.44, 2.42], { mark: "dot", sizePx: 3.5 }));
+      scene.add(new K.Point([-0.17, -0.44, 2.42], { mark: "dot", sizePx: 3.5 }));
+      scene.add(new K.Polygon([[-2.6, -2.6, -1], [2.6, -2.6, -1], [2.6, 2.6, -1], [-2.6, 2.6, -1]]))
+        .setImportance(0.3, { role: "context" }).style({ hatch: null });
+    } },
+  { key: "hello", label: "🌐 Sphere & pipe", dist: 6.5, elev: 2.2, target: [0.6, 0, 0], scale: Math.PI / 5,
+    note: "the engine's hello-world: one ball, one see-through cylinder",
+    build: function (K, scene) {
+      scene.add(K.sphere([0, 0, 0], 1)).setImportance(1, { role: "subject" });
+      scene.add(new K.Cylinder([1.7, 0, -1], [0, 0, 2], 0.5)).setImportance(0.4, { role: "context" });
+    } },
+  { key: "donut", label: "🍩 Donut", dist: 6.8, elev: 2.6, target: [0, 0, 0], scale: Math.PI / 5,
+    note: "a torus — its outline is a quartic curve, the hardest math on this site",
+    build: function (K, scene) {
+      scene.add(new K.Torus([0, 0, 0], [0, 0, 1], 1.45, 0.55)).setImportance(1, { role: "subject" });
+    } },
+  { key: "knot", label: "🪢 Trefoil knot", dist: 8.5, elev: 3, target: [0, 0, 0], scale: Math.PI / 5,
+    note: "a knotted tube built from triangles — the mesh pipeline",
+    build: function (K, scene) {
+      scene.add(new K.Mesh(K.shapes.knotTube(0.3, 150, 20, 0.5))).setImportance(1, { role: "subject" });
+    } },
+  { key: "well", label: "🕳️ Space-time well", dist: 9, elev: 4.2, target: [0, 0, -0.3], scale: Math.PI / 5.2,
+    note: "a heavy ball bending a sheet — gravity, drawn (give it a few seconds)",
+    build: function (K, scene) {
+      scene.add(new K.Mesh(K.shapes.gravitySheet(3, 64, 1.7, 0.95))).setImportance(0.5, { role: "context" });
+      scene.add(K.sphere([0, 0, 0.42], 0.5)).setImportance(1, { role: "subject" });
+    } }
+];
+SK5.camera = function (preset, orbitDeg) {
+  var a = orbitDeg * Math.PI / 180;
+  return {
+    eye: [preset.dist * Math.sin(a), -preset.dist * Math.cos(a), preset.elev],
+    target: preset.target, up: [0, 0, 1],
+    projection: "perspective", scale: preset.scale,
+    viewport: { width: SK5.W, height: SK5.H }
+  };
+};
+/* opts: { wobble: 0..1, hatch: "off"|"single"|"cross"|"triple", field: bool, hidden: "ghost"|"drop", orbit: deg } */
+SK5.build = function (K, key, opts) {
+  var preset = null;
+  for (var i = 0; i < SK5.PRESETS.length; i++) if (SK5.PRESETS[i].key === key) preset = SK5.PRESETS[i];
+  var scene = new K.Scene({
+    svg: { background: "#faf9f5" },
+    light: { direction: [-0.45, -0.5, -0.65] },
+    style: {
+      wobble: opts.wobble,
+      hidden: opts.hidden,
+      hatch: opts.hatch === "off" ? null : { mode: opts.hatch, angle: 20, spacingPx: 9, field: opts.field }
+    }
+  });
+  preset.build(K, scene);
+  return scene.toSVG(SK5.camera(preset, opts.orbit));
+};
+/* === SK5:PURE END === */
+
+document.addEventListener("DOMContentLoaded", function () {
+  var current = "snowman", lastSvg = null, rendered = {};
+  var out = document.getElementById("st-out"), read = document.getElementById("st-read");
+  var renderBtn = document.getElementById("st-render"), dlBtn = document.getElementById("st-download");
+
+  // preset buttons
+  var row = document.getElementById("st-presets");
+  SK5.PRESETS.forEach(function (p) {
+    var b = document.createElement("button");
+    b.className = "presetbtn" + (p.key === current ? " on" : "");
+    b.id = "st-pb-" + p.key;
+    b.textContent = p.label;
+    b.addEventListener("click", function () {
+      current = p.key;
+      SK5.PRESETS.forEach(function (q) {
+        var el = document.getElementById("st-pb-" + q.key);
+        el.className = "presetbtn" + (q.key === current ? " on" : "") + (rendered[q.key] ? " rendered" : "");
+      });
+      read.className = "result";
+      read.innerHTML = p.label + " — " + p.note + ".";
+    });
+    row.appendChild(b);
+  });
+
+  document.getElementById("st-wobble").addEventListener("input", function () {
+    document.getElementById("st-wv").textContent = this.value + "%";
+  });
+  document.getElementById("st-orbit").addEventListener("input", function () {
+    document.getElementById("st-ov").textContent = this.value + "°";
+  });
+
+  function paintCounts() {
+    var n = Object.keys(rendered).length;
+    document.getElementById("st-count").textContent = n + "/5";
+    SK5.PRESETS.forEach(function (q) {
+      var el = document.getElementById("st-pb-" + q.key);
+      el.className = "presetbtn" + (q.key === current ? " on" : "") + (rendered[q.key] ? " rendered" : "");
+    });
+  }
+
+  renderBtn.addEventListener("click", function () {
+    if (!window.Krbn) {
+      read.className = "result miss";
+      read.textContent = "The engine didn't load (assets/krbn.js) — check the connection and reload.";
+      return;
+    }
+    renderBtn.disabled = true;
+    out.innerHTML = "<span class='muted'>✏️ sketching…</span>";
+    read.className = "result";
+    read.textContent = "Solving outlines, biting hidden lines, laying hatch strokes…";
+    setTimeout(function () {
+      var opts = {
+        wobble: +document.getElementById("st-wobble").value / 100,
+        hatch: document.getElementById("st-hatch").value,
+        field: document.getElementById("st-field").value === "curved",
+        hidden: document.getElementById("st-hidden").value,
+        orbit: +document.getElementById("st-orbit").value
+      };
+      var t0 = performance.now(), svg = null, err = null;
+      try { svg = SK5.build(window.Krbn, current, opts); }
+      catch (e) { err = e; }
+      var ms = Math.round(performance.now() - t0);
+      renderBtn.disabled = false;
+      if (err || !svg) {
+        out.innerHTML = "<span class='muted'>something jammed the pen</span>";
+        read.className = "result miss";
+        read.textContent = "Render error: " + (err && err.message ? err.message : "unknown") + " — try other settings.";
+        return;
+      }
+      out.innerHTML = svg;
+      lastSvg = svg;
+      dlBtn.disabled = false;
+      document.getElementById("st-ms").textContent = ms + " ms";
+      var strokes = (svg.match(/<(path|polyline|line|ellipse|circle)[ \/]/g) || []).length;
+      document.getElementById("st-strokes").textContent = strokes;
+      var isNew = !rendered[current];
+      rendered[current] = true;
+      paintCounts();
+      var n = Object.keys(rendered).length;
+      read.className = "result win";
+      read.innerHTML = "✏️ Sketched in " + ms + " ms — " + strokes + " strokes of exact geometry." +
+        (isNew && n < 5 ? " New scene! <b>" + n + "/5</b> rendered." : "");
+      if (n === 5 && window.DadMath) {
+        DadMath.hwPass("sk5", "Rendered every Studio scene");
+        if (DadMath.badge("sk-studio")) {
+          DadMath.star("sk5", 2, "Studio Artist — all five scenes rendered");
+          read.innerHTML += " 🖋️ <b>Badge earned: Studio Artist — the whole Lab, mastered!</b>";
+        }
+      }
+    }, 30);
+  });
+
+  dlBtn.addEventListener("click", function () {
+    if (!lastSvg) return;
+    var blob = new Blob([lastSvg], { type: "image/svg+xml" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "krbn-" + current + ".svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    read.className = "result";
+    read.textContent = "Saved krbn-" + current + ".svg — genuine plotter food.";
+  });
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

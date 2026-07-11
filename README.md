@@ -120,6 +120,34 @@ client-side, so this is a trust-and-verify aid for a present parent, not tamper-
   questions (splits shown on every button; gambling is called out). Shannon, the bit, and why
   compression = asking better questions. Finish = ❓ badge. → `st02-twenty-questions.html`
 
+## ✏️ Sketch Lab
+
+How a machine draws like an artist — a four-lesson series built around
+[Krbn](https://github.com/vpalos/krbn) (Valeriu Paloș, MIT), a real open-source engine for
+pencil-style SVG rendering, which is **vendored and embedded live** in the final page
+(`assets/krbn.js`, ~100 KB, built from source with esbuild).
+
+- **📐 SK·1 Flattening Space** — the picture plane, size = f·S ÷ d (divide by distance!),
+  similar triangles, perspective vs orthographic, a spinnable wireframe cube whose near/far edges
+  you can measure. Badge: Flatlander. → `sk01-flatten.html`
+- **🌒 SK·2 Where Outlines Live** — a silhouette is where the gaze *grazes*: tangent rays,
+  t = √(d²−r²) (Pythagorean-triple drills), and the counterintuitive rim: it's NOT the equator —
+  it sits r²/d in front of the centre and you see (1−r/d)/2 of a ball, never half. Why the engine
+  solves outlines as exact conics/quartics (plotter food, not pixels). Badge: Rim Finder.
+  → `sk02-silhouettes.html`
+- **🩻 SK·3 The Art of Leaving Out** — hidden-line removal as interval arithmetic: eye-rays,
+  bites that merge, pieces that survive (k separated blockers → k+1 pieces), drop vs ghost
+  (x-ray) modes. Piece-counting game with overlapping/end-swallowing cases. Badge: X-Ray Eyes.
+  → `sk03-hidden-lines.html`
+- **✏️ SK·4 Shading with Lines** — tone = width ÷ spacing (gray is a fraction), cross-hatch
+  layers stack, strokes follow the surface's grain, and the *genesis imperfecta* idea: wobble
+  added on purpose, from **seeded noise** (same seed → same wiggle, no boiling — ties back to the
+  Minecraft seeds lesson). Tone-mixer game. Badge: Tone Master. → `sk04-hatching.html`
+- **🖋️ SK·5 The Sketch Studio** — the engine itself, live: five preset scenes (snowman, sphere &
+  pipe, donut/torus, trefoil knot, gravity well), knobs for wobble / hatch mode / grain
+  (curved vs flat) / hidden-line style / camera orbit, live stroke counts, and **download as
+  SVG**. Render all five = Studio Artist badge + the homework check. → `sk05-studio.html`
+
 ## 🎮 Game Lab
 
 The games the kid already loves (Factorio, StarCraft, Deep Rock Galactic), taken apart and rebuilt
