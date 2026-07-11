@@ -89,6 +89,7 @@
     "cs-qubit":    { icon: "🌀", name: "Qubit Wrangler",   desc: "Steer the qubit onto three targets in a row at exactly par gates." },
     "gm-scv":      { icon: "🚜", name: "Balance Patcher",  desc: "Beat the pattern sniffer at the five-move game YOU invented — 5 ahead over 25+ rounds." },
     "cs-spooky":   { icon: "📞", name: "Spooky Caller",    desc: "Tell real entanglement from a glove-factory fake three crates in a row." },
+    "cs-circuit":  { icon: "🔌", name: "Circuit Detective", desc: "Unmask three mystery gates in a row using only truth-table probes." },
     "gt-small":    { icon: "🌍", name: "World Shrinker",   desc: "Shrink the 48-person ring world below 3.9 average handshakes with just 5 bridges." },
     "gt-color":    { icon: "🎨", name: "Four-Crayon Artist", desc: "Colour three maps in a row using the fewest crayons possible." },
     "story-pirate":{ icon: "🏴‍☠️", name: "Pirate Captain",   desc: "Finish the pirate story — and learn to think from the last splash backwards." },
