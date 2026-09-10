@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Watch List · Videos for the Walk · Math in Half an Hour</title>
+<meta name="description" content="A short, checked list of YouTube videos that go deeper on the ideas from the walk: how machines learn, neural networks, the trolley problem, Asimov's laws, Turing machines, and the two videos JJ already loves.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+  .vid .num { font-size: 1.9rem; }
+  .vid .ch { color: var(--ink-faint); font-size: .85rem; font-weight: 700; margin-bottom: 6px; }
+  .vid .flags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .vid .idea { color: var(--primary); font-weight: 700; font-size: .88rem; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">AI Lab · Watch List</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Videos for the Walk</h1>
+    <p class="lede">Dad said: "If you're interested, watch some YouTube. I can give you pointers on what to look for."
+      These are the pointers. Every link was checked. Each card says which walk idea it makes bigger.</p>
+    <p style="margin-top:14px"><span class="badge">📺 13 videos</span> &nbsp; <span class="badge amber">🧑‍🤝‍🧑 watch with Dad = heavy or long</span> &nbsp; <span class="badge green">✅ = you already know it</span></p>
+  </header>
+
+  <div class="note try">
+    <span class="t">How to pick:</span> start with the ones you already like. Then the aim bot section. Save the "next walk" section for when Dad is next to you,
+    because those are the ones he said need their own walk.
+  </div>
+
+  <h2>1 · The two you already watch</h2>
+  <p>You brought both of these up on the walk. That is why they are first. You used them as tools to think with.</p>
+  <div class="grid vid">
+    <a class="card" href="https://www.youtube.com/watch?v=bEXefdbQDjw" target="_blank" rel="noopener">
+      <div class="num">🔊</div>
+      <div class="ch">The Thought Emporium</div>
+      <h3>Growing Living Rat Neurons To Play... DOOM? | Part 1</h3>
+      <p>Real brain cells in a dish, wired to Doom. Nice sound when they score, nasty sound when they get hit. This is your reward-signal analogy, for real.</p>
+      <div class="flags"><span class="badge green">✅ you know this one</span> <span class="idea">walk idea: reinforcement learning</span></div>
+      <div class="go">Watch →</div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=c-pWliufu6U" target="_blank" rel="noopener">
+      <div class="num">🧫</div>
+      <div class="ch">The Thought Emporium</div>
+      <h3>Working Neuron Arrays! | DOOM Neurons Part 2</h3>
+      <p>The follow-up. The electrode arrays actually work. Watch how they read the cells and how they send the delightful and chaotic signals in.</p>
+      <div class="flags"><span class="idea">walk idea: reward signal, dopamine</span></div>
+      <div class="go">Watch →</div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=XTcP4oo4JI4" target="_blank" rel="noopener">
+      <div class="num">🪙</div>
+      <div class="ch">Primer (the blobs channel)</div>
+      <h3>How To Catch A Cheater With Math</h3>
+      <p>Blobs flip coins. Some coins are rigged. You can catch cheaters, but never with 100% certainty. You said "even that algorithm wasn't correct". Exactly. That is the Minority Report problem.</p>
+      <div class="flags"><span class="badge green">✅ you know this one</span> <span class="idea">walk idea: predicting a crime is only ever probably right</span></div>
+      <div class="go">Watch →</div>
+    </a>
+  </div>
+
+  <h2>2 · Machines that learn by guess, measure, adjust</h2>
+  <p>These go with <a href="ai01-how-ai-learns.html">AI·1 the aim bot</a>. Watch for the moment the error starts shrinking.</p>
+  <div class="grid vid">
+    <a class="card" href="https://www.youtube.com/watch?v=L_4BPjLBF4E" target="_blank" rel="noopener">
+      <div class="num">🚶</div>
+      <div class="ch">AI Warehouse</div>
+      <h3>AI Learns to Walk (deep reinforcement learning)</h3>
+      <p>A ragdoll named Albert starts by flopping around. Reward for moving forward. Watch it go from total chaos to walking. That is the aim bot with a body.</p>
+      <div class="flags"><span class="idea">walk idea: reinforcement learning, jiggle the numbers</span></div>
+      <div class="go">Watch →</div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=qv6UVOQ0F44" target="_blank" rel="noopener">
+      <div class="num">🍄</div>
+      <div class="ch">SethBling</div>
+      <h3>MarI/O: Machine Learning for Video Games</h3>
+      <p>A program learns to play a Mario level from zero. You can see the brain growing as it plays. Reward is "got further right". Notice the dumb tricks it discovers.</p>
+      <div class="flags"><span class="idea">walk idea: the guardrail problem (it does what you reward, not what you meant)</span></div>
+      <div class="go">Watch →</div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=kopoLzvh5jY" target="_blank" rel="noopener">
+      <div class="num">🙈</div>
+      <div class="ch">OpenAI</div>
+      <h3>Multi-Agent Hide and Seek</h3>
+      <p>Teams of agents play hide and seek millions of times. They invent forts, ramps, and cheats nobody programmed. This is your squad of agents, learning together.</p>
+      <div class="flags"><span class="idea">walk idea: many agents, surprising strategies</span></div>
+      <div class="go">Watch →</div>
+    </a>
+  </div>
+
+  <h2>3 · Guardrails, rules, and the greater of two evils</h2>
+  <p>These are the "who is in charge?" cards from <a href="ai00-the-walk.html">the walk recap</a>. They are heavy. Better with Dad.</p>
+  <div class="grid vid">
+    <a class="card" href="https://www.youtube.com/watch?v=yg16u_bzjPE" target="_blank" rel="noopener">
+      <div class="num">🚋</div>
+      <div class="ch">TED-Ed</div>
+      <h3>Would you sacrifice one person to save five?</h3>
+      <p>The runaway trolley, drawn as a cartoon. Short. You already had the answer for the easy version. Then it changes the rules and your answer changes too. Why?</p>
+      <div class="flags"><span class="badge amber">🧑‍🤝‍🧑 watch with Dad</span> <span class="idea">walk idea: rules can contradict each other</span></div>
+      <div class="go">Watch →</div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=7PKx3kS7f4A" target="_blank" rel="noopener">
+      <div class="num">📜</div>
+      <div class="ch">Computerphile</div>
+      <h3>Why Asimov's Laws of Robotics Don't Work</h3>
+      <p>You invented a two-rule set on the walk. Asimov made a three-rule set in 1942. This explains why rules written in words are not enough for a machine. Compare it to your rules.</p>
+      <div class="flags"><span class="badge amber">🧑‍🤝‍🧑 watch with Dad</span> <span class="idea">walk idea: your rule set, governance</span></div>
+      <div class="go">Watch →</div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=pYXy-A4siMw" target="_blank" rel="noopener">
+      <div class="num">🛡️</div>
+      <div class="ch">Robert Miles AI Safety</div>
+      <h3>Intro to AI Safety, Remastered</h3>
+      <p>The "clean up the street" problem, done properly. Long and grown-up. Only for when you want the whole picture of why guardrails are hard.</p>
+      <div class="flags"><span class="badge amber">🧑‍🤝‍🧑 watch with Dad (long)</span> <span class="idea">walk idea: guardrails, did the job AND did a crime</span></div>
+      <div class="go">Watch →</div>
+    </a>
+  </div>
+
+  <h2>4 · The Turing machine</h2>
+  <div class="grid vid">
+    <a class="card" href="https://www.youtube.com/watch?v=dNRDvLACg5Q" target="_blank" rel="noopener">
+      <div class="num">📼</div>
+      <div class="ch">Computerphile</div>
+      <h3>Turing Machines Explained</h3>
+      <p>A tape, a head that reads and writes, a few rules. That is enough to compute anything. Watch for the idea that every real computer is "just" one of these, only faster.</p>
+      <div class="flags"><span class="idea">walk idea: same class of machine, different speed</span></div>
+      <div class="go">Watch →</div>
+    </a>
+  </div>
+
+  <h2>5 · For the next walk (Dad said "another walk")</h2>
+  <p>On the walk you asked what the error and loss function are inside a real language model. Dad said that needs its own walk.
+    These are the videos for that walk. They are the best on the internet for it, but they are not short. Watch them together and pause a lot.</p>
+  <div class="grid vid">
+    <a class="card" href="https://www.youtube.com/watch?v=aircAruvnKk" target="_blank" rel="noopener">
+      <div class="num">🧠</div>
+      <div class="ch">3Blue1Brown</div>
+      <h3>But what is a neural network? | Deep learning chapter 1</h3>
+      <p>The knobs. A real network reading handwritten numbers, with every layer drawn out. This is where "billions of knobs" stops being a phrase and becomes a picture.</p>
+      <div class="flags"><span class="badge amber">🧑‍🤝‍🧑 watch with Dad</span> <span class="idea">walk idea: weights, layers</span></div>
+      <div class="go">Watch →</div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=IHZwWFHWa-w" target="_blank" rel="noopener">
+      <div class="num">⛰️</div>
+      <div class="ch">3Blue1Brown</div>
+      <h3>Gradient descent, how neural networks learn | Chapter 2</h3>
+      <p>This is the aim bot, but smarter: instead of random jiggles, the network works out which way is downhill and steps that way. Your question about the loss function is answered here.</p>
+      <div class="flags"><span class="badge amber">🧑‍🤝‍🧑 watch with Dad</span> <span class="idea">walk idea: the error / loss function</span></div>
+      <div class="go">Watch →</div>
+    </a>
+    <a class="card" href="https://www.youtube.com/watch?v=yRV8fSw6HaE" target="_blank" rel="noopener">
+      <div class="num">🧬</div>
+      <div class="ch">Cortical Labs</div>
+      <h3>Living Human Brain Cells Play DOOM on a CL1</h3>
+      <p>The company version of the Doom-neurons idea, on a computer built to hold living cells. Short. Compare it to The Thought Emporium's dish.</p>
+      <div class="flags"><span class="idea">walk idea: brain cells as the model</span></div>
+      <div class="go">Watch →</div>
+    </a>
+  </div>
+
+  <hr class="rule">
+
+  <h3>After you watch one</h3>
+  <p>Tell Dad one thing from the video in your own words. If you can say it back, you own it. That is the shape sorter again.</p>
+
+  <div class="lessonnav">
+    <a href="ai01-how-ai-learns.html">← AI 1: How a Machine Learns</a>
+    <a href="index.html#lessons">All lessons →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=17"></script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

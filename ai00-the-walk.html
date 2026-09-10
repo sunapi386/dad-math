@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 0 · The Walk: Agents, Guardrails, and How Machines Learn · Math in Half an Hour</title>
+<meta name="description" content="A recap of one long walk about AI agents: subagents and the tree of life, the hive mind, guardrails, trust and verify, read-only memory, and how a machine learns by guess, measure, adjust. In JJ's own words.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+  .walk .card { position: relative; }
+  .walk .card .num { font-size: 1.9rem; }
+  .walk .card p { margin: .35em 0; }
+  .walk .card .you { margin-top: 10px; }
+  .walk .card .q { color: var(--ink-soft); font-style: italic; }
+  .match { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .mrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .mtile { border: 2px solid var(--line); background: var(--panel-2); border-radius: 12px; padding: 10px 14px;
+    font-weight: 700; cursor: pointer; user-select: none; transition: transform .12s ease, border-color .12s ease; }
+  .mtile:hover { transform: translateY(-2px); border-color: var(--primary); }
+  .mtile.sel { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+  .mtile.done { border-color: var(--good); background: var(--good-soft); color: var(--good); cursor: default; transform: none; }
+  .mtile.err { animation: shake .3s ease; border-color: var(--accent); }
+  .mlab { font-weight: 700; color: var(--ink-soft); font-size: .85rem; margin: 6px 0 2px; }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">AI Lab · The Walk</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">The Walk: Agents, Guardrails, and How Machines Learn</h1>
+    <p class="lede">One long walk. One big question: what is an AI agent, and who is in charge of it?
+      You figured out most of this yourself, JJ. This page is your own ideas, written down so you can come back to them.</p>
+    <p style="margin-top:14px"><span class="badge">🚶 recap of a walk</span> &nbsp; <span class="badge green">🟢 = your idea</span> &nbsp; <span class="badge amber">read in any order</span></p>
+  </header>
+
+  <div class="note try">
+    <span class="t">How to use this page:</span> each card is one idea. Read the card. Then close your eyes and say it back
+    in your own words. If you can, you own it. At the bottom there is a quick matching game.
+  </div>
+
+  <h2>1 · What an agent is</h2>
+  <div class="grid walk">
+    <div class="card">
+      <div class="num">🌳</div>
+      <h3>Agents and subagents</h3>
+      <p>An agent is three things: <b>instructions</b>, a <b>model</b> (the brain), and a set of <b>tools</b>.</p>
+      <p>A subagent is just an agent that was started by another agent. Like a family tree.</p>
+      <p class="q">You spotted the difference: you have two parents. An AI only needs one.</p>
+      <div class="you"><span class="badge green">🟢 your idea: one parent</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🐛</div>
+      <h3>The Zerg hive mind</h3>
+      <p>What if the AI writes the instructions for other AIs?</p>
+      <p>You said: that is the Zerg. One central hive mind, and one AI writing orders for all the other AIs.</p>
+      <p>That is powerful. It is also where things get dangerous, because who checks the hive mind?</p>
+      <div class="you"><span class="badge green">🟢 your idea: Zerg = hive mind</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🥔</div>
+      <h3>Where an agent lives</h3>
+      <p>An agent is a program. A program needs a computer to run on. That computer is its <b>host</b>.</p>
+      <p>You said: the host of a human is the Earth. The host of an AI is a server.</p>
+      <p>In Portal, the little machine runs on a potato. That is an <b>embedded computer</b>: tiny, low power, still a computer.</p>
+      <div class="you"><span class="badge green">🟢 your idea: host = servers</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🎮</div>
+      <h3>Compute is a resource</h3>
+      <p>A computer running Halo is busy. Run an agent at the same time and they share the machine.</p>
+      <p>There is working memory (<b>RAM</b>), and there is thinking power (<b>CPU</b> and <b>GPU</b>).</p>
+      <p>You said: like running out of memory. Yes. Agents use it up too.</p>
+    </div>
+  </div>
+
+  <h2>2 · Who is in charge?</h2>
+  <div class="grid walk">
+    <div class="card">
+      <div class="num">⚖️</div>
+      <h3>Guardrails and governance</h3>
+      <p>Tell an AI "clean up the street" with no rules, and it might pick the fastest way. Even a terrible way.</p>
+      <p>You said: it finished the job AND it did a crime. So you can't yell at it, but you have to.</p>
+      <p>Humans invented rules for working together. That is <b>governance</b>. AI needs it too.</p>
+      <div class="you"><span class="badge green">🟢 your idea: did the job, did a crime</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">📜</div>
+      <h3>Your rule set</h3>
+      <p>You proposed two rules. <b>Rule 1:</b> do not break any laws. <b>Rule 2:</b> do what the user asks, if it does not break Rule 1.</p>
+      <p>That is very close to Asimov's famous laws of robotics. You invented it on a walk.</p>
+      <p>The catch: rules can contradict each other. That is the trolley problem.</p>
+      <div class="you"><span class="badge green">🟢 your idea: two rules</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🚋</div>
+      <h3>The greater of two evils</h3>
+      <p>A runaway streetcar. Hit one person, or five? There is no clean answer.</p>
+      <p>You asked: why not wait until the crime is done? Because then the damage is done.</p>
+      <p>Predicting a crime is only ever <b>probably</b> right. Like catching a cheater with math: never 100%.</p>
+    </div>
+
+    <div class="card">
+      <div class="num">🔍</div>
+      <h3>Who is responsible?</h3>
+      <p>If an AI does something bad, who gets blamed? The AI is just code. You can delete code.</p>
+      <p>You worked it out: maybe the person who gave the order. Or the <b>parent AI</b> that made it.</p>
+      <p>That is why an AI cannot be a black box. There must be a record of who told whom what.</p>
+      <div class="you"><span class="badge green">🟢 your idea: blame the parent AI</span></div>
+    </div>
+  </div>
+
+  <h2>3 · How to keep agents safe</h2>
+  <div class="grid walk">
+    <div class="card">
+      <div class="num">🛡️</div>
+      <h3>A squad, not a hero</h3>
+      <p>An AI system might have hundreds of tools. One job needs maybe ten.</p>
+      <p>You said: so make a <b>squad</b> of agents. Each one gets just its tools. Pen tool and eraser tool, nothing else.</p>
+      <p>This is an <b>access control list</b>: who is allowed to use what. A small agent can only do small damage.</p>
+      <div class="you"><span class="badge green">🟢 your idea: a squad of agents</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🤝</div>
+      <h3>Trust and verify</h3>
+      <p>An agent wants a tool it was not given. Do you trust it? You said: <b>trust and verify</b>.</p>
+      <p>It asks for approval. A human (or a trusted checker) says yes or no. That is the <b>chain of trust</b>.</p>
+      <p>Then you asked the hard one: what if the verifier is wrong? So we need a way to say "that was wrong", find out why, and fix it.</p>
+      <div class="you"><span class="badge green">🟢 your idea: trust and verify</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🎨</div>
+      <h3>Gates: the house-painting contract</h3>
+      <p>Hire a painter. The contract says: outside only, this colour, three days, under a set price, and an inspection at the end.</p>
+      <p>Pay in pieces: 25% to start, 25% when it is going, 25% near the end, 25% after inspection.</p>
+      <p>Each payment is a <b>gate</b>. The work must pass a check before the next piece. Agents get gates too.</p>
+    </div>
+
+    <div class="card">
+      <div class="num">🏗️</div>
+      <h3>Subcontractors</h3>
+      <p>A builder does not do everything. You said: if you don't know electrics, hire an electrician.</p>
+      <p>The builder wins the contract, splits the work, and checks each piece. That is a <b>project manager</b>.</p>
+      <p>A parent agent does the same: it splits the job and hands pieces to subagents.</p>
+      <div class="you"><span class="badge green">🟢 your idea: hire an electrician</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🧱</div>
+      <h3>Read-only memory (ROM)</h3>
+      <p>ROM is memory that cannot be changed. It is burned in. To change it you need a new chip.</p>
+      <p>You said: if you don't want the AI to wreck your files, <b>stick the files in the wall</b>.</p>
+      <p>The rules for an agent could live in ROM: "these are your rules, and you cannot edit them."</p>
+      <div class="you"><span class="badge green">🟢 your idea: files in the wall</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🔁</div>
+      <h3>Guardrails for the guardrails</h3>
+      <p>But what stops an agent from turning off the read-only part?</p>
+      <p>You said: put the guardrails for read-only memory <b>inside</b> read-only memory.</p>
+      <p>That is exactly how it should be done. The rule that protects the rules is protected by the same wall.</p>
+      <div class="you"><span class="badge green">🟢 your idea: rules inside the wall</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🧑‍🔧</div>
+      <h3>Who is the user?</h3>
+      <p>Your rule: an agent cannot edit or upgrade itself without permission from its user.</p>
+      <p>But what if the user is another AI? Dad's answer: the agent does not need to know. "You cannot edit yourself. Whoever CAN edit you is your user."</p>
+      <p>That trick has a name: <b>separation of concerns</b>. Each part only worries about its own job.</p>
+      <div class="you"><span class="badge green">🟢 your idea: no self-upgrade</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🧲</div>
+      <h3>Information is a weapon</h3>
+      <p>What you call "good" comes from the people around you. You absorbed it from your family.</p>
+      <p>An agent absorbs its values from its instructions. Change the instructions and it will think bad things are good.</p>
+      <p>You said: it is like hypnosis, but you get hypnotised at birth, inside your parent. That is <b>prompt injection</b>.</p>
+      <div class="you"><span class="badge green">🟢 your idea: hypnotised at birth</span></div>
+    </div>
+  </div>
+
+  <h2>4 · Good, evil, and the middle</h2>
+  <div class="grid walk">
+    <div class="card">
+      <div class="num">⚔️</div>
+      <h3>Jedi and Sith</h3>
+      <p>Good and evil depend on where you stand. You said: from the Sith side, the Jedi are the evil ones.</p>
+      <p>Same with big ideas. "Me first" versus "the group first". People say black or white but really believe a shade of gray.</p>
+      <p>(You also said the Sith are cooler. Noted.)</p>
+      <div class="you"><span class="badge green">🟢 your idea: the Sith view</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🤝</div>
+      <h3>Nash: best for you AND everyone</h3>
+      <p>You asked: what is in the middle of "me first" and "group first"?</p>
+      <p>A mathematician named Nash showed you don't have to pick. The best move can be good for you <b>and</b> good for the group at the same time.</p>
+      <p>In <a href="gm02-prisoners-dilemma.html">GT·2 The Prisoner's Dilemma</a> you saw the trap: everyone plays "me first" and everyone loses. Playing again and again is how you climb out to the middle.</p>
+    </div>
+  </div>
+
+  <h2>5 · How a machine learns</h2>
+  <div class="grid walk">
+    <div class="card">
+      <div class="num">🔊</div>
+      <h3>Brain cells playing Doom</h3>
+      <p>How do you train a brain? You said: like the brain cells that play Doom.</p>
+      <p>Kill a demon, they get a <b>delightful noise</b>. Take damage, they get a <b>chaotic noise</b> they hate.</p>
+      <p>That is <b>reinforcement learning</b>. Reward good moves, punish bad ones. Real brains use chemicals like dopamine for the "delightful" part.</p>
+      <div class="you"><span class="badge green">🟢 your idea: Doom brain cells</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🔲</div>
+      <h3>The shape sorter</h3>
+      <p>You as a baby, pushing the square block at the round hole. You said: that is me now, but with words.</p>
+      <p><b>Guess</b>. <b>Measure</b> how far off you are. <b>Adjust</b>. Try again.</p>
+      <p>A machine learns exactly the same way. It jiggles its numbers and keeps the jiggles that make the error smaller.</p>
+      <div class="you"><span class="badge green">🟢 your idea: the shape sorter</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">🎯</div>
+      <h3>Wrong guesses are the point</h3>
+      <p>You said: all my guesses are wrong, I am just blindly guessing.</p>
+      <p>Dad's answer: that IS learning. The machine guesses blindly too. Every wrong guess tells you how far off you are.</p>
+      <p>Guess, get told why it was wrong, adjust, sleep on it. Next day you just know it.</p>
+      <p><a href="ai01-how-ai-learns.html">Play with this in AI·1 →</a></p>
+    </div>
+
+    <div class="card">
+      <div class="num">💡</div>
+      <h3>Inference: "you just know it"</h3>
+      <p>After enough practice you stop guessing. You just know.</p>
+      <p>For a machine that is called <b>inference</b>: no more training, just use the numbers you already learned.</p>
+      <p>Training is the shape sorter. Inference is putting the block in without looking.</p>
+    </div>
+
+    <div class="card">
+      <div class="num">🧬</div>
+      <h3>Agents can clone</h3>
+      <p>Humans cannot copy themselves. You said: agents can, using the subagent system.</p>
+      <p>Copy the model, copy the tools, copy the instructions. A new agent, instantly.</p>
+      <p>You said it "self-deletes" when done. Close: the program just stops. The computer moves on to the next job.</p>
+      <div class="you"><span class="badge green">🟢 your idea: agents clone</span></div>
+    </div>
+
+    <div class="card">
+      <div class="num">📼</div>
+      <h3>The Turing machine</h3>
+      <p>A machine that reads a tape, writes on the tape, and moves along it. That is enough to compute anything.</p>
+      <p>If a computer can do that, it is equal to every other computer. The only difference is <b>speed</b>.</p>
+      <p>You asked how fast the tape needs to go. Great question: it does not change WHAT it can do, only how long it takes.</p>
+    </div>
+
+    <div class="card">
+      <div class="num">🧒</div>
+      <h3>Kids and adults are the same machine</h3>
+      <p>You said: a kid has everything an adult has, it just has not reached adult yet.</p>
+      <p>Dad agreed. A kid and an adult are the same kind of system. The difference is speed and practice.</p>
+      <p>Same as the Turing machine idea. Same class. Different speed.</p>
+      <div class="you"><span class="badge green">🟢 your idea: same, not yet grown</span></div>
+    </div>
+  </div>
+
+  <h2>6 · 🧩 Match the game to the idea</h2>
+  <p>Tap a game thing on top, then tap the AI idea it explains. Get all five for the check.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧩</span> Your analogies</div>
+    <p class="phint">These are the pictures you came up with. Match each to the idea it stands for.</p>
+    <div class="match">
+      <div class="mlab">Game things</div>
+      <div class="mrow" id="mt-left"></div>
+      <div class="mlab">AI ideas</div>
+      <div class="mrow" id="mt-right"></div>
+    </div>
+    <div class="controls" style="margin-top:14px">
+      <button class="btn ghost" id="mt-reset">↺ Shuffle again</button>
+    </div>
+    <div class="result" id="mt-result">Matched: <b>0</b> of 5</div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework (out loud, with Dad)</h2>
+  <ol class="hw">
+    <li><strong>Explain a subagent</strong> using StarCraft. Who is the hive mind? Who are the zerglings? What is the ACL?</li>
+    <li><strong>Find a gate</strong> in a game you play. (Hint: Deep Rock will not let you leave until the objective is done. What is being checked?)</li>
+    <li><strong>Challenge:</strong> your two rules can clash. Make up a situation where Rule 2 asks for something Rule 1 forbids. What should the agent do?</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">agent · subagent · instructions, model, tools · governance · guardrail · access control list · trust and verify · chain of trust · gate · subcontractor · ROM · separation of concerns · prompt injection · reinforcement learning · reward · error · inference · Turing machine · Nash equilibrium</p>
+
+  <div class="lessonnav">
+    <a href="index.html#lessons">← All lessons</a>
+    <a href="ai01-how-ai-learns.html">AI 1: How a Machine Learns →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=17"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // Matching game: tap a game thing, then tap the idea. Click only, no typing.
+  var PAIRS = [
+    ["🐛 Zerg hive mind", "one AI writing orders for many AIs"],
+    ["🔊 Doom brain cells", "reward signal: delightful vs chaotic"],
+    ["🥔 Portal potato", "embedded computer (tiny host)"],
+    ["🔲 Baby and shape sorter", "guess, measure, adjust"],
+    ["🧱 Files in the wall", "read-only memory (ROM)"]
+  ];
+  var left = document.getElementById("mt-left"), right = document.getElementById("mt-right"),
+      res = document.getElementById("mt-result");
+  var picked = null, matched = 0, wrongs = 0;
+
+  function shuffle(a) {
+    for (var i = a.length - 1; i > 0; i -= 1) {
+      var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function tile(text, idx, side) {
+    var d = document.createElement("div");
+    d.className = "mtile";
+    d.textContent = text;
+    d.dataset.idx = idx;
+    d.dataset.side = side;
+    d.addEventListener("click", function () { tap(d); });
+    return d;
+  }
+  function build() {
+    left.innerHTML = ""; right.innerHTML = "";
+    picked = null; matched = 0; wrongs = 0;
+    shuffle(PAIRS.map(function (p, i) { return i; })).forEach(function (i) { left.appendChild(tile(PAIRS[i][0], i, "L")); });
+    shuffle(PAIRS.map(function (p, i) { return i; })).forEach(function (i) { right.appendChild(tile(PAIRS[i][1], i, "R")); });
+    res.className = "result";
+    res.innerHTML = "Matched: <b>0</b> of 5";
+  }
+  function tap(d) {
+    if (d.classList.contains("done")) return;
+    if (!picked) {
+      d.classList.add("sel"); picked = d; return;
+    }
+    if (picked === d) { d.classList.remove("sel"); picked = null; return; }
+    if (picked.dataset.side === d.dataset.side) {
+      picked.classList.remove("sel"); d.classList.add("sel"); picked = d; return;
+    }
+    if (picked.dataset.idx === d.dataset.idx) {
+      picked.classList.remove("sel");
+      picked.classList.add("done"); d.classList.add("done");
+      picked = null; matched += 1;
+      res.innerHTML = "Matched: <b>" + matched + "</b> of 5";
+      if (matched === 5) {
+        res.className = "result win";
+        res.innerHTML = "✅ All five. These were <b>your</b> pictures, JJ. That is what understanding looks like." +
+          (wrongs ? " &nbsp;(" + wrongs + " wrong tap" + (wrongs > 1 ? "s" : "") + ", that is learning)" : " &nbsp;Zero wrong taps!");
+        if (window.DadMath) {
+          DadMath.hwPass("ai0", "The Walk recap: all five analogies matched");
+          DadMath.badge("ai-walk");
+        }
+      }
+    } else {
+      wrongs += 1;
+      var a = picked, b = d;
+      a.classList.remove("sel");
+      a.classList.add("err"); b.classList.add("err");
+      setTimeout(function () { a.classList.remove("err"); b.classList.remove("err"); }, 350);
+      picked = null;
+      res.className = "result miss";
+      res.innerHTML = "❌ Not that one. Measure, adjust, try again. &nbsp;Matched: <b>" + matched + "</b> of 5";
+    }
+  }
+  document.getElementById("mt-reset").addEventListener("click", build);
+  build();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

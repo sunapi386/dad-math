@@ -14,6 +14,16 @@
 a.card.done { border-color: var(--good); }
 a.card.done .num { position: relative; }
 a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; color: var(--good); font-weight: 800; }
+a.quest-banner{display:flex;align-items:center;gap:16px;margin:22px 0 6px;padding:18px 20px;
+  border:1px solid var(--accent);border-radius:14px;
+  background:linear-gradient(120deg,rgba(90,200,250,.10),transparent);
+  text-decoration:none;color:inherit;transition:transform .1s,box-shadow .15s}
+a.quest-banner:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(0,0,0,.22)}
+a.quest-banner .qb-icon{font-size:34px;line-height:1}
+a.quest-banner .qb-title{font-weight:800;font-size:20px}
+a.quest-banner .qb-sub{margin:2px 0 0;font-size:14px;opacity:.78}
+a.quest-banner .qb-go{margin-left:auto;white-space:nowrap;font-weight:700;color:var(--accent)}
+@media(max-width:640px){a.quest-banner{flex-wrap:wrap}a.quest-banner .qb-go{margin-left:0;margin-top:6px}}
 </style>
 </head>
 <body>
@@ -24,6 +34,7 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
   <a class="nav" href="index.html#lessons">📚 Lessons</a>
   <a class="nav" href="homework.html">📓 Homework</a>
   <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <a class="nav" href="https://jasonsun.org/quest/">🔺 Quest</a>
   <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
 </div></div>
 
@@ -37,6 +48,15 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
       <em>derived</em> — not memorized. Play along in the browser.</p>
     <p style="margin-top:18px"><span class="badge">⏱ ~30 min each</span> &nbsp; <span class="badge amber">✏️ derive, don't memorize</span> &nbsp; <span class="badge green">🧩 interactive puzzles</span></p>
   </header>
+
+  <a href="https://jasonsun.org/quest/" class="quest-banner">
+    <div class="qb-icon">🔺</div>
+    <div>
+      <div class="qb-title">The Triangle Quest</div>
+      <p class="qb-sub">The big adventure this whole lab is training you for: from playing the games to building the machine that draws them. It starts with dragging one triangle. This is the hub. Begin here.</p>
+    </div>
+    <div class="qb-go">Enter the quest →</div>
+  </a>
 
   <h2 id="lessons" style="margin-top:1em">∑ The math track</h2>
   <p class="muted">Do these in order — each one uses the last. Pass a lesson's
@@ -137,6 +157,29 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
       <h3>Circuits: The Adding Machine</h3>
       <p>Truth tables are ID cards for logic gates. Read them, forge them, unmask a mystery gate like a detective — then chain full adders into the 4-bit machine that lives inside every chip.</p>
       <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+  </div>
+
+  <h2 id="ai">🤖 AI Lab</h2>
+  <p class="muted">What an AI agent really is, and how a machine actually learns, straight from a long walk with Dad. Written in your own pictures. No math track required.</p>
+  <div class="grid">
+    <a class="card" href="ai00-the-walk.html" style="border-color:var(--accent)">
+      <div class="num">AI·0</div>
+      <h3>The Walk: Agents, Guardrails, and How Machines Learn</h3>
+      <p>One long walk, written down in your own pictures: the Zerg hive mind, files in the wall, brain cells playing Doom, and the baby with the shape sorter. One idea per card, plus a match-the-analogy game.</p>
+      <div class="go" style="color:var(--accent)">Review the walk →</div>
+    </a>
+    <a class="card" href="ai01-how-ai-learns.html" style="border-color:var(--good)">
+      <div class="num">AI·1</div>
+      <h3>How a Machine Learns: Guess, Measure, Adjust</h3>
+      <p>A blind aim bot that only hears "how far off". Watch it jiggle its knobs, keep the good shots and undo the bad ones, then beat it yourself with a slider. Ends with inference: the knobs just know.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
+    <a class="card" href="watch.html">
+      <div class="num">📺</div>
+      <h3>The Watch List</h3>
+      <p>Thirteen hand-checked videos, one line each on which walk idea it makes bigger. The two you already love come first. The heavy ones are flagged "watch with Dad".</p>
+      <div class="go">See the list →</div>
     </a>
   </div>
 
@@ -466,7 +509,9 @@ a.card.done .num::after { content: "✓"; position: absolute; margin-left: 6px; 
         ["td01-range.html",          "hw",    "td1",          "✅ checked"],
         ["td02-dps.html",            "hw",    "td2",          "✅ checked"],
         ["td03-waves.html",          "hw",    "td3",          "✅ checked"],
-        ["td04-targeting.html",      "hw",    "td4",          "✅ checked"]
+        ["td04-targeting.html",      "hw",    "td4",          "✅ checked"],
+        ["ai00-the-walk.html",       "hw",    "ai0",          "✅ matched"],
+        ["ai01-how-ai-learns.html",  "hw",    "ai1",          "✅ checked"]
       ].forEach(function (row) {
         var card = document.querySelector('a.card[href="' + row[0] + '"]');
         if (!card || card.classList.contains("done")) return;

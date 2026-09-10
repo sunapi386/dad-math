@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 1 · How a Machine Learns: Guess, Measure, Adjust · Math in Half an Hour</title>
+<meta name="description" content="A machine learns the way a baby learns a shape sorter: guess, measure how far off, adjust. Train a blind aim bot that jiggles its numbers, watch its error shrink, then beat it yourself.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+  .knobs { display: grid; grid-template-columns: auto 1fr auto; gap: 8px 12px; align-items: center; margin: 10px 0; }
+  .knobs .kl { font-weight: 700; color: var(--ink-soft); font-size: .9rem; text-align: right; }
+  .meter { margin: 10px 0 4px; }
+  .meter .mlab { display: flex; justify-content: space-between; font-size: .85rem; font-weight: 700; color: var(--ink-soft); }
+  .log { font-family: var(--mono); font-size: .82rem; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px 12px; margin-top: 10px; max-height: 120px; overflow-y: auto; }
+  .log .keep { color: var(--good); }
+  .log .undo { color: var(--accent); }
+  .steps { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; justify-content: center; }
+  .step3 { background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-weight: 700; }
+  .step3 b { color: var(--primary); }
+  .arrow { color: var(--ink-faint); font-size: 1.3rem; align-self: center; }
+  .qopts { display: grid; gap: 8px; margin: 10px 0; }
+  .qopts .btn { text-align: left; font-size: 1rem; }
+  .qopts .btn.ghost { color: var(--ink); }
+  .curvewrap canvas { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">AI Lab · Topic 01</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">How a Machine Learns: Guess, Measure, Adjust</h1>
+    <p class="lede">A baby pushes the square block at the round hole. It does not fit. The baby tries a different hole.
+      That is not failing. That is the whole trick. A machine learns the exact same way, just with numbers.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">no math lesson needed first</span> &nbsp; <span class="badge green">from The Walk</span></p>
+  </header>
+
+  <h2>1 · The shape sorter</h2>
+  <p>You said it on the walk, JJ: "Remember me as a baby trying to put the square in the circle hole? That is me now, but with words."</p>
+  <p>Here is what the baby is really doing, in three moves:</p>
+  <div class="steps">
+    <span class="step3">1 · <b>Guess</b> (push the block)</span>
+    <span class="arrow">→</span>
+    <span class="step3">2 · <b>Measure</b> (how far off?)</span>
+    <span class="arrow">→</span>
+    <span class="step3">3 · <b>Adjust</b> (try a bit different)</span>
+    <span class="arrow">↻</span>
+  </div>
+  <p>Around and around. Every loop, the guess gets a little less wrong. The number that says "how far off" is called the <b>error</b>.
+    Learning is just making the error smaller.</p>
+
+  <h2>2 · Train the aim bot</h2>
+  <p>Meet a blind aim bot. It has two knobs: <b>angle</b> and <b>power</b>. It cannot see the target. After every shot it gets told
+    exactly one thing: <b>how far off it landed</b>. That is all.</p>
+  <p>Its plan is simple. <b>Jiggle</b> one knob a little. Fire. If the error got smaller, keep the jiggle. If the error got bigger, undo it. Repeat.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎯</span> The aim bot</div>
+    <p class="phint">Press <b>Step</b> to watch one guess. Press <b>Run</b> to let it learn on its own. Watch the error bar shrink.</p>
+    <div class="canvaswrap"><canvas id="range" width="480" height="300"></canvas></div>
+    <div class="knobs">
+      <div class="kl">angle</div><div class="bartrack"><div class="barfill sup" id="k-angle" style="width:50%">45°</div></div><div class="nbox" id="n-angle">45</div>
+      <div class="kl">power</div><div class="bartrack"><div class="barfill sup" id="k-power" style="width:50%">7</div></div><div class="nbox" id="n-power">7.0</div>
+    </div>
+    <div class="meter">
+      <div class="mlab"><span>error (how far off)</span><span id="err-num">?</span></div>
+      <div class="bartrack"><div class="barfill dem" id="err-bar" style="width:100%"></div></div>
+    </div>
+    <div class="ctrlrow">
+      <button class="btn" id="bt-step">▶ Step</button>
+      <button class="btn" id="bt-run">▶▶ Run</button>
+      <button class="btn ghost" id="bt-pause" style="display:none">⏸ Pause</button>
+      <button class="btn ghost" id="bt-target">🎯 New target</button>
+      <button class="btn ghost" id="bt-reset">↺ Forget everything</button>
+    </div>
+    <div class="ctrlrow">
+      <label class="ctl">jiggle size <input type="range" id="bt-jig" min="2" max="20" value="10"> <span class="nbox" id="bt-jigv">10</span></label>
+    </div>
+    <div class="curvewrap" style="max-width:480px;margin:10px auto 0"><canvas id="curve" width="480" height="80"></canvas></div>
+    <div class="log" id="bt-log">Ready. The bot has not fired yet.</div>
+    <div class="result" id="bt-result">Steps: <b>0</b> · Kept: <b>0</b> · Undone: <b>0</b></div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Things to try:</span> ① Run it and count how many shots until it hits. ② Set the jiggle size tiny (2), press Forget, run again. Slower or faster?
+    ③ Set it huge (20) and watch the log. Why does it overshoot at first, and what does the bot do about it? ④ Press <b>New target</b> after it learned. Does it still know?
+  </div>
+
+  <h2>3 · Delightful noise, chaotic noise</h2>
+  <p>Look at the log. Every step is one of two things:</p>
+  <p><b style="color:var(--good)">🔔 Delightful</b>: the error went down, so the bot keeps the jiggle.
+    <b style="color:var(--accent)">🔊 Chaotic</b>: the error went up, so the bot undoes it.</p>
+  <p>You named this on the walk. The brain cells playing Doom get a nice sound when they score and a horrible sound when they take damage.
+    Same thing. The nice sound means "keep doing that". The horrible sound means "not that". That is a <b>reward signal</b>,
+    and learning from rewards is called <b>reinforcement learning</b>.</p>
+  <p>Your own brain does it with chemicals. Dopamine is the delightful noise. Connections that led to a reward get stronger. Connections that led to pain get weaker.</p>
+
+  <h2>4 · Now you try</h2>
+  <p>Be the bot. There is a secret number from 0 to 100. Drag the slider to guess. You only get told <b>how far off</b> you are, not which way.
+    Exactly the same rules the bot had.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🧠</span> You are the bot</div>
+    <p class="phint">Drag, then tap <b>Guess</b>. Get within 2 to win. Fewer guesses is better. The bot usually needs 10 to 40 shots. Can you beat it?</p>
+    <div class="controls">
+      <input type="range" id="yt-slider" min="0" max="100" value="50" style="width:320px;max-width:70vw">
+      <span class="nbox" id="yt-val">50</span>
+      <button class="btn" id="yt-guess">Guess</button>
+      <button class="btn ghost" id="yt-new">New secret</button>
+    </div>
+    <div class="meter">
+      <div class="mlab"><span>error (how far off)</span><span id="yt-err">?</span></div>
+      <div class="bartrack"><div class="barfill dem" id="yt-bar" style="width:0%"></div></div>
+    </div>
+    <div class="log" id="yt-log">No guesses yet.</div>
+    <div class="result" id="yt-result">Guesses: <b>0</b> · Best game: <b>none yet</b></div>
+  </div>
+
+  <div class="note">
+    <span class="t">Notice:</span> your second guess is smarter than the bot's. After two errors you can tell which way to go. The bot only jiggles randomly.
+    Real AI training uses a cleverer trick that also works out the direction. Dad is saving that for another walk.
+  </div>
+
+  <h2>5 · Sleep on it: inference</h2>
+  <p>When the bot has learned, its two knobs hold everything it knows. Those numbers are its <b>memory</b>. Real AI models have billions of knobs,
+    called <b>weights</b>, and training jiggles all of them.</p>
+  <p>Once training is done, you stop jiggling. You just use the knobs. That is <b>inference</b>. On the walk Dad called it "you just know it".</p>
+  <p>For you it works like this: guess, get told why it was wrong, adjust, then sleep. While you sleep, your brain makes the good connections permanent.
+    Next day, no guessing. You just know.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">💡</span> Learning off, just fire</div>
+    <p class="phint">This button fires the aim bot with learning turned <b>off</b>. No jiggle, no adjust. Try it before training (miss), after training (hit), and after a new target (miss again, it has to relearn).</p>
+    <div class="ctrlrow">
+      <button class="btn" id="inf-fire">💡 Just fire (inference)</button>
+    </div>
+    <div class="result" id="inf-result">Not fired yet.</div>
+  </div>
+
+  <h2>6 · 📓 Homework check</h2>
+  <p>Five questions, tap the answer. Fresh numbers every time. Pass with 4 and this lesson is ✅ (worth ⭐⭐) plus the 🧠 <b>Number Jiggler</b> badge.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">📓</span> Guess, measure, adjust check</div>
+    <p class="phint" id="hw-count">Question 1 of 5</p>
+    <div class="bigq" id="hw-q" style="font-size:clamp(1.15rem,3.5vw,1.5rem)">Loading…</div>
+    <div class="qopts" id="hw-opts"></div>
+    <div class="result" id="hw-result">Tap an answer.</div>
+    <div class="ctrlrow" style="justify-content:flex-start;margin-top:10px">
+      <button class="btn ghost" id="hw-restart">↺ Start over</button>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework (out loud, with Dad)</h2>
+  <ol class="hw">
+    <li><strong>Find the three moves</strong> in something you got better at this year (a game, swimming, a skill). What was the guess? What was the measure? What did you adjust?</li>
+    <li><strong>Be the reward signal.</strong> In Deep Rock, what would the "delightful noise" be for a bot learning to mine? What would be "chaotic"? Would it learn anything dumb from your rewards?</li>
+    <li><strong>Challenge:</strong> the bot only knows "how far off", not "which way". Invent a rule that finds the direction using just two shots.</li>
+  </ol>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">guess, measure, adjust · error · jiggle · keep or undo · reward signal · reinforcement learning · dopamine · weights · training · inference</p>
+
+  <div class="lessonnav">
+    <a href="ai00-the-walk.html">← AI 0: The Walk</a>
+    <a href="watch.html">Watch list: videos for the walk →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=17"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // reads a theme token like "primary" as the CSS custom property (two leading hyphens), so dark mode and the toggle work on canvases
+  var DD = "-".repeat(2);
+  function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(DD + name).trim(); }
+  function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+
+  // ================= The aim bot =================
+  (function () {
+    var cv = document.getElementById("range"), ctx = cv.getContext("2d");
+    var curve = document.getElementById("curve"), cctx = curve.getContext("2d");
+    var W = cv.width, H = cv.height, GROUND = H - 30, X0 = 40, G = 0.2;
+    var HIT = 8, MAX_ERR = 400, MAX_STEPS = 250;
+    var A_MIN = 10, A_MAX = 80, P_MIN = 4, P_MAX = 10;
+
+    var target, angle, power, bestErr, jig, jigStart, steps, kept, undone, hist, shots, timer = null, hitDone = false, starsGiven = 0, everTrained = false;
+    var log = document.getElementById("bt-log"), res = document.getElementById("bt-result");
+    var errNum = document.getElementById("err-num"), errBar = document.getElementById("err-bar");
+
+    function landing(a, p) {
+      var t = a * Math.PI / 180;
+      return X0 + (p * p * Math.sin(2 * t)) / G;
+    }
+    function errorOf(a, p) { return Math.abs(landing(a, p) - target); }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    function forget() {
+      angle = 45; power = 7; bestErr = null; steps = 0; kept = 0; undone = 0; hist = []; shots = []; hitDone = false; everTrained = false;
+      jigStart = +document.getElementById("bt-jig").value; jig = jigStart;
+      log.innerHTML = "Ready. Knobs reset to angle 45, power 7. The bot has not fired yet.";
+      errNum.textContent = "?"; errBar.style.width = "100%";
+      paintAll();
+    }
+    function newTarget() {
+      target = rnd(180, 440);
+      bestErr = null; hist = []; shots = []; hitDone = false; jig = jigStart || +document.getElementById("bt-jig").value;
+      steps = 0; kept = 0; undone = 0;
+      addLog("New target. Knobs still remember angle " + angle.toFixed(0) + ", power " + power.toFixed(1) + ". Does that still work?");
+      errNum.textContent = "?"; errBar.style.width = "100%";
+      paintAll();
+    }
+    function addLog(html, cls) {
+      var d = document.createElement("div");
+      if (cls) d.className = cls;
+      d.innerHTML = html;
+      if (log.children.length === 0 || log.textContent.indexOf("Ready.") === 0) log.innerHTML = "";
+      log.appendChild(d);
+      while (log.children.length > 40) log.removeChild(log.firstChild);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function step() {
+      if (hitDone) { addLog("Already hit. Press New target or Forget everything.", ""); return; }
+      if (steps >= MAX_STEPS) { addLog("Stopped at " + MAX_STEPS + " steps. Try a different jiggle size and Forget.", "undo"); stopRun(); return; }
+      steps += 1;
+      if (bestErr === null) {
+        bestErr = errorOf(angle, power);
+        shots.push({ a: angle, p: power, ok: true });
+        hist.push(bestErr);
+        addLog("Shot 1: angle " + angle.toFixed(0) + ", power " + power.toFixed(1) + ". Error <b>" + bestErr.toFixed(0) + "</b>. First guess, nothing to compare yet.");
+        showErr(bestErr);
+        paintAll();
+        if (bestErr <= HIT) hit();
+        return;
+      }
+      var whichAngle = Math.random() < 0.5;
+      var delta = (Math.random() < 0.5 ? -1 : 1) * jig * (0.4 + Math.random() * 0.6);
+      var na = angle, np = power;
+      if (whichAngle) na = clamp(angle + delta, A_MIN, A_MAX);
+      else np = clamp(power + delta * 0.1, P_MIN, P_MAX);
+      var e = errorOf(na, np);
+      var name = whichAngle ? "angle" : "power";
+      var from = whichAngle ? angle.toFixed(0) : power.toFixed(1), to = whichAngle ? na.toFixed(0) : np.toFixed(1);
+      if (e < bestErr) {
+        addLog("Shot " + steps + ": " + name + " " + from + " → " + to + ". Error " + bestErr.toFixed(0) + " → <b>" + e.toFixed(0) + "</b>. 🔔 delightful, keep it", "keep");
+        angle = na; power = np; bestErr = e; kept += 1;
+        shots.push({ a: na, p: np, ok: true });
+      } else {
+        addLog("Shot " + steps + ": " + name + " " + from + " → " + to + ". Error " + bestErr.toFixed(0) + " → <b>" + e.toFixed(0) + "</b>. 🔊 chaotic, undo it", "undo");
+        undone += 1;
+        shots.push({ a: na, p: np, ok: false });
+        jig = Math.max(0.6, jig * 0.9);   // a bad jiggle means we are close: jiggle smaller next time
+      }
+      hist.push(bestErr);
+      showErr(bestErr);
+      paintAll();
+      if (bestErr <= HIT) hit();
+    }
+    function hit() {
+      hitDone = true; everTrained = true;
+      stopRun();
+      res.className = "result win";
+      res.innerHTML = "🎯 <b>Hit!</b> " + steps + " shots: " + kept + " delightful, " + undone + " chaotic. The knobs now <b>know</b>: angle " +
+        angle.toFixed(0) + ", power " + power.toFixed(1) + ". Try the inference button in section 5.";
+      if (window.DadMath && starsGiven < 3) { starsGiven += 1; DadMath.star("ai1", 1, "Aim bot trained in " + steps + " shots"); }
+    }
+    function showErr(e) {
+      errNum.textContent = e.toFixed(0) + " px" + (e <= HIT ? " (hit!)" : "");
+      errBar.style.width = Math.max(1, Math.min(100, 100 * e / MAX_ERR)) + "%";
+      if (!hitDone) { res.className = "result"; res.innerHTML = "Steps: <b>" + steps + "</b> · Kept: <b>" + kept + "</b> · Undone: <b>" + undone + "</b> · jiggle now <b>" + jig.toFixed(1) + "</b>"; }
+    }
+    function stopRun() {
+      if (timer) { clearInterval(timer); timer = null; }
+      document.getElementById("bt-run").style.display = "";
+      document.getElementById("bt-pause").style.display = "none";
+    }
+    function run() {
+      if (timer || hitDone) return;
+      document.getElementById("bt-run").style.display = "none";
+      document.getElementById("bt-pause").style.display = "";
+      timer = setInterval(function () { step(); if (hitDone || steps >= MAX_STEPS) stopRun(); }, 220);
+    }
+
+    function paintKnobs() {
+      var ka = document.getElementById("k-angle"), kp = document.getElementById("k-power");
+      ka.style.width = (100 * (angle - A_MIN) / (A_MAX - A_MIN)) + "%"; ka.textContent = angle.toFixed(0) + "°";
+      kp.style.width = (100 * (power - P_MIN) / (P_MAX - P_MIN)) + "%"; kp.textContent = power.toFixed(1);
+      document.getElementById("n-angle").textContent = angle.toFixed(0);
+      document.getElementById("n-power").textContent = power.toFixed(1);
+    }
+    function arc(a, p, color, width, alpha) {
+      var t = a * Math.PI / 180, vx = p * Math.cos(t), vy = p * Math.sin(t);
+      ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = width; ctx.globalAlpha = alpha;
+      ctx.moveTo(X0, GROUND);
+      for (var f = 1; f < 400; f += 1) {
+        var x = X0 + vx * f, y = GROUND - (vy * f - 0.5 * G * f * f);
+        if (y > GROUND) break;
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    function paintRange() {
+      var ink = cssVar("ink-soft"), line = cssVar("line"), prim = cssVar("primary"), acc = cssVar("accent"), good = cssVar("good");
+      ctx.clearRect(0, 0, W, H);
+      ctx.strokeStyle = line; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, GROUND); ctx.lineTo(W, GROUND); ctx.stroke();
+      // old shots, faint
+      var start = Math.max(0, shots.length - 8);
+      for (var i = start; i < shots.length; i += 1) {
+        var s = shots[i], last = i === shots.length - 1;
+        arc(s.a, s.p, s.ok ? good : acc, last ? 3 : 1.5, last ? 1 : 0.18 + 0.5 * (i - start) / 8);
+        var lx = landing(s.a, s.p);
+        ctx.fillStyle = s.ok ? good : acc; ctx.globalAlpha = last ? 1 : 0.35;
+        ctx.beginPath(); ctx.arc(Math.min(lx, W - 4), GROUND, 4, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1;
+      }
+      // turret
+      ctx.fillStyle = prim;
+      ctx.beginPath(); ctx.arc(X0, GROUND, 12, Math.PI, 0); ctx.fill();
+      ctx.save(); ctx.translate(X0, GROUND); ctx.rotate(-angle * Math.PI / 180);
+      ctx.fillRect(0, -4, 26, 8); ctx.restore();
+      // target
+      ctx.fillStyle = acc; ctx.beginPath(); ctx.moveTo(target - 10, GROUND); ctx.lineTo(target + 10, GROUND); ctx.lineTo(target, GROUND - 16); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = ink; ctx.font = "700 12px " + cssVar("sans");
+      ctx.textAlign = "center"; ctx.fillText("target", target, GROUND + 18);
+      ctx.textAlign = "left"; ctx.fillText("the bot cannot see this side of the screen; it only hears the error", 12, 18);
+    }
+    function paintCurve() {
+      var line = cssVar("line"), acc = cssVar("accent"), ink = cssVar("ink-faint");
+      cctx.clearRect(0, 0, curve.width, curve.height);
+      cctx.fillStyle = ink; cctx.font = "700 11px " + cssVar("sans"); cctx.textAlign = "left";
+      cctx.fillText("error over time (should go down)", 8, 14);
+      if (!hist.length) return;
+      var n = hist.length, w = Math.max(2, Math.min(12, (curve.width - 16) / n)), hmax = Math.max(HIT, hist[0], 1);
+      for (var i = 0; i < n; i += 1) {
+        var h = Math.max(1, (curve.height - 22) * hist[i] / hmax);
+        cctx.fillStyle = hist[i] <= HIT ? cssVar("good") : acc;
+        cctx.fillRect(8 + i * w, curve.height - 4 - h, Math.max(1, w - 1), h);
+      }
+      cctx.strokeStyle = line; cctx.beginPath(); cctx.moveTo(0, curve.height - 4); cctx.lineTo(curve.width, curve.height - 4); cctx.stroke();
+    }
+    function paintAll() { paintKnobs(); paintRange(); paintCurve(); }
+
+    document.getElementById("bt-step").addEventListener("click", function () { stopRun(); step(); });
+    document.getElementById("bt-run").addEventListener("click", run);
+    document.getElementById("bt-pause").addEventListener("click", stopRun);
+    document.getElementById("bt-target").addEventListener("click", function () { stopRun(); newTarget(); });
+    document.getElementById("bt-reset").addEventListener("click", function () { stopRun(); forget(); });
+    document.getElementById("bt-jig").addEventListener("input", function () {
+      document.getElementById("bt-jigv").textContent = this.value;
+      jigStart = +this.value; if (bestErr === null) jig = jigStart;
+    });
+    var themeBtn = document.getElementById("themeBtn");
+    if (themeBtn) themeBtn.addEventListener("click", function () { setTimeout(paintAll, 30); });
+
+    // inference button (section 5): fire with learning OFF
+    document.getElementById("inf-fire").addEventListener("click", function () {
+      var e = errorOf(angle, power), r = document.getElementById("inf-result");
+      shots.push({ a: angle, p: power, ok: e <= HIT }); paintRange();
+      if (e <= HIT) {
+        r.className = "result win";
+        r.innerHTML = "🎯 Hit, with no learning at all. The knobs just <b>know</b>. That is inference." + (everTrained ? "" : " (Lucky shot, it never trained!)");
+      } else {
+        r.className = "result miss";
+        r.innerHTML = "Missed by <b>" + e.toFixed(0) + "</b> px. No adjusting happened, because learning is off. " +
+          (everTrained ? "The target moved, so the old knobs are wrong. It has to learn again." : bestErr === null ? "It has not trained yet. Go train it in section 2." : "Training is not finished yet. Keep stepping.");
+      }
+    });
+
+    target = rnd(180, 440);
+    forget();
+  })();
+
+  // ================= You try =================
+  (function () {
+    var secret, guesses, best = 0, done;
+    var sl = document.getElementById("yt-slider"), val = document.getElementById("yt-val"),
+        err = document.getElementById("yt-err"), bar = document.getElementById("yt-bar"),
+        log = document.getElementById("yt-log"), res = document.getElementById("yt-result");
+    function fresh() {
+      secret = rnd(0, 100); guesses = 0; done = false;
+      log.innerHTML = "No guesses yet. Secret number chosen.";
+      err.textContent = "?"; bar.style.width = "0%";
+      res.className = "result";
+      res.innerHTML = "Guesses: <b>0</b> · Best game: <b>" + (best ? best + " guesses" : "none yet") + "</b>";
+    }
+    sl.addEventListener("input", function () { val.textContent = sl.value; });
+    document.getElementById("yt-guess").addEventListener("click", function () {
+      if (done) return;
+      var g = +sl.value, e = Math.abs(g - secret);
+      guesses += 1;
+      err.textContent = e; bar.style.width = Math.max(1, e) + "%";
+      var d = document.createElement("div");
+      d.innerHTML = "Guess " + guesses + ": <b>" + g + "</b>, error <b>" + e + "</b>" + (e <= 2 ? " 🎯" : "");
+      if (log.textContent.indexOf("No guesses") === 0) log.innerHTML = "";
+      log.appendChild(d); log.scrollTop = log.scrollHeight;
+      if (e <= 2) {
+        done = true;
+        if (!best || guesses < best) best = guesses;
+        res.className = "result win";
+        res.innerHTML = "✅ Got it in <b>" + guesses + "</b> guesses. The secret was " + secret + ". Best game: <b>" + best + "</b>." +
+          (guesses <= 7 ? " That beats the bot easily. ⭐" : " Try again and use the two-guess direction trick.");
+        if (window.DadMath && guesses <= 7) DadMath.star("ai1", 1, "Beat the bot: found the secret in " + guesses + " guesses");
+      } else {
+        res.className = "result";
+        res.innerHTML = "Guesses: <b>" + guesses + "</b> · Best game: <b>" + (best ? best + " guesses" : "none yet") + "</b> · Measure, then adjust.";
+      }
+    });
+    document.getElementById("yt-new").addEventListener("click", fresh);
+    fresh();
+  })();
+
+  // ================= Homework check =================
+  (function () {
+    var qEl = document.getElementById("hw-q"), opts = document.getElementById("hw-opts"),
+        res = document.getElementById("hw-result"), count = document.getElementById("hw-count");
+    var NEED = 4, COUNT = 5, qs, idx, score, locked;
+
+    function shuffle(a) {
+      for (var i = a.length - 1; i > 0; i -= 1) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
+      return a;
+    }
+    function uniq3(correct, makers) {
+      var set = [correct], tries = 0;
+      while (set.length < 3 && tries < 50) {
+        var v = makers[tries % makers.length](); tries += 1;
+        if (v > 0 && set.indexOf(v) < 0) set.push(v);
+      }
+      return set;
+    }
+    var GEN = [
+      function () {
+        var t = rnd(100, 400), l = rnd(100, 400); if (l === t) l += 7;
+        var c = Math.abs(t - l);
+        var o = uniq3(c, [function () { return c + rnd(3, 12); }, function () { return Math.max(1, c - rnd(3, 12)); }, function () { return t + l; }]);
+        return { text: "The target is at " + t + ". The shot landed at " + l + ". What is the error?", ans: String(c), opts: shuffle(o).map(String),
+                 why: "Error is the distance between them: " + Math.max(t, l) + " minus " + Math.min(t, l) + " = " + c + "." };
+      },
+      function () {
+        var a = rnd(20, 150), b = a + (Math.random() < 0.5 ? -1 : 1) * rnd(3, 30); if (b < 0) b = a + 10;
+        var down = b < a;
+        return { text: "Last error was " + a + ". After a jiggle the error is " + b + ". What does the bot do?",
+                 ans: down ? "🔔 Delightful: keep the jiggle" : "🔊 Chaotic: undo the jiggle",
+                 opts: shuffle(["🔔 Delightful: keep the jiggle", "🔊 Chaotic: undo the jiggle", "Fire again without changing anything"]),
+                 why: "Error went " + (down ? "down, so keep it." : "up, so undo it.") };
+      },
+      function () {
+        return { text: "What is the learning loop, in order?", ans: "guess → measure → adjust",
+                 opts: shuffle(["guess → measure → adjust", "adjust → guess → measure", "measure → adjust → guess"]),
+                 why: "First you guess, then you measure how far off, then you adjust." };
+      },
+      function () {
+        return { text: "Training is done. The bot just fires and hits, no jiggling. What is that called?", ans: "inference",
+                 opts: shuffle(["inference", "training", "an error"]), why: "Using what you learned, with no more learning, is inference. You just know it." };
+      },
+      function () {
+        return { text: "After each shot, what is the ONLY thing the aim bot gets told?", ans: "how far off it landed",
+                 opts: shuffle(["how far off it landed", "where the target is", "which knob to turn"]),
+                 why: "Only the error. That is the whole challenge: it learns from one number." };
+      },
+      function () {
+        return { text: "In the Doom brain cells experiment, what is the delightful noise for?", ans: "reward: do more of that",
+                 opts: shuffle(["reward: do more of that", "punishment: stop doing that", "it means the game is over"]),
+                 why: "A reward tells the cells to keep doing what just worked. That is reinforcement learning." };
+      },
+      function () {
+        var e = rnd(3, 6);
+        return { text: "The bot's error is now " + e + " px and the jiggle size is 20. Big jiggles keep missing. Best fix?", ans: "make the jiggle smaller",
+                 opts: shuffle(["make the jiggle smaller", "make the jiggle bigger", "forget everything and start over"]),
+                 why: "Close to the target you need tiny steps, so shrink the jiggle." };
+      },
+      function () {
+        var n = rnd(2, 9);
+        return { text: "A model has " + n + " billion knobs (weights). Training does what to them?", ans: "jiggles them until the error is small",
+                 opts: shuffle(["jiggles them until the error is small", "deletes them", "sets them all to the same number"]),
+                 why: "Training starts with random knobs and jiggles them until the error is low. Same as the aim bot, just " + n + " billion knobs." };
+      }
+    ];
+    function start() {
+      qs = shuffle(GEN.slice()).slice(0, COUNT).map(function (g) { return g(); });
+      idx = 0; score = 0; locked = false;
+      res.className = "result"; res.innerHTML = "Tap an answer.";
+      show();
+    }
+    function show() {
+      var q = qs[idx];
+      count.textContent = "Question " + (idx + 1) + " of " + COUNT + " · score " + score;
+      qEl.textContent = q.text;
+      opts.innerHTML = "";
+      q.opts.forEach(function (o) {
+        var b = document.createElement("button");
+        b.className = "btn ghost"; b.textContent = o;
+        b.addEventListener("click", function () { answer(o, q); });
+        opts.appendChild(b);
+      });
+      locked = false;
+    }
+    function answer(o, q) {
+      if (locked) return; locked = true;
+      var ok = o === q.ans;
+      if (ok) score += 1;
+      res.className = "result " + (ok ? "win" : "miss");
+      res.innerHTML = (ok ? "✅ Yes. " : "❌ Not quite. ") + q.why;
+      idx += 1;
+      if (idx < COUNT) {
+        var b = document.createElement("button"); b.className = "btn"; b.textContent = "Next →"; b.style.marginTop = "10px";
+        b.addEventListener("click", show); res.appendChild(document.createElement("br")); res.appendChild(b);
+        return;
+      }
+      count.textContent = "Done · score " + score + " of " + COUNT;
+      opts.innerHTML = "";
+      if (score >= NEED) {
+        res.className = "result win";
+        res.innerHTML = "🎉 <b>" + score + " of " + COUNT + ". Passed!</b> Guess, measure, adjust: you own it." ;
+        if (window.DadMath) { DadMath.hwPass("ai1", "Guess, measure, adjust check passed"); DadMath.badge("ai-learn"); }
+      } else {
+        res.className = "result miss";
+        res.innerHTML = "<b>" + score + " of " + COUNT + ".</b> Need " + NEED + ". Measure what went wrong, adjust, try again.";
+      }
+      var r = document.createElement("button"); r.className = "btn"; r.textContent = "↺ Try again"; r.style.marginTop = "10px";
+      r.addEventListener("click", start); res.appendChild(document.createElement("br")); res.appendChild(r);
+    }
+    document.getElementById("hw-restart").addEventListener("click", start);
+    start();
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>
