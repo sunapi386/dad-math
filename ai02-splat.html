@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 2 · Splat Lab: Painting a World out of Fuzzy Blobs · Math in Half an Hour</title>
+<meta name="description" content="A whole 3D scene painted out of fuzzy see-through blobs. Drag one blob, squish it, stack two, sort them, build a picture, then let the computer learn the picture with guess, render, compare, adjust. Then spin a snowman made of 240 blobs.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%88%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css?v=4">
+  <script defer src="https://analytics.jasonsun.org/script.js" data-website-id="c522fe5b-4ba8-48c9-a043-0949a66d231d" data-domains="jasonsun.org,www.jasonsun.org"></script>
+<style>
+  .knobs { display: grid; grid-template-columns: auto 1fr auto; gap: 8px 12px; align-items: center; margin: 10px 0; }
+  .knobs .kl { font-weight: 700; color: var(--ink-soft); font-size: .9rem; text-align: right; }
+  .knobs input[type=range] { width: 100%; max-width: none; }
+  .meter { margin: 10px 0 4px; }
+  .meter .mlab { display: flex; justify-content: space-between; font-size: .85rem; font-weight: 700; color: var(--ink-soft); }
+  .log { font-family: var(--mono); font-size: .82rem; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 8px 12px; margin-top: 10px; max-height: 120px; overflow-y: auto; }
+  .log .keep { color: var(--good); }
+  .log .undo { color: var(--accent); }
+  .steps { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; justify-content: center; }
+  .step3 { background: var(--panel-2); border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; font-weight: 700; }
+  .step3 b { color: var(--primary); }
+  .arrow { color: var(--ink-faint); font-size: 1.3rem; align-self: center; }
+  .qopts { display: grid; gap: 8px; margin: 10px 0; }
+  .qopts .btn { text-align: left; font-size: 1rem; }
+  .qopts .btn.ghost { color: var(--ink); }
+  .curvewrap canvas { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+  /* side-by-side target + your picture */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 520px; margin: 12px auto; }
+  .two .cw { text-align: center; font-size: .82rem; font-weight: 700; color: var(--ink-soft); margin-bottom: 4px; }
+  .two canvas { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel-2); }
+  /* every canvas: a finger drag must never select text or pop the long-press menu */
+  canvas { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  /* little colour palette for section 5 */
+  .pal { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 8px 0; }
+  .sw { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--line); cursor: pointer; padding: 0; }
+  .sw.on { border-color: var(--ink); transform: scale(1.15); }
+  .swatch { display: inline-block; width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--line); vertical-align: middle; }
+  .pick { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 6px 0 10px; }
+</style>
+<style>.btn,button,input[type=range]{touch-action:manipulation}</style>
+</head>
+<body>
+
+<div class="topbar"><div class="row">
+  <a class="brand" href="index.html"><span class="mark">∑</span> Math in Half an Hour</a>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html#lessons">📚 Lessons</a>
+  <a class="nav" href="homework.html">📓 Homework</a>
+  <a class="nav" href="arcade.html">🕹️ Arcade</a>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">☾ Dark</button>
+</div></div>
+
+<div class="wrap">
+
+  <header class="hero" style="padding-bottom:10px">
+    <div class="eyebrow">AI Lab · Topic 02</div>
+    <h1 style="font-size:clamp(1.9rem,5vw,3rem)">Splat Lab: Painting a World out of Fuzzy Blobs</h1>
+    <p class="lede">In Topic 1 the aim bot learned with guess, measure, adjust. Dad promised that same loop could do something big.
+      Here it is: the SAME loop paints a whole 3D scene, out of nothing but fuzzy blobs of colour.
+      Grown-ups call this Gaussian splatting. A research paper from 2023 set it loose.</p>
+    <p style="margin-top:14px"><span class="badge">⏱ ~30 min</span> &nbsp; <span class="badge amber">do Topic 1 first</span> &nbsp; <span class="badge green">from The Walk</span></p>
+  </header>
+
+  <h2>1 · What is a splat?</h2>
+  <p>A <b>splat</b> is a fuzzy blob of colour. Brightest in the middle, fading to nothing at the edges. No crisp edge anywhere.
+    That is different from the triangle in the Quest, which has a hard line you could cut yourself on.</p>
+  <p>The soft fade has a name. If you walk across a splat and write down how bright it is, you get a smooth bump.
+    Grown-ups call that bump a <b>Gaussian</b>. So a splat is a bump of colour, sitting on the page.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🫧</span> One fuzzy blob</div>
+    <p class="phint">Drag the blob around. Slide <b>size</b>, <b>softness</b> and <b>colour</b>. The graph underneath is the brightness bump across its middle.</p>
+    <div class="canvaswrap"><canvas id="s1" width="480" height="240" style="touch-action:none"></canvas></div>
+    <div class="knobs">
+      <div class="kl">size</div><input type="range" id="s1-size" min="12" max="110" value="60"><div class="nbox" id="s1-sizev">60</div>
+      <div class="kl">softness</div><input type="range" id="s1-soft" min="0" max="100" value="65"><div class="nbox" id="s1-softv">65</div>
+      <div class="kl">colour</div><input type="range" id="s1-hue" min="0" max="360" value="265"><div class="nbox" id="s1-huev">265</div>
+    </div>
+    <div class="curvewrap" style="max-width:480px;margin:10px auto 0"><canvas id="s1-bump" width="480" height="90"></canvas></div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Things to try:</span> ① Softness down to 0. Now it is a hard coin, not a splat. ② Softness all the way up. Where does the blob end? Can you even tell?
+    ③ Drag it half off the page. The fade still works at the edge. ④ Look at the bump while you change softness. Pointy bump or wide bump?
+  </div>
+
+  <h2>2 · Squish and spin</h2>
+  <p>A blob does not have to be a circle. Stretch it into an oval and spin it. A long thin oval is a blade of grass, a hair, the edge of a table.
+    A fat wide oval is a wall or a patch of sky. Real splats are all shapes, and most of them are squished.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🌾</span> Squish it</div>
+    <p class="phint">Drag to move. Slide <b>long</b>, <b>short</b> and <b>spin</b>, or tap a preset.</p>
+    <div class="canvaswrap"><canvas id="s2" width="480" height="260" style="touch-action:none"></canvas></div>
+    <div class="knobs">
+      <div class="kl">long side</div><input type="range" id="s2-rx" min="8" max="150" value="90"><div class="nbox" id="s2-rxv">90</div>
+      <div class="kl">short side</div><input type="range" id="s2-ry" min="4" max="150" value="30"><div class="nbox" id="s2-ryv">30</div>
+      <div class="kl">spin</div><input type="range" id="s2-ang" min="0" max="180" value="20"><div class="nbox" id="s2-angv">20°</div>
+    </div>
+    <div class="ctrlrow">
+      <button class="btn ghost" id="s2-grass">🌱 blade of grass</button>
+      <button class="btn ghost" id="s2-hair">〰 a hair</button>
+      <button class="btn ghost" id="s2-wall">🧱 a wall</button>
+      <button class="btn ghost" id="s2-round">⚪ round again</button>
+    </div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Things to try:</span> ① Make the thinnest blade you can. ② Spin it to 90°. Now it stands up. ③ Long and short the same: it is a circle again, and spin does nothing. Why?
+    ④ What would you need to paint a whole lawn? (Hint: lots of these, all a bit different.)
+  </div>
+
+  <h2>3 · See-through</h2>
+  <p>Every splat is a little see-through. Its see-through number is called <b>alpha</b>. Alpha 1 is solid paint. Alpha 0 is invisible.
+    Stack two see-through blobs and the colours <b>blend</b> where they overlap, like two sheets of coloured cellophane.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🟡</span> Yellow over blue</div>
+    <p class="phint">Drag either blob. Slide the alphas. The little square shows the exact colour in the overlap.</p>
+    <div class="canvaswrap"><canvas id="s3" width="480" height="260" style="touch-action:none"></canvas></div>
+    <div class="knobs">
+      <div class="kl">yellow alpha</div><input type="range" id="s3-a" min="0" max="100" value="55"><div class="nbox" id="s3-av">0.55</div>
+      <div class="kl">blue alpha</div><input type="range" id="s3-b" min="0" max="100" value="85"><div class="nbox" id="s3-bv">0.85</div>
+    </div>
+    <div class="ctrlrow">
+      <button class="btn ghost" id="s3-flip">🔁 Put blue on top instead</button>
+    </div>
+    <div class="result" id="s3-result">In the overlap: <span class="swatch" id="s3-sw"></span> <span id="s3-txt"></span></div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Things to try:</span> ① Yellow alpha 100. Can you see the blue underneath at all? ② Both alphas around 50. What colour is the overlap?
+    ③ Yellow alpha 0. Where did it go? ④ Tap <b>blue on top</b>. Same blobs, same alphas, different overlap. Order matters. Remember that for the next step.
+  </div>
+
+  <h2>4 · Who is in front? (sorting)</h2>
+  <p>You just saw it: when see-through blobs overlap, the one painted <b>last</b> wins. So the computer has to paint the far-away blobs first
+    and the close ones last, like laying down cellophane from the back of the pile to the front.</p>
+  <p>Before every single frame, the computer <b>sorts</b> every splat, back to front, by how far away it is. Skip the sort and the picture glitches.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🗂️</span> Back to front</div>
+    <p class="phint">Three blobs: a far sky, a middle tree, a near ball. Turn sorting off and tap <b>paint again</b> a few times. Watch the ball vanish behind the sky.</p>
+    <div class="canvaswrap"><canvas id="s4" width="480" height="260" style="touch-action:none"></canvas></div>
+    <div class="ctrlrow">
+      <button class="btn" id="s4-sort">🗂️ Sorting: ON</button>
+      <button class="btn ghost" id="s4-again">🎨 Paint again</button>
+      <button class="btn ghost" id="s4-swap">🔁 Swap ball and tree</button>
+    </div>
+    <div class="result" id="s4-result">Painting order: sky → tree → ball. Far first, near last.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Things to try:</span> ① Sorting off, paint again five times. How many times does it look wrong? ② Swap the ball and the tree, sorting on. Which one wins the overlap now?
+    ③ Drag the ball so it does not overlap anything. Does sorting still matter? ④ Say the rule out loud: far first, near last.
+  </div>
+
+  <h2>5 · Make a picture out of blobs</h2>
+  <p>Here is the big idea: a whole picture is just <b>many</b> splats, each in the right spot, the right size, the right colour.
+    No lines, no shapes, just blobs. Enough blobs, placed well, and your eye stops seeing blobs and starts seeing a smiley.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🎨</span> Copy the picture with blobs</div>
+    <p class="phint">Pick a colour, then <b>tap</b> the right canvas to drop a blob. <b>Drag a blob by its centre dot</b> to nudge it. The score says how close your blobs are to the picture.</p>
+    <div class="pick">
+      <button class="btn ghost s5-pick" data-t="smiley">🙂 smiley</button>
+      <button class="btn ghost s5-pick" data-t="heart">❤️ heart</button>
+      <button class="btn ghost s5-pick" data-t="mushroom">🍄 mushroom</button>
+    </div>
+    <div class="two">
+      <div><div class="cw">the picture</div><canvas id="s5-t" width="240" height="240"></canvas></div>
+      <div><div class="cw">your blobs</div><canvas id="s5-p" width="240" height="240" style="touch-action:none"></canvas></div>
+    </div>
+    <div class="pal" id="s5-pal"></div>
+    <div class="ctrlrow">
+      <label class="ctl">blob size <input type="range" id="s5-size" min="8" max="130" value="40"> <span class="nbox" id="s5-sizev">40</span></label>
+    </div>
+    <div class="ctrlrow">
+      <button class="btn ghost" id="s5-sprinkle">✨ Sprinkle 30 random blobs</button>
+      <button class="btn ghost" id="s5-undo">↶ Undo last</button>
+      <button class="btn ghost" id="s5-erase">🧽 Erase all</button>
+    </div>
+    <div class="meter">
+      <div class="mlab"><span>how close?</span><span id="s5-score">0 / 100</span></div>
+      <div class="bartrack"><div class="barfill sup" id="s5-bar" style="width:0%"></div></div>
+    </div>
+    <div class="result" id="s5-result">Blobs: <b>0</b>. A blank page scores 0. Get above <b>40</b> for a star.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Things to try:</span> ① Smiley with just 4 blobs: one big yellow, two small dark eyes, one wide dark mouth. What score? ② Erase, then sprinkle 30 random blobs. Better or worse than blank?
+    ③ Sprinkle, then drag the wrong-coloured blobs off the edge. ④ Try the mushroom. Which part is hardest to make from round blobs? Would a squished one help?
+  </div>
+
+  <h2>6 · Guess, render, compare, adjust (training)</h2>
+  <p>You placed every blob by hand. The computer does not. It starts with a random mess of blobs, <b>renders</b> its picture, <b>compares</b> it to the real photo,
+    and nudges a blob to make the difference smaller. Keep the nudge if the error went down. Undo it if the error went up.</p>
+  <div class="steps">
+    <span class="step3">1 · <b>Guess</b> (random blobs)</span>
+    <span class="arrow">→</span>
+    <span class="step3">2 · <b>Render</b> (paint them)</span>
+    <span class="arrow">→</span>
+    <span class="step3">3 · <b>Compare</b> (error)</span>
+    <span class="arrow">→</span>
+    <span class="step3">4 · <b>Adjust</b> (nudge one)</span>
+    <span class="arrow">↻</span>
+  </div>
+  <p>That is the aim bot from Topic 1, exactly. The aim bot had two knobs. This one has seven knobs per blob, times forty blobs. Same loop. Just more knobs.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🤖</span> Let the computer learn the picture</div>
+    <p class="phint">Press <b>Train one step</b> to watch one nudge. Press <b>Run</b> and watch the error shrink. It tries a nudge both ways, keeps the better one.</p>
+    <div class="pick">
+      <button class="btn ghost s6-pick" data-t="smiley">🙂 smiley</button>
+      <button class="btn ghost s6-pick" data-t="heart">❤️ heart</button>
+      <button class="btn ghost s6-pick" data-t="mushroom">🍄 mushroom</button>
+    </div>
+    <div class="two">
+      <div><div class="cw">the picture</div><canvas id="s6-t" width="240" height="240"></canvas></div>
+      <div><div class="cw">the computer's blobs</div><canvas id="s6-p" width="240" height="240"></canvas></div>
+    </div>
+    <div class="meter">
+      <div class="mlab"><span>error (how different)</span><span id="s6-err">?</span></div>
+      <div class="bartrack"><div class="barfill dem" id="s6-bar" style="width:100%"></div></div>
+    </div>
+    <div class="ctrlrow">
+      <button class="btn" id="s6-step">▶ Train one step</button>
+      <button class="btn" id="s6-run">▶▶ Run</button>
+      <button class="btn ghost" id="s6-pause" style="display:none">⏸ Pause</button>
+      <button class="btn ghost" id="s6-reset">↺ New random blobs</button>
+    </div>
+    <div class="curvewrap" style="max-width:480px;margin:10px auto 0"><canvas id="s6-curve" width="480" height="80"></canvas></div>
+    <div class="log" id="s6-log">Ready. Forty random blobs, nothing learned yet.</div>
+    <div class="result" id="s6-result">Steps: <b>0</b> · Kept: <b>0</b> · Undone: <b>0</b> · Blobs: <b>40</b></div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Things to try:</span> ① Step ten times by hand and read the log. Which knobs got nudged? ② Run. What does it get right first, the big patches or the little details?
+    ③ Pause at score 50 and look. Would you know what the picture was, if you had not seen it? ④ New random blobs, pick the heart, run again. Faster or slower than the smiley?
+  </div>
+
+  <div class="note">
+    <span class="t">Notice:</span> this toy tries one knob at a time, both ways, and keeps the better one. Real splatting is cleverer: it works out the downhill direction for
+    <b>all</b> the knobs at once and steps that way. That direction is called the <b>gradient</b>. Dad is saving the full trick for another walk.
+  </div>
+
+  <h2>7 · Grow and prune</h2>
+  <p>Two more tricks make the real thing work. Where the picture is still wrong, the computer <b>splits</b> a blob into two smaller ones, so there are more blobs to add detail.
+    And any blob whose alpha has faded to almost nothing gets <b>thrown away</b>, because painting an invisible blob is wasted work.</p>
+  <p>Grow where it is wrong. Prune what you cannot see. The blob count goes up and down while the error keeps going down.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">🌱</span> Split and throw away</div>
+    <p class="phint">These buttons work on the scene in section 6. Run training for a while first, then try them. Watch the blob count and the error.</p>
+    <div class="ctrlrow">
+      <button class="btn" id="s7-split">✂️ Split the worst blob</button>
+      <button class="btn ghost" id="s7-prune">🗑️ Throw away invisible blobs</button>
+    </div>
+    <div class="result" id="s7-result">Blobs: <b>40</b> · error <b>?</b>. Nothing split or pruned yet.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Things to try:</span> ① Split five times, then Run. Did the error drop lower than it could before? ② Prune. How many vanished? Were they doing anything?
+    ③ Keep splitting until it says 60. Why does the toy stop there? ④ Run for a long time, then prune. More or fewer invisible blobs than early on?
+  </div>
+
+  <h2>8 · The blobs float in 3D</h2>
+  <p>Here is the real magic. The splats are not stuck on flat paper. They <b>float in space</b>, all around a real object, like a swarm of tiny coloured clouds.</p>
+  <p>You take photos from many angles. The computer runs the guess, render, compare, adjust loop against <b>every</b> photo at once, so the blobs end up in the spots
+    where the picture looks right from every side. Then you can fly the camera anywhere, even to places you never took a photo.</p>
+
+  <div class="panel">
+    <div class="ptitle"><span class="ic">⛄</span> A snowman made of 240 blobs</div>
+    <p class="phint">Drag to spin him. Every frame, all 240 blobs get sorted back to front and painted, exactly like section 4. Turn sorting off to see the mess.</p>
+    <div class="canvaswrap"><canvas id="s8" width="480" height="360" style="touch-action:none"></canvas></div>
+    <div class="ctrlrow">
+      <button class="btn ghost" id="s8-spin">⟳ Auto-spin: ON</button>
+      <button class="btn" id="s8-sort">🗂️ Sorting: ON</button>
+    </div>
+    <div class="result" id="s8-result">240 blobs floating in space. Far ones painted first, near ones last, every frame.</div>
+  </div>
+
+  <div class="note try">
+    <span class="t">Things to try:</span> ① Spin him all the way round. The nose goes behind the head. Which blobs are painted last then? ② Sorting off. Why does the back of his belly show through the front?
+    ③ Drag up and down a little to look from above. His shadow is one squished blob (section 2). ④ Count how many blobs the hat is. Then guess the real number.
+  </div>
+
+  <h2>9 · Where you have seen it, and why it matters</h2>
+  <p>Spin your phone around your Lego build, taking photos the whole way round. A few minutes later the build appears inside a game, and you can walk around it from any side.
+    That is splats. Real captures use millions of them.</p>
+  <p>Three threads tie together here, JJ:</p>
+  <p><b>Learning.</b> It is Topic 1's guess, measure, adjust loop, run against photos instead of a target on the ground.<br>
+    <b>Flattening.</b> To paint a floating blob on the screen, divide its size by its distance. That is the Sketch Lab's glass, the same 1-over-distance you met in Flatten.<br>
+    <b>Drawing a world.</b> The Quest asked how a machine draws a world. Triangles were one answer. Fuzzy blobs are a second answer, and this one can learn from photos.</p>
+
+  <h2>10 · 📓 Homework check</h2>
+  <p>Five questions, tap the answer. Fresh numbers every time. Pass with 4 and this lesson turns ✅ on the home page, worth ⭐⭐.</p>
+  <div class="panel">
+    <div class="ptitle"><span class="ic">📓</span> Splat check</div>
+    <p class="phint" id="hw-count">Question 1 of 5</p>
+    <div class="bigq" id="hw-q" style="font-size:clamp(1.15rem,3.5vw,1.5rem)">Loading…</div>
+    <div class="qopts" id="hw-opts"></div>
+    <div class="result" id="hw-result">Tap an answer.</div>
+    <div class="ctrlrow" style="justify-content:flex-start;margin-top:10px">
+      <button class="btn ghost" id="hw-restart">↺ Start over</button>
+    </div>
+  </div>
+
+  <hr class="rule">
+
+  <h2>📓 Homework (out loud, with Dad)</h2>
+  <ol class="hw">
+    <li><strong>Find the blobs.</strong> Look at a tree outside. If you had to paint it with only fuzzy ovals, what shape would the leaves be? The trunk? The sky behind it?</li>
+    <li><strong>Sort the room.</strong> Pick five things you can see from your chair. Say them in the order the computer would paint them: far first, near last.</li>
+    <li><strong>Challenge:</strong> the toy in section 6 nudges one knob at a time. Invent a way to nudge two knobs at once and still know whether to keep it.</li>
+  </ol>
+
+  <div class="note try">
+    <span class="t">For grown-ups:</span> read one section aloud, then hand over the iPad and let JJ play the panel until the "things to try" are done. Nine sections is a lot for one sitting.
+    Sections 1 to 4 are one walk, 5 to 7 another, 8 and 9 the third.
+  </div>
+
+  <h3>Words we learned</h3>
+  <p class="muted small">splat · fuzzy blob · Gaussian · softness (falloff) · squish · see-through (alpha) · sort back-to-front · error · train · gradient · split · prune · 3D · project</p>
+
+  <div class="lessonnav">
+    <a href="ai01-how-ai-learns.html">← AI 1: How a Machine Learns</a>
+    <a href="watch.html">Watch list: videos for the walk →</a>
+  </div>
+
+</div>
+
+<footer class="site">
+  Made at the kitchen table · <a href="https://jasonsun.org">jasonsun.org</a>/dad-math
+</footer>
+
+<script defer src="assets/site.js"></script>
+<script defer src="assets/game.js?v=17"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  // reads a theme token like "primary" as the CSS custom property (two leading hyphens), so dark mode and the toggle work on canvases
+  var DD = "-".repeat(2);
+  function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(DD + name).trim(); }
+  function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  function setText(id, t) { document.getElementById(id).textContent = t; }
+
+  // every panel registers its repaint here; the theme button replays them all
+  var painters = [];
+  var themeBtn = document.getElementById("themeBtn");
+  if (themeBtn) themeBtn.addEventListener("click", function () { setTimeout(function () { painters.forEach(function (p) { p(); }); }, 30); });
+
+  // ================= Shared splat machinery =================
+  // The soft disc is rendered ONCE per softness level to a small offscreen canvas (white, alpha fades out).
+  // Every splat on the page is then a drawImage of that sprite, scaled, rotated, and tinted through a small cache.
+  var SPR = 64, HALF = SPR / 2, LEVELS = 6;
+
+  // brightness at distance d from the centre (0 = centre, 1 = edge), for softness s (0 = hard coin, 1 = very fuzzy)
+  function falloff(d, s) {
+    if (d >= 1) return 0;
+    if (s < 0.05) return d < 0.92 ? 1 : (1 - d) / 0.08;
+    var sig = 0.2 + 0.45 * s;
+    var bump = Math.exp(-(d * d) / (2 * sig * sig));   // the Gaussian bump
+    var edge = Math.min(1, (1 - d) / 0.08);            // tidy fade so nothing is clipped at the sprite border
+    return bump * edge;
+  }
+  var baseSprites = [];
+  for (var lv = 0; lv < LEVELS; lv += 1) {
+    var bc = document.createElement("canvas"); bc.width = SPR; bc.height = SPR;
+    var bx = bc.getContext("2d"), img = bx.createImageData(SPR, SPR), s = lv / (LEVELS - 1);
+    for (var py = 0; py < SPR; py += 1) {
+      for (var px = 0; px < SPR; px += 1) {
+        var dx = (px + 0.5 - HALF) / HALF, dy = (py + 0.5 - HALF) / HALF, d = Math.sqrt(dx * dx + dy * dy);
+        var o = (py * SPR + px) * 4;
+        img.data[o] = 255; img.data[o + 1] = 255; img.data[o + 2] = 255; img.data[o + 3] = Math.round(255 * falloff(d, s));
+      }
+    }
+    bx.putImageData(img, 0, 0);
+    baseSprites.push(bc);
+  }
+  function levelOf(s) { return clamp(Math.round(s * (LEVELS - 1)), 0, LEVELS - 1); }
+
+  // tinted copies: fill with the colour, then keep only the sprite's alpha
+  var tintCache = {}, tintCount = 0;
+  function tinted(color, level) {
+    var key = level + "|" + color, c = tintCache[key];
+    if (c) return c;
+    if (tintCount > 600) { tintCache = {}; tintCount = 0; }
+    c = document.createElement("canvas"); c.width = SPR; c.height = SPR;
+    var x = c.getContext("2d");
+    x.fillStyle = color; x.fillRect(0, 0, SPR, SPR);
+    x.globalCompositeOperation = "destination-in";
+    x.drawImage(baseSprites[level], 0, 0);
+    tintCache[key] = c; tintCount += 1;
+    return c;
+  }
+  // draw one splat: centre (x,y), radii rx/ry, rotation ang, colour, alpha, softness level
+  function drawSplat(ctx, x, y, rx, ry, ang, color, alpha, level) {
+    if (rx < 0.3 || ry < 0.3 || alpha <= 0.002) return;
+    ctx.save();
+    ctx.translate(x, y); ctx.rotate(ang); ctx.scale(rx / HALF, ry / HALF);
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(tinted(color, level), -HALF, -HALF);
+    ctx.restore();
+  }
+  function q8(v) { return Math.round(clamp(v, 0, 255) / 8) * 8; }
+  function rgbStr(r, g, b) { return "rgb(" + q8(r) + "," + q8(g) + "," + q8(b) + ")"; }
+
+  // Pointer Events only (finger, pencil and mouse all arrive here). Coordinates are scaled from CSS pixels to canvas pixels,
+  // and `hit` is a finger-sized 22 CSS px radius expressed in canvas pixels.
+  function pointerOn(cv, h) {
+    var active = false, pid = null;
+    function pos(e) {
+      var r = cv.getBoundingClientRect(), k = cv.width / r.width;
+      return { x: (e.clientX - r.left) * k, y: (e.clientY - r.top) * cv.height / r.height, hit: 22 * k };
+    }
+    cv.addEventListener("pointerdown", function (e) {
+      if (active) return;                                  // a second finger does not steal the drag
+      if (e.button !== undefined && e.button !== 0) return;
+      active = true; pid = e.pointerId;
+      try { cv.setPointerCapture(e.pointerId); } catch (x) { }
+      e.preventDefault();
+      h.down(pos(e), e);
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (!active || e.pointerId !== pid) return;
+      e.preventDefault();
+      h.move(pos(e), e);
+    });
+    function up(e) {
+      if (!active || e.pointerId !== pid) return;
+      active = false; pid = null;
+      if (h.up) h.up(pos(e), e);
+    }
+    cv.addEventListener("pointerup", up);
+    cv.addEventListener("pointercancel", up);
+  }
+  // coalesce many pointermoves into one paint per frame; no loop runs when nothing is happening
+  function scheduler(paint) {
+    var pending = false;
+    return function () {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(function () { pending = false; paint(); });
+    };
+  }
+  // nearest splat under the finger, or -1. With centerOnly, a blob is grabbed only near its centre (a finger-sized handle),
+  // so you can still drop a small blob on top of a big one.
+  function hitSplat(list, p, centerOnly) {
+    var best = -1, bd = 1e9;
+    for (var i = 0; i < list.length; i += 1) {
+      var s = list[i], dx = s.x - p.x, dy = s.y - p.y, dd = Math.sqrt(dx * dx + dy * dy);
+      var reach = centerOnly ? p.hit : Math.max(p.hit, (s.rx || s.r || 0) * 0.9);
+      if (dd < reach && dd < bd) { bd = dd; best = i; }
+    }
+    return best;
+  }
+  function fillBg(ctx, cv) { ctx.fillStyle = cssVar("panel-2"); ctx.fillRect(0, 0, cv.width, cv.height); }
+  function label(ctx, text, x, y, align) {
+    ctx.fillStyle = cssVar("ink-faint"); ctx.font = "700 12px " + cssVar("sans"); ctx.textAlign = align || "left"; ctx.fillText(text, x, y);
+  }
+
+  // ================= 1 · One fuzzy blob =================
+  (function () {
+    var cv = document.getElementById("s1"), ctx = cv.getContext("2d");
+    var bump = document.getElementById("s1-bump"), bctx = bump.getContext("2d");
+    var S = { x: 240, y: 120, r: 60, soft: 0.65, hue: 265 }, dragging = false, off = { x: 0, y: 0 };
+    function color() { return "hsl(" + S.hue + ",75%,55%)"; }
+    function paint() {
+      fillBg(ctx, cv);
+      drawSplat(ctx, S.x, S.y, S.r, S.r, 0, color(), 1, levelOf(S.soft));
+      // the line we walk across for the bump graph
+      ctx.strokeStyle = cssVar("ink-faint"); ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(0, S.y); ctx.lineTo(cv.width, S.y); ctx.stroke(); ctx.setLineDash([]);
+      label(ctx, "drag me", S.x, S.y - S.r - 8, "center");
+      // bump graph: brightness along that dashed line
+      var W = bump.width, H = bump.height;
+      bctx.clearRect(0, 0, W, H);
+      label(bctx, "brightness across the dashed line: the bump", 8, 14);
+      bctx.beginPath(); bctx.moveTo(0, H - 6);
+      for (var x = 0; x <= W; x += 2) {
+        var d = Math.abs(x - S.x) / S.r, a = falloff(d, S.soft);
+        bctx.lineTo(x, H - 6 - a * (H - 26));
+      }
+      bctx.lineTo(W, H - 6); bctx.closePath();
+      bctx.fillStyle = color(); bctx.globalAlpha = 0.8; bctx.fill(); bctx.globalAlpha = 1;
+      bctx.strokeStyle = cssVar("line"); bctx.beginPath(); bctx.moveTo(0, H - 6); bctx.lineTo(W, H - 6); bctx.stroke();
+    }
+    var repaint = scheduler(paint);
+    pointerOn(cv, {
+      down: function (p) { dragging = true; off.x = S.x - p.x; off.y = S.y - p.y; if (Math.hypot(p.x - S.x, p.y - S.y) > Math.max(p.hit, S.r)) { off.x = 0; off.y = 0; } S.x = p.x + off.x; S.y = p.y + off.y; repaint(); },
+      move: function (p) { if (!dragging) return; S.x = p.x + off.x; S.y = p.y + off.y; repaint(); },
+      up: function () { dragging = false; }
+    });
+    function bind(id, key, fmt) {
+      var el = document.getElementById(id);
+      el.addEventListener("input", function () { S[key] = fmt(+el.value); setText(id + "v", el.value); paint(); });
+    }
+    bind("s1-size", "r", function (v) { return v; });
+    bind("s1-soft", "soft", function (v) { return v / 100; });
+    bind("s1-hue", "hue", function (v) { return v; });
+    painters.push(paint); paint();
+  })();
+
+  // ================= 2 · Squish and spin =================
+  (function () {
+    var cv = document.getElementById("s2"), ctx = cv.getContext("2d");
+    var S = { x: 240, y: 130, rx: 90, ry: 30, ang: 20 }, dragging = false, off = { x: 0, y: 0 };
+    var rx = document.getElementById("s2-rx"), ry = document.getElementById("s2-ry"), an = document.getElementById("s2-ang");
+    function paint() {
+      fillBg(ctx, cv);
+      drawSplat(ctx, S.x, S.y, S.rx, S.ry, S.ang * Math.PI / 180, cssVar("good"), 1, 4);
+      var what = S.ry / S.rx;
+      var name = Math.abs(S.rx - S.ry) < 6 ? "a round blob" : (what < 0.22 || what > 4.5) ? "a blade of grass, a hair, an edge" : (Math.max(S.rx, S.ry) > 110) ? "a wall, a patch of sky" : "an oval blob";
+      label(ctx, name, 12, 20);
+    }
+    var repaint = scheduler(paint);
+    function sync() { rx.value = S.rx; ry.value = S.ry; an.value = S.ang; setText("s2-rxv", S.rx); setText("s2-ryv", S.ry); setText("s2-angv", S.ang + "°"); paint(); }
+    pointerOn(cv, {
+      down: function (p) { dragging = true; off.x = S.x - p.x; off.y = S.y - p.y; if (Math.hypot(p.x - S.x, p.y - S.y) > Math.max(p.hit, S.rx, S.ry)) { off.x = 0; off.y = 0; } S.x = p.x + off.x; S.y = p.y + off.y; repaint(); },
+      move: function (p) { if (!dragging) return; S.x = p.x + off.x; S.y = p.y + off.y; repaint(); },
+      up: function () { dragging = false; }
+    });
+    rx.addEventListener("input", function () { S.rx = +rx.value; sync(); });
+    ry.addEventListener("input", function () { S.ry = +ry.value; sync(); });
+    an.addEventListener("input", function () { S.ang = +an.value; sync(); });
+    document.getElementById("s2-grass").addEventListener("click", function () { S.rx = 110; S.ry = 8; S.ang = 80; sync(); });
+    document.getElementById("s2-hair").addEventListener("click", function () { S.rx = 140; S.ry = 5; S.ang = 25; sync(); });
+    document.getElementById("s2-wall").addEventListener("click", function () { S.rx = 150; S.ry = 70; S.ang = 0; sync(); });
+    document.getElementById("s2-round").addEventListener("click", function () { S.rx = 60; S.ry = 60; S.ang = 0; sync(); });
+    painters.push(paint); paint();
+  })();
+
+  // ================= 3 · See-through =================
+  (function () {
+    var cv = document.getElementById("s3"), ctx = cv.getContext("2d");
+    // a cyan-leaning blue so that a half-and-half mix with yellow really reads as green
+    var A = { x: 205, y: 130, r: 80, color: "rgb(255,225,20)", a: 0.55, name: "yellow" };
+    var B = { x: 275, y: 130, r: 80, color: "rgb(30,170,255)", a: 0.85, name: "blue" };
+    var blueOnTop = false, drag = null, off = { x: 0, y: 0 };
+    var sw = document.getElementById("s3-sw"), txt = document.getElementById("s3-txt");
+    function paint() {
+      fillBg(ctx, cv);
+      var order = blueOnTop ? [A, B] : [B, A];
+      order.forEach(function (s) { drawSplat(ctx, s.x, s.y, s.r, s.r, 0, s.color, s.a, 4); });
+      label(ctx, (blueOnTop ? "blue" : "yellow") + " is painted last, so it is on top", 12, 20);
+      // read the real pixel between the two centres (everything on this canvas was drawn by us, so this is allowed)
+      var mx = Math.round((A.x + B.x) / 2), my = Math.round((A.y + B.y) / 2);
+      var far = Math.hypot(A.x - B.x, A.y - B.y) > A.r + B.r - 10;
+      ctx.strokeStyle = cssVar("ink"); ctx.lineWidth = 2; ctx.strokeRect(mx - 6, my - 6, 12, 12);
+      var px = ctx.getImageData(clamp(mx, 0, cv.width - 1), clamp(my, 0, cv.height - 1), 1, 1).data;
+      sw.style.background = "rgb(" + px[0] + "," + px[1] + "," + px[2] + ")";
+      if (far) txt.textContent = "they do not overlap right now. Drag them together.";
+      else txt.textContent = "yellow alpha " + A.a.toFixed(2) + " + blue alpha " + B.a.toFixed(2) + " = this colour.";
+    }
+    var repaint = scheduler(paint);
+    pointerOn(cv, {
+      down: function (p) { var i = hitSplat([A, B], p); drag = i < 0 ? null : [A, B][i]; if (drag) { off.x = drag.x - p.x; off.y = drag.y - p.y; } },
+      move: function (p) { if (!drag) return; drag.x = p.x + off.x; drag.y = p.y + off.y; repaint(); },
+      up: function () { drag = null; }
+    });
+    document.getElementById("s3-a").addEventListener("input", function () { A.a = +this.value / 100; setText("s3-av", A.a.toFixed(2)); paint(); });
+    document.getElementById("s3-b").addEventListener("input", function () { B.a = +this.value / 100; setText("s3-bv", B.a.toFixed(2)); paint(); });
+    document.getElementById("s3-flip").addEventListener("click", function () {
+      blueOnTop = !blueOnTop; this.textContent = blueOnTop ? "🔁 Put yellow on top instead" : "🔁 Put blue on top instead"; paint();
+    });
+    painters.push(paint); paint();
+  })();
+
+  // ================= 4 · Who is in front =================
+  (function () {
+    var cv = document.getElementById("s4"), ctx = cv.getContext("2d");
+    // depth = how far away, bigger is farther. Far things are painted first.
+    var L = [
+      { name: "sky", x: 240, y: 110, r: 150, color: "rgb(110,170,240)", a: 0.92, depth: 9 },
+      { name: "tree", x: 300, y: 150, r: 70, color: "rgb(60,160,80)", a: 0.95, depth: 5 },
+      { name: "ball", x: 210, y: 175, r: 34, color: "rgb(240,120,40)", a: 1, depth: 2 }
+    ];
+    var sorted = true, order = L.slice(), drag = null, off = { x: 0, y: 0 };
+    var res = document.getElementById("s4-result");
+    function shuffleOrder() {
+      order = L.slice();
+      for (var i = order.length - 1; i > 0; i -= 1) { var j = Math.floor(Math.random() * (i + 1)), t = order[i]; order[i] = order[j]; order[j] = t; }
+    }
+    function paintOrder() {
+      if (sorted) { order = L.slice().sort(function (p, q) { return q.depth - p.depth; }); }
+      return order;
+    }
+    function paint() {
+      fillBg(ctx, cv);
+      var o = paintOrder();
+      o.forEach(function (s) { drawSplat(ctx, s.x, s.y, s.r, s.r, 0, s.color, s.a, 3); });
+      L.forEach(function (s) { label(ctx, s.name + " (distance " + s.depth + ")", s.x, s.y + s.r + 14, "center"); });
+      var names = o.map(function (s) { return s.name; }).join(" → ");
+      var ok = o.every(function (s, i) { return i === 0 || o[i - 1].depth >= s.depth; });
+      res.className = "result " + (ok ? "win" : "miss");
+      res.innerHTML = "Painting order: <b>" + names + "</b>. " + (ok ? "Far first, near last. Looks right." : "Wrong order! Something far was painted over something near.");
+    }
+    var repaint = scheduler(paint);
+    pointerOn(cv, {
+      down: function (p) { var i = hitSplat([L[2], L[1], L[0]], p); drag = i < 0 ? null : [L[2], L[1], L[0]][i]; if (drag) { off.x = drag.x - p.x; off.y = drag.y - p.y; } },
+      move: function (p) { if (!drag) return; drag.x = p.x + off.x; drag.y = p.y + off.y; repaint(); },
+      up: function () { drag = null; }
+    });
+    document.getElementById("s4-sort").addEventListener("click", function () {
+      sorted = !sorted; this.textContent = sorted ? "🗂️ Sorting: ON" : "🎲 Sorting: OFF (random)"; this.className = sorted ? "btn" : "btn ghost";
+      if (!sorted) shuffleOrder(); paint();
+    });
+    document.getElementById("s4-again").addEventListener("click", function () { if (!sorted) shuffleOrder(); paint(); });
+    document.getElementById("s4-swap").addEventListener("click", function () { var t = L[1].depth; L[1].depth = L[2].depth; L[2].depth = t; if (!sorted) shuffleOrder(); paint(); });
+    painters.push(paint); paint();
+  })();
+
+  // ================= Targets (drawn with primitives, never loaded) =================
+  // Each target is a function of (ctx, S): the same code draws the 240 px display and the 64 px comparison copy.
+  var TARGET = {
+    smiley: { bg: "rgb(216,230,246)", draw: function (c, S) {
+      c.fillStyle = "rgb(250,200,30)"; c.beginPath(); c.arc(0.5 * S, 0.5 * S, 0.36 * S, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "rgb(45,40,60)";
+      c.beginPath(); c.arc(0.38 * S, 0.42 * S, 0.05 * S, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(0.62 * S, 0.42 * S, 0.05 * S, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = "rgb(45,40,60)"; c.lineWidth = 0.05 * S; c.lineCap = "round";
+      c.beginPath(); c.arc(0.5 * S, 0.54 * S, 0.2 * S, 0.15 * Math.PI, 0.85 * Math.PI); c.stroke();
+    } },
+    heart: { bg: "rgb(246,226,232)", draw: function (c, S) {
+      c.fillStyle = "rgb(225,50,60)";
+      c.beginPath();
+      c.moveTo(0.5 * S, 0.86 * S);
+      c.bezierCurveTo(0.1 * S, 0.58 * S, 0.12 * S, 0.2 * S, 0.5 * S, 0.36 * S);
+      c.bezierCurveTo(0.88 * S, 0.2 * S, 0.9 * S, 0.58 * S, 0.5 * S, 0.86 * S);
+      c.closePath(); c.fill();
+    } },
+    mushroom: { bg: "rgb(224,238,218)", draw: function (c, S) {
+      c.fillStyle = "rgb(242,230,205)";
+      c.beginPath(); c.moveTo(0.38 * S, 0.5 * S); c.lineTo(0.62 * S, 0.5 * S); c.lineTo(0.66 * S, 0.9 * S); c.lineTo(0.34 * S, 0.9 * S); c.closePath(); c.fill();
+      c.fillStyle = "rgb(220,60,50)";
+      c.beginPath(); c.arc(0.5 * S, 0.5 * S, 0.38 * S, Math.PI, 0); c.closePath(); c.fill();
+      c.fillStyle = "rgb(255,250,240)";
+      c.beginPath(); c.arc(0.36 * S, 0.34 * S, 0.06 * S, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(0.58 * S, 0.24 * S, 0.05 * S, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(0.66 * S, 0.42 * S, 0.045 * S, 0, Math.PI * 2); c.fill();
+    } }
+  };
+  function paintTarget(name, ctx, S) { ctx.fillStyle = TARGET[name].bg; ctx.fillRect(0, 0, S, S); TARGET[name].draw(ctx, S); }
+
+  // A comparison rig: a 64x64 offscreen canvas for the target and another for the blobs. Error is the mean colour difference.
+  var CMP = 64, BIG = 240, K = CMP / BIG, PIC_LEVEL = 3;   // softness level used by the picture panels (sections 5 to 7)
+  function makeCompare() {
+    var tc = document.createElement("canvas"), pc = document.createElement("canvas");
+    tc.width = tc.height = CMP; pc.width = pc.height = CMP;
+    var tctx = tc.getContext("2d", { willReadFrequently: true }), pctx = pc.getContext("2d", { willReadFrequently: true });
+    var rig = { name: "smiley", tdata: null, blank: 1, lastDiff: null };
+    rig.setTarget = function (name) {
+      rig.name = name; paintTarget(name, tctx, CMP);
+      rig.tdata = tctx.getImageData(0, 0, CMP, CMP).data;
+      rig.blank = rig.error([]);
+    };
+    // render the blob list small, then sum |difference| over every pixel. Returns mean difference per channel (0..255).
+    rig.error = function (list, keepDiff) {
+      pctx.fillStyle = TARGET[rig.name].bg; pctx.fillRect(0, 0, CMP, CMP);
+      for (var i = 0; i < list.length; i += 1) {
+        var s = list[i];
+        drawSplat(pctx, s.x * K, s.y * K, s.r * K, s.r * K, 0, s.color || rgbStr(s.cr, s.cg, s.cb), s.a, PIC_LEVEL);
+      }
+      var p = pctx.getImageData(0, 0, CMP, CMP).data, t = rig.tdata, e = 0, diff = keepDiff ? new Float32Array(CMP * CMP) : null;
+      for (var j = 0, k = 0; j < p.length; j += 4, k += 1) {
+        var d = Math.abs(p[j] - t[j]) + Math.abs(p[j + 1] - t[j + 1]) + Math.abs(p[j + 2] - t[j + 2]);
+        e += d; if (diff) diff[k] = d;
+      }
+      if (diff) rig.lastDiff = diff;
+      return e / (CMP * CMP * 3);
+    };
+    rig.score = function (err) { return clamp(Math.round(100 * (1 - err / rig.blank)), 0, 100); };
+    rig.setTarget("smiley");
+    return rig;
+  }
+  var starsGiven = 0;   // sections 5 and 6 share a cap of 3 stars
+  function giveStar(why) { if (window.DadMath && starsGiven < 3) { starsGiven += 1; DadMath.star("ai2", 1, why); } }
+  function wirePicker(cls, onPick) {
+    var btns = document.querySelectorAll("." + cls);
+    function mark(name) { btns.forEach(function (b) { b.className = "btn " + (b.dataset.t === name ? "" : "ghost ") + cls; }); }
+    btns.forEach(function (b) { b.addEventListener("click", function () { mark(b.dataset.t); onPick(b.dataset.t); }); });
+    mark("smiley");
+  }
+
+  // ================= 5 · Make a picture out of blobs =================
+  (function () {
+    var tcv = document.getElementById("s5-t"), tctx = tcv.getContext("2d");
+    var pcv = document.getElementById("s5-p"), pctx = pcv.getContext("2d");
+    var rig = makeCompare();
+    var PAL = ["rgb(250,200,30)", "rgb(45,40,60)", "rgb(225,50,60)", "rgb(255,250,240)", "rgb(242,230,205)", "rgb(110,170,240)", "rgb(80,170,90)", "rgb(240,130,50)", "rgb(240,150,190)", "rgb(140,90,45)"];
+    var color = PAL[0], size = 40, blobs = [], drag = null, off = { x: 0, y: 0 }, starred = {};
+    var res = document.getElementById("s5-result"), sizeEl = document.getElementById("s5-size");
+    var palEl = document.getElementById("s5-pal");
+    PAL.forEach(function (c, i) {
+      var b = document.createElement("button"); b.className = "sw" + (i === 0 ? " on" : ""); b.style.background = c; b.title = "colour";
+      b.addEventListener("click", function () { color = c; palEl.querySelectorAll(".sw").forEach(function (x) { x.className = "sw"; }); b.className = "sw on"; });
+      palEl.appendChild(b);
+    });
+    function paintPic() {
+      pctx.fillStyle = TARGET[rig.name].bg; pctx.fillRect(0, 0, BIG, BIG);
+      blobs.forEach(function (s) { drawSplat(pctx, s.x, s.y, s.r, s.r, 0, s.color, s.a, PIC_LEVEL); });
+      // a tiny handle dot at each centre: grab here to drag, tap anywhere else to drop a new blob
+      pctx.fillStyle = cssVar("ink-faint"); pctx.globalAlpha = 0.7;
+      blobs.forEach(function (s) { pctx.beginPath(); pctx.arc(s.x, s.y, 2.5, 0, Math.PI * 2); pctx.fill(); });
+      pctx.globalAlpha = 1;
+    }
+    function paintAll() { paintTarget(rig.name, tctx, BIG); paintPic(); }
+    function score() {
+      var err = rig.error(blobs), sc = rig.score(err);
+      setText("s5-score", sc + " / 100");
+      document.getElementById("s5-bar").style.width = sc + "%";
+      var msg = "Blobs: <b>" + blobs.length + "</b> · error <b>" + err.toFixed(1) + "</b>";
+      if (sc >= 40) {
+        res.className = "result win";
+        res.innerHTML = "🎉 " + msg + ". <b>" + sc + " out of 100.</b> Your eye sees a " + rig.name + ", and it is only blobs.";
+        if (!starred[rig.name]) { starred[rig.name] = true; giveStar("Built a " + rig.name + " out of " + blobs.length + " blobs, score " + sc); }
+      } else {
+        res.className = "result";
+        res.innerHTML = msg + ". " + (blobs.length === 0 ? "A blank page scores 0. Get above <b>40</b> for a star." : sc < 20 ? "Big patches first: what is the biggest thing in the picture?" : "Getting there. Nudge, resize, add.");
+      }
+    }
+    var repaint = scheduler(paintPic);
+    pointerOn(pcv, {
+      down: function (p) {
+        var i = hitSplat(blobs, p, true);
+        if (i < 0) { if (blobs.length >= 60) { res.className = "result miss"; res.innerHTML = "60 blobs is the limit for this toy. Erase some, or nudge what you have."; return; } blobs.push({ x: p.x, y: p.y, r: size, color: color, a: 0.95 }); i = blobs.length - 1; }
+        drag = blobs[i]; off.x = drag.x - p.x; off.y = drag.y - p.y; repaint();
+      },
+      move: function (p) { if (!drag) return; drag.x = p.x + off.x; drag.y = p.y + off.y; repaint(); },
+      up: function () { drag = null; paintPic(); score(); }
+    });
+    sizeEl.addEventListener("input", function () { size = +sizeEl.value; setText("s5-sizev", size); });
+    document.getElementById("s5-sprinkle").addEventListener("click", function () {
+      for (var i = 0; i < 30 && blobs.length < 60; i += 1) blobs.push({ x: rnd(10, 230), y: rnd(10, 230), r: rnd(10, 45), color: PAL[rnd(0, PAL.length - 1)], a: 0.95 });
+      paintPic(); score();
+    });
+    document.getElementById("s5-undo").addEventListener("click", function () { blobs.pop(); paintPic(); score(); });
+    document.getElementById("s5-erase").addEventListener("click", function () { blobs = []; paintPic(); score(); });
+    wirePicker("s5-pick", function (name) { rig.setTarget(name); paintAll(); score(); });
+    painters.push(paintAll); paintAll(); score();
+  })();
+
+  // ================= 6 · Training  +  7 · Grow and prune =================
+  (function () {
+    var tcv = document.getElementById("s6-t"), tctx = tcv.getContext("2d");
+    var pcv = document.getElementById("s6-p"), pctx = pcv.getContext("2d");
+    var curve = document.getElementById("s6-curve"), cctx = curve.getContext("2d");
+    var rig = makeCompare();
+    var N0 = 40, MAXB = 60, MAX_STEPS = 6000, PER_TICK = 8;
+    var blobs, err, hist, steps, kept, undone, timer = null, starred = false, marks = [];
+    var log = document.getElementById("s6-log"), res = document.getElementById("s6-result"), res7 = document.getElementById("s7-result");
+    // the seven knobs of a blob, each with its nudge size and its allowed range. Alpha may fall all the way to 0 (that is what pruning looks for).
+    var KNOBS = [
+      { k: "x", d: 10, lo: -20, hi: 260, name: "left/right" },
+      { k: "y", d: 10, lo: -20, hi: 260, name: "up/down" },
+      { k: "r", d: 4, lo: 3, hi: 130, name: "size" },
+      { k: "cr", d: 24, lo: 0, hi: 255, name: "redness" },
+      { k: "cg", d: 24, lo: 0, hi: 255, name: "greenness" },
+      { k: "cb", d: 24, lo: 0, hi: 255, name: "blueness" },
+      { k: "a", d: 0.1, lo: 0, hi: 1, name: "alpha" }
+    ];
+    function randomBlob() { return { x: rnd(10, 230), y: rnd(10, 230), r: rnd(14, 50), cr: rnd(0, 255), cg: rnd(0, 255), cb: rnd(0, 255), a: 0.4 + Math.random() * 0.5 }; }
+    function addLog(html, cls) {
+      var d = document.createElement("div"); if (cls) d.className = cls; d.innerHTML = html;
+      if (log.textContent.indexOf("Ready.") === 0) log.innerHTML = "";
+      log.appendChild(d);
+      while (log.children.length > 40) log.removeChild(log.firstChild);
+      log.scrollTop = log.scrollHeight;
+    }
+    function fresh() {
+      stopRun();
+      blobs = []; for (var i = 0; i < N0; i += 1) blobs.push(randomBlob());
+      err = rig.error(blobs); hist = [err]; steps = 0; kept = 0; undone = 0; starred = false; marks = [];
+      log.innerHTML = "Ready. Forty random blobs, nothing learned yet.";
+      paintAll(); status();
+    }
+    // one training step: pick a blob and a knob, try the nudge both ways on the small canvas, keep whichever is better, else put it back
+    function trainStep(only, quiet) {
+      var i = only ? only[rnd(0, only.length - 1)] : rnd(0, blobs.length - 1), s = blobs[i];
+      var kn = KNOBS[rnd(0, KNOBS.length - 1)], d = Math.random() < 0.5 ? kn.d : kn.d / 3;
+      var old = s[kn.k], bestV = old, bestE = err, tried = [];
+      [1, -1].forEach(function (sign) {
+        s[kn.k] = clamp(old + sign * d, kn.lo, kn.hi);
+        var e = rig.error(blobs); tried.push(e);
+        if (e < bestE) { bestE = e; bestV = s[kn.k]; }
+      });
+      s[kn.k] = bestV;
+      steps += 1;
+      var moved = bestV !== old;
+      if (moved) kept += 1; else undone += 1;
+      if (!quiet) {
+        var fmt = function (v) { return kn.k === "a" ? v.toFixed(2) : Math.round(v); };
+        addLog("Step " + steps + ": blob " + (i + 1) + ", " + kn.name + " " + fmt(old) + " → " + fmt(bestV) + ". Error " + err.toFixed(1) + " → <b>" + bestE.toFixed(1) + "</b>. " +
+          (moved ? "🔔 delightful, keep it" : "🔊 both ways worse, undo it"), moved ? "keep" : "undo");
+      }
+      err = bestE; hist.push(err);
+    }
+    function status() {
+      var sc = rig.score(err);
+      setText("s6-err", err.toFixed(1) + " (score " + sc + ")");
+      document.getElementById("s6-bar").style.width = Math.max(1, Math.min(100, 100 * err / rig.blank)) + "%";
+      res.className = "result" + (sc >= 60 ? " win" : "");
+      res.innerHTML = "Steps: <b>" + steps + "</b> · Kept: <b>" + kept + "</b> · Undone: <b>" + undone + "</b> · Blobs: <b>" + blobs.length + "</b> · score <b>" + sc + "</b>";
+      res7.innerHTML = "Blobs: <b>" + blobs.length + "</b> · error <b>" + err.toFixed(1) + "</b>" + (res7.dataset.msg ? ". " + res7.dataset.msg : ". Nothing split or pruned yet.");
+      if (sc >= 60 && !starred) { starred = true; giveStar("The computer learned the " + rig.name + " in " + steps + " steps"); }
+    }
+    function paintPic() {
+      pctx.fillStyle = TARGET[rig.name].bg; pctx.fillRect(0, 0, BIG, BIG);
+      blobs.forEach(function (s) { drawSplat(pctx, s.x, s.y, s.r, s.r, 0, rgbStr(s.cr, s.cg, s.cb), s.a, PIC_LEVEL); });
+      // rings around blobs that were just split, so the child can see where the split went
+      marks.forEach(function (s) { if (blobs.indexOf(s) >= 0) { pctx.strokeStyle = cssVar("accent"); pctx.lineWidth = 2; pctx.beginPath(); pctx.arc(s.x, s.y, s.r + 3, 0, Math.PI * 2); pctx.stroke(); } });
+    }
+    function paintCurve() {
+      var W = curve.width, H = curve.height;
+      cctx.clearRect(0, 0, W, H);
+      label(cctx, "error over time (should go down)", 8, 14);
+      if (!hist || !hist.length) return;
+      var n = hist.length, cols = Math.min(n, 232), hmax = Math.max(hist[0], 1);
+      for (var c = 0; c < cols; c += 1) {
+        var idx = Math.floor(c * (n - 1) / Math.max(1, cols - 1)), h = Math.max(1, (H - 22) * hist[idx] / hmax);
+        cctx.fillStyle = rig.score(hist[idx]) >= 60 ? cssVar("good") : cssVar("accent");
+        cctx.fillRect(8 + c * 2, H - 4 - h, 1.6, h);
+      }
+      cctx.strokeStyle = cssVar("line"); cctx.beginPath(); cctx.moveTo(0, H - 4); cctx.lineTo(W, H - 4); cctx.stroke();
+    }
+    function paintAll() { paintTarget(rig.name, tctx, BIG); paintPic(); paintCurve(); }
+    function stopRun() {
+      if (timer) { clearInterval(timer); timer = null; }
+      document.getElementById("s6-run").style.display = "";
+      document.getElementById("s6-pause").style.display = "none";
+    }
+    function run() {
+      if (timer) return;
+      document.getElementById("s6-run").style.display = "none";
+      document.getElementById("s6-pause").style.display = "";
+      timer = setInterval(function () {
+        for (var i = 0; i < PER_TICK; i += 1) trainStep(null, true);
+        marks = [];
+        paintPic(); paintCurve(); status();
+        if (steps % 80 === 0) addLog("Step " + steps + ": error <b>" + err.toFixed(1) + "</b>, kept " + kept + ", undone " + undone + ".");
+        if (steps >= MAX_STEPS) { addLog("Stopped at " + MAX_STEPS + " steps. Try splitting the worst blobs, then run again.", "undo"); stopRun(); }
+      }, 50);
+    }
+    document.getElementById("s6-step").addEventListener("click", function () { stopRun(); marks = []; trainStep(null, false); paintPic(); paintCurve(); status(); });
+    document.getElementById("s6-run").addEventListener("click", run);
+    document.getElementById("s6-pause").addEventListener("click", stopRun);
+    document.getElementById("s6-reset").addEventListener("click", function () { res7.dataset.msg = ""; fresh(); });
+    wirePicker("s6-pick", function (name) { stopRun(); rig.setTarget(name); err = rig.error(blobs); hist = [err]; steps = 0; kept = 0; undone = 0; starred = false; addLog("New picture: " + name + ". Same blobs, so the error jumped. It has to learn again."); paintAll(); status(); });
+
+    // section 7: split the worst blob, throw away the invisible ones
+    document.getElementById("s7-split").addEventListener("click", function () {
+      stopRun();
+      if (blobs.length >= MAXB) { res7.dataset.msg = "<b>" + MAXB + " blobs is the limit for this toy.</b> Prune some first."; status(); return; }
+      // find where the picture is still most wrong: the 8x8 block of the small diff image with the most leftover error
+      rig.error(blobs, true);
+      var diff = rig.lastDiff, BLK = 8, NB = CMP / BLK, bestBlk = -1, bv = -1;
+      for (var by = 0; by < NB; by += 1) for (var bx = 0; bx < NB; bx += 1) {
+        var sum = 0;
+        for (var yy = 0; yy < BLK; yy += 1) for (var xx = 0; xx < BLK; xx += 1) sum += diff[(by * BLK + yy) * CMP + bx * BLK + xx];
+        if (sum > bv) { bv = sum; bestBlk = by * NB + bx; }
+      }
+      var tx = ((bestBlk % NB) + 0.5) * BLK / K, ty = (Math.floor(bestBlk / NB) + 0.5) * BLK / K;
+      // the worst blob is the one covering that spot best (closest centre, measured in its own radii)
+      var worst = 0, wv = 1e9;
+      blobs.forEach(function (s, i) { var v = Math.hypot(s.x - tx, s.y - ty) / Math.max(4, s.r); if (v < wv) { wv = v; worst = i; } });
+      var s = blobs[worst], vx = tx - s.x, vy = ty - s.y, vl = Math.hypot(vx, vy) || 1;
+      if (vl < 2) { var ra = Math.random() * Math.PI; vx = Math.cos(ra); vy = Math.sin(ra); vl = 1; }
+      var ux = vx / vl, uy = vy / vl, step = Math.min(vl, s.r * 0.6);
+      // two smaller children: one pushed toward the wrong spot, one left near the parent's place
+      var a1 = { x: s.x + ux * step, y: s.y + uy * step, r: s.r * 0.65, cr: s.cr, cg: s.cg, cb: s.cb, a: s.a };
+      var a2 = { x: s.x - ux * s.r * 0.3, y: s.y - uy * s.r * 0.3, r: s.r * 0.65, cr: s.cr, cg: s.cg, cb: s.cb, a: s.a };
+      blobs.splice(worst, 1, a1, a2);
+      var before = rig.error(blobs); err = before;
+      // a split alone does not lower the error; a short burst of training on just the two new blobs does
+      var i1 = blobs.indexOf(a1), i2 = blobs.indexOf(a2);
+      for (var t = 0; t < 80; t += 1) trainStep([i1, i2], true);
+      marks = [a1, a2];
+      res7.dataset.msg = "Split blob " + (worst + 1) + " (the one sitting over the most leftover error) into two. Then 80 nudges on just those two: error " + before.toFixed(2) + " → <b>" + err.toFixed(2) + "</b>.";
+      addLog("✂️ Split the worst blob into two, trained the pair: error " + before.toFixed(1) + " → <b>" + err.toFixed(1) + "</b>. Blobs: " + blobs.length + ".", "keep");
+      paintPic(); paintCurve(); status();
+    });
+    document.getElementById("s7-prune").addEventListener("click", function () {
+      stopRun();
+      var keep = blobs.filter(function (s) { return s.a >= 0.06; }), gone = blobs.length - keep.length;
+      if (!gone) { res7.dataset.msg = "No invisible blobs right now (all alphas are above 0.06). Run training longer, some will fade."; status(); return; }
+      var before = err;
+      blobs = keep; marks = []; err = rig.error(blobs); hist.push(err);
+      res7.dataset.msg = "Threw away <b>" + gone + "</b> blob" + (gone > 1 ? "s" : "") + " with alpha under 0.06. Error " + before.toFixed(1) + " → <b>" + err.toFixed(1) + "</b>: nearly the same, because you could not see them anyway.";
+      addLog("🗑️ Pruned " + gone + " invisible blob" + (gone > 1 ? "s" : "") + ". Blobs: " + blobs.length + ".", "undo");
+      paintPic(); paintCurve(); status();
+    });
+    painters.push(paintAll); fresh();
+  })();
+
+  // ================= 8 · The blobs float in 3D =================
+  (function () {
+    var cv = document.getElementById("s8"), ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+    var CAM = 5.2, F = 330, MAXD = 250;
+    var pts = [];   // every disc: {x,y,z,r,color,a}
+    var lightN = (function () { var l = [0.45, 0.7, 0.55], n = Math.hypot(l[0], l[1], l[2]); return [l[0] / n, l[1] / n, l[2] / n]; })();
+    // points spread evenly over a sphere (a sunflower spiral), each shaded once by a fixed light and quantised so few tints are needed
+    function sphere(n, R, cx, cy, cz, rr, base) {
+      var ga = Math.PI * (3 - Math.sqrt(5));
+      for (var i = 0; i < n; i += 1) {
+        var y = 1 - (i / (n - 1)) * 2, ring = Math.sqrt(Math.max(0, 1 - y * y)), th = ga * i;
+        var x = Math.cos(th) * ring, z = Math.sin(th) * ring;
+        var shade = 0.55 + 0.45 * Math.max(0, x * lightN[0] + y * lightN[1] + z * lightN[2]);
+        shade = Math.round(shade * 6) / 6;
+        pts.push({ x: cx + x * R, y: cy + y * R, z: cz + z * R, r: rr, a: 0.95,
+          color: rgbStr(base[0] * shade, base[1] * shade, base[2] * shade) });
+      }
+    }
+    function ring(n, R, cy, rr, color) {
+      for (var i = 0; i < n; i += 1) { var t = i / n * Math.PI * 2; pts.push({ x: Math.cos(t) * R, y: cy, z: Math.sin(t) * R, r: rr, a: 1, color: color }); }
+    }
+    var BOT = { R: 1.0, y: -1.05 }, MID = { R: 0.72, y: 0.28 }, HEAD = { R: 0.5, y: 1.2 };
+    var snow = [236, 240, 250], dark = "rgb(32,32,40)", brown = "rgb(120,80,40)", carrot = "rgb(240,130,40)";
+    sphere(84, BOT.R, 0, BOT.y, 0, 0.30, snow);
+    sphere(58, MID.R, 0, MID.y, 0, 0.23, snow);
+    sphere(36, HEAD.R, 0, HEAD.y, 0, 0.18, snow);
+    // hat: a brim ring, two rings for the tube, a few discs for the top
+    ring(14, 0.62, HEAD.y + HEAD.R * 0.8, 0.14, dark);
+    ring(10, 0.36, HEAD.y + HEAD.R * 0.95, 0.16, dark);
+    ring(10, 0.36, HEAD.y + HEAD.R * 1.3, 0.16, dark);
+    for (var hx = 0; hx < 5; hx += 1) { var ha = hx / 5 * Math.PI * 2; pts.push({ x: Math.cos(ha) * 0.18, y: HEAD.y + HEAD.R * 1.55, z: Math.sin(ha) * 0.18, r: 0.17, a: 1, color: dark }); }
+    // eyes, carrot nose, buttons (z toward the camera at spin 0)
+    pts.push({ x: -0.17, y: HEAD.y + 0.12, z: 0.46, r: 0.07, a: 1, color: dark });
+    pts.push({ x: 0.17, y: HEAD.y + 0.12, z: 0.46, r: 0.07, a: 1, color: dark });
+    for (var nz = 0; nz < 4; nz += 1) pts.push({ x: 0, y: HEAD.y - 0.03 * nz, z: HEAD.R * 0.92 + nz * 0.14, r: 0.09 - nz * 0.015, a: 1, color: carrot });
+    for (var bz = 0; bz < 3; bz += 1) pts.push({ x: 0, y: MID.y + 0.28 - bz * 0.28, z: MID.R * 0.98, r: 0.07, a: 1, color: dark });
+    // twig arms
+    for (var side = -1; side <= 1; side += 2) for (var aj = 0; aj < 6; aj += 1) {
+      var f = aj / 5; pts.push({ x: side * (MID.R * 0.85 + f * 0.9), y: MID.y + 0.05 + f * 0.6, z: 0.05 + f * 0.1, r: 0.06, a: 1, color: brown });
+    }
+    if (pts.length > MAXD) pts.length = MAXD;
+    setText("s8-result", pts.length + " blobs floating in space. Far ones painted first, near ones last, every frame.");
+    document.querySelector("#s8").parentNode.previousElementSibling.textContent = "Drag to spin him. Every frame, all " + pts.length + " blobs get sorted back to front and painted, exactly like section 4. Turn sorting off to see the mess.";
+
+    var yaw = 0.4, pitch = 0.18, vel = 0.006, autoSpin = true, sorting = true, visible = true;
+    var dragging = false, last = null, lastTouch = Date.now(), raf = null;
+    var proj = new Array(pts.length);
+    for (var pi = 0; pi < pts.length; pi += 1) proj[pi] = { sx: 0, sy: 0, sr: 0, depth: 0, p: pts[pi] };
+    var order = proj.slice();
+
+    // spin about the up axis, tip about the sideways axis, then flatten: divide by distance (the glass from Sketch Lab)
+    function project() {
+      var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+      for (var i = 0; i < pts.length; i += 1) {
+        var p = pts[i], x1 = p.x * cy - p.z * sy, z1 = p.x * sy + p.z * cy;
+        var y2 = p.y * cp - z1 * sp, z2 = p.y * sp + z1 * cp;
+        var depth = CAM - z2, k = F / depth, o = proj[i];
+        o.sx = W / 2 + x1 * k; o.sy = H / 2 - (y2 + 0.05) * k; o.sr = p.r * k; o.depth = depth;
+      }
+    }
+    function paint() {
+      project();
+      ctx.clearRect(0, 0, W, H);
+      // the ground shadow: one squished splat
+      var gk = F / CAM;
+      drawSplat(ctx, W / 2, H / 2 + (2.05 - 0.05) * gk * Math.cos(pitch) + 6, 1.25 * gk, 0.32 * gk * (0.4 + Math.abs(Math.sin(pitch))), 0, cssVar("ink-faint"), 0.28, 5);
+      if (sorting) order.sort(function (a, b) { return b.depth - a.depth; }); else order = proj.slice();
+      for (var i = 0; i < order.length; i += 1) {
+        var o = order[i];
+        drawSplat(ctx, o.sx, o.sy, o.sr, o.sr, 0, o.p.color, o.p.a, 3);
+      }
+      label(ctx, sorting ? "sorted back to front" : "NOT sorted: painted in the order they were made", 12, 20);
+    }
+    function frame() {
+      raf = null;
+      if (!dragging) {
+        if (Math.abs(vel) > 0.006) vel *= 0.95;           // a flick slows down to the idle spin
+        else vel = autoSpin ? 0.006 : 0;
+        yaw += vel;
+      }
+      paint();
+      var idle = Date.now() - lastTouch > 25000;           // stop the loop when nobody has touched it for a while
+      if (dragging || (autoSpin && visible && !idle) || Math.abs(vel) > 0.006) raf = requestAnimationFrame(frame);
+    }
+    function wake() { lastTouch = Date.now(); if (!raf) raf = requestAnimationFrame(frame); }
+    pointerOn(cv, {
+      down: function (p) { dragging = true; last = p; vel = 0; wake(); },
+      move: function (p) { if (!dragging) return; var k = 2 / cv.width; vel = (p.x - last.x) * k * 1.4; yaw += (p.x - last.x) * k * 1.4; pitch = clamp(pitch - (p.y - last.y) * k * 1.2, -0.7, 0.7); last = p; wake(); },
+      up: function () { dragging = false; wake(); }
+    });
+    document.getElementById("s8-spin").addEventListener("click", function () { autoSpin = !autoSpin; this.textContent = autoSpin ? "⟳ Auto-spin: ON" : "⟳ Auto-spin: OFF"; wake(); });
+    document.getElementById("s8-sort").addEventListener("click", function () {
+      sorting = !sorting; this.textContent = sorting ? "🗂️ Sorting: ON" : "🎲 Sorting: OFF"; this.className = sorting ? "btn" : "btn ghost"; wake();
+    });
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (es) { es.forEach(function (e) { visible = e.isIntersecting; if (visible) wake(); }); }, { threshold: 0.1 }).observe(cv);
+    }
+    painters.push(paint); wake();
+  })();
+
+  // ================= Homework check =================
+  (function () {
+    var qEl = document.getElementById("hw-q"), opts = document.getElementById("hw-opts"),
+        res = document.getElementById("hw-result"), count = document.getElementById("hw-count");
+    var NEED = 4, COUNT = 5, qs, idx, score, locked;
+
+    function shuffle(a) {
+      for (var i = a.length - 1; i > 0; i -= 1) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; }
+      return a;
+    }
+    var GEN = [
+      function () {
+        return { text: "What is the edge of a splat like?", ans: "soft and fuzzy, fading to nothing",
+                 opts: shuffle(["soft and fuzzy, fading to nothing", "hard and crisp, like a triangle", "a thick black outline"]),
+                 why: "A splat is brightest in the middle and fades out. That smooth fade is the Gaussian bump." };
+      },
+      function () {
+        var d = shuffle([rnd(1, 3), rnd(4, 6), rnd(7, 9)]), names = ["a ball", "a tree", "a wall"];
+        var far = d.indexOf(Math.max.apply(null, d));
+        var o = names.map(function (n, i) { return n + " at distance " + d[i]; });
+        return { text: "Three see-through blobs: " + o.join(", ") + ". Which one do you paint FIRST?", ans: o[far], opts: shuffle(o.slice()),
+                 why: "Far first, near last. The farthest one is " + o[far] + ", so it goes down first and the near ones paint over it." };
+      },
+      function () {
+        return { text: "A splat picture of a cat is made of what?", ans: "many fuzzy blobs, each in the right spot with the right colour",
+                 opts: shuffle(["many fuzzy blobs, each in the right spot with the right colour", "one big cat-shaped blob", "lines drawn around the cat"]),
+                 why: "No lines, no shapes. Just many blobs placed well, and your eye sees a cat." };
+      },
+      function () {
+        var a = rnd(20, 90), b = a + (Math.random() < 0.5 ? -1 : 1) * rnd(2, 15), down = b < a;
+        return { text: "The error was " + a + ". The computer nudged one blob and now the error is " + b + ". What does it do?",
+                 ans: down ? "🔔 keep the nudge" : "🔊 undo the nudge",
+                 opts: shuffle(["🔔 keep the nudge", "🔊 undo the nudge", "nudge the same knob again, harder"]),
+                 why: "Error went " + (down ? "down, so keep it." : "up, so put it back.") + " Same rule as the aim bot." };
+      },
+      function () {
+        return { text: "Why do the blobs float in 3D instead of sitting on flat paper?", ans: "so the scene looks right from every angle when the camera moves",
+                 opts: shuffle(["so the scene looks right from every angle when the camera moves", "because flat blobs are harder to draw", "so they can be bigger"]),
+                 why: "Photos from many angles train blobs in space. Then you can fly the camera anywhere and it still looks right." };
+      },
+      function () {
+        var n = rnd(30, 58);
+        return { text: "There are " + n + " blobs. The nose is still wrong, so the computer splits the worst blob into two. How many blobs now?", ans: String(n + 1),
+                 opts: shuffle([String(n + 1), String(n + 2), String(n - 1)]),
+                 why: "One blob becomes two: " + n + " minus 1 plus 2 = " + (n + 1) + ". Split where it is wrong, to add detail." };
+      },
+      function () {
+        var a = (rnd(1, 4) / 100).toFixed(2);
+        return { text: "A blob's alpha has faded to " + a + ". You cannot see it. What does pruning do with it?", ans: "throw it away, it is wasted work",
+                 opts: shuffle(["throw it away, it is wasted work", "make it bigger so you can see it", "split it into two"]),
+                 why: "Painting an invisible blob costs time and adds nothing. Prune it." };
+      },
+      function () {
+        return { text: "What is the training loop, in order?", ans: "guess → render → compare → adjust",
+                 opts: shuffle(["guess → render → compare → adjust", "compare → guess → adjust → render", "render → adjust → guess → compare"]),
+                 why: "Random blobs, paint them, measure the error against the photo, nudge. Round and round." };
+      },
+      function () {
+        return { text: "Two see-through blobs overlap, yellow painted over blue. What do you see in the overlap?", ans: "a mix of both, greenish",
+                 opts: shuffle(["a mix of both, greenish", "only yellow, the blue is gone", "only blue, yellow is see-through"]),
+                 why: "See-through paint blends. Yellow and blue mix to a green in the overlap." };
+      }
+    ];
+    function start() {
+      qs = shuffle(GEN.slice()).slice(0, COUNT).map(function (g) { return g(); });
+      idx = 0; score = 0; locked = false;
+      res.className = "result"; res.innerHTML = "Tap an answer.";
+      show();
+    }
+    function show() {
+      var q = qs[idx];
+      count.textContent = "Question " + (idx + 1) + " of " + COUNT + " · score " + score;
+      qEl.textContent = q.text;
+      opts.innerHTML = "";
+      q.opts.forEach(function (o) {
+        var b = document.createElement("button");
+        b.className = "btn ghost"; b.textContent = o;
+        b.addEventListener("click", function () { answer(o, q); });
+        opts.appendChild(b);
+      });
+      locked = false;
+    }
+    function answer(o, q) {
+      if (locked) return; locked = true;
+      var ok = o === q.ans;
+      if (ok) score += 1;
+      res.className = "result " + (ok ? "win" : "miss");
+      res.innerHTML = (ok ? "✅ Yes. " : "❌ Not quite. ") + q.why;
+      idx += 1;
+      if (idx < COUNT) {
+        var b = document.createElement("button"); b.className = "btn"; b.textContent = "Next →"; b.style.marginTop = "10px";
+        b.addEventListener("click", show); res.appendChild(document.createElement("br")); res.appendChild(b);
+        return;
+      }
+      count.textContent = "Done · score " + score + " of " + COUNT;
+      opts.innerHTML = "";
+      if (score >= NEED) {
+        res.className = "result win";
+        res.innerHTML = "🎉 <b>" + score + " of " + COUNT + ". Passed!</b> Fuzzy blobs, sorted, trained, floating in 3D: you own it.";
+        if (window.DadMath) { DadMath.hwPass("ai2", "Splat check passed"); }
+      } else {
+        res.className = "result miss";
+        res.innerHTML = "<b>" + score + " of " + COUNT + ".</b> Need " + NEED + ". Measure what went wrong, adjust, try again.";
+      }
+      var r = document.createElement("button"); r.className = "btn"; r.textContent = "↺ Try again"; r.style.marginTop = "10px";
+      r.addEventListener("click", start); res.appendChild(document.createElement("br")); res.appendChild(r);
+    }
+    document.getElementById("hw-restart").addEventListener("click", start);
+    start();
+  })();
+});
+</script>
+<script defer src="assets/feedback.js?v=1"></script>
+<script defer src="assets/account.js?v=3"></script>
+</body>
+</html>

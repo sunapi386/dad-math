@@ -175,6 +175,12 @@ a.quest-banner .qb-go{margin-left:auto;white-space:nowrap;font-weight:700;color:
       <p>A blind aim bot that only hears "how far off". Watch it jiggle its knobs, keep the good shots and undo the bad ones, then beat it yourself with a slider. Ends with inference: the knobs just know.</p>
       <div class="go" style="color:var(--good)">Start topic →</div>
     </a>
+    <a class="card" href="ai02-splat.html" style="border-color:var(--good)">
+      <div class="num">AI·2</div>
+      <h3>Splat Lab: Painting a World out of Fuzzy Blobs</h3>
+      <p>Topic 1's guess-measure-adjust loop, now painting whole pictures. Drag fuzzy blobs, squish and stack them, train a cloud to match a photo, then orbit a shape that floats in 3D. Grown-ups call it Gaussian splatting.</p>
+      <div class="go" style="color:var(--good)">Start topic →</div>
+    </a>
     <a class="card" href="watch.html">
       <div class="num">📺</div>
       <h3>The Watch List</h3>
@@ -511,7 +517,8 @@ a.quest-banner .qb-go{margin-left:auto;white-space:nowrap;font-weight:700;color:
         ["td03-waves.html",          "hw",    "td3",          "✅ checked"],
         ["td04-targeting.html",      "hw",    "td4",          "✅ checked"],
         ["ai00-the-walk.html",       "hw",    "ai0",          "✅ matched"],
-        ["ai01-how-ai-learns.html",  "hw",    "ai1",          "✅ checked"]
+        ["ai01-how-ai-learns.html",  "hw",    "ai1",          "✅ checked"],
+        ["ai02-splat.html",          "hw",    "ai2",          "✅ splatted"]
       ].forEach(function (row) {
         var card = document.querySelector('a.card[href="' + row[0] + '"]');
         if (!card || card.classList.contains("done")) return;
